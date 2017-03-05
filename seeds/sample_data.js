@@ -7,11 +7,11 @@ exports.seed = function (knex, Promise) {
           // Inserts seed entries
           knex('queries').insert({
             query_id: 1,
-            query: 'sql=SELECT * FROM pol_incidents_part1_part2 WHERE dispatch_date_time >= current_date'
+            query: 'q=SELECT * FROM pol_incidents_part1_part2 WHERE dispatch_date_time >= current_date'
           }),
           knex('queries').insert({
             query_id: 2,
-            query: 'sql=SELECT * FROM li_clean_seal WHERE actiondate >= current_date - 1'
+            query: 'q=SELECT * FROM li_clean_seal WHERE actiondate >= current_date - 1'
           })
         ])
       }),
