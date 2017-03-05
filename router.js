@@ -11,7 +11,7 @@ module.exports = serverRouter([
       get: (req, res, params) => {
         getService(params.service)
           .catch((error) => {
-            res.writeHead(404);
+            res.writeHead(404)
             res.end(error)
           })
           .then((service) => {
@@ -27,14 +27,16 @@ module.exports = serverRouter([
       get: (req, res, params) => {
         getService(params.service)
           .catch((error) => {
-            res.writeHead(404);
+            res.writeHead(404)
             res.end(error)
           })
           .then((service) => {
-            knex('queries').where('service_id', service.service_id).then((rows) => {
-              res.setHeader('Content-Type', 'application/json')
-              res.end(JSON.stringify(rows))
-            })
+            knex('queries')
+              .where('service_id', service.service_id)
+              .then((rows) => {
+                res.setHeader('Content-Type', 'application/json')
+                res.end(JSON.stringify(rows))
+              })
           })
       }
     }
@@ -45,20 +47,23 @@ module.exports = serverRouter([
       get: (req, res, params) => {
         getService(params.service)
           .catch((error) => {
-            res.writeHead(404);
+            res.writeHead(404)
             res.end(error)
           })
           .then((service) => {
-            knex('queries').where('service_id', service.service_id).innerJoin('subscribers', 'subscribers.query_id', 'queries.query_id').then((rows) => {
-              res.setHeader('Content-Type', 'application/json')
-              res.end(JSON.stringify(rows))
+            knex('queries')
+              .where('service_id', service.service_id)
+              .innerJoin('subscribers', 'subscribers.query_id', 'queries.query_id')
+              .then((rows) => {
+                res.setHeader('Content-Type', 'application/json')
+                res.end(JSON.stringify(rows))
+              })
             })
-          })
       },
       post: (req, res, params) => {
         getService(params.service)
           .catch((error) => {
-            res.writeHead(404);
+            res.writeHead(404)
             res.end(error)
           })
           .then((service) => {
@@ -71,24 +76,27 @@ module.exports = serverRouter([
               }
 
               // try to get existing query
-              knex('queries').where('service_id', service.service_id).where('query', body.query).then((rows) => {
-                if (rows.length) {
-                  createSubscriber(rows[0].query_id, body.email).then((result) => {
-                    res.writeHead(result.created ? 201 : 200)
-                    res.end(`Created subscriber ${result.subscriber_id} for existing query`)
-                  })
-                } else {
-                  knex('queries').insert({
-                    service_id: service.service_id,
-                    query: body.query
-                  }).returning('query_id').then((query_id) => {
-                    createSubscriber(query_id, body.email).then((result) => {
+              knex('queries')
+                .where('service_id', service.service_id)
+                .where('query', body.query)
+                .then((rows) => {
+                  if (rows.length) {
+                    createSubscriber(rows[0].query_id, body.email).then((result) => {
                       res.writeHead(result.created ? 201 : 200)
-                      res.end(`Created subscriber ${result.subscriber_id} for new query ${query_id}`)
+                      res.end(`Created subscriber ${result.subscriber_id} for existing query`)
                     })
-                  })
-                }
-              })
+                  } else {
+                    knex('queries').insert({
+                      service_id: service.service_id,
+                      query: body.query
+                    }).returning('query_id').then((query_id) => {
+                      createSubscriber(query_id, body.email).then((result) => {
+                        res.writeHead(result.created ? 201 : 200)
+                        res.end(`Created subscriber ${result.subscriber_id} for new query ${query_id}`)
+                      })
+                    })
+                  }
+                })
             })
           })
       }
