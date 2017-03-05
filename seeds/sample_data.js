@@ -34,6 +34,11 @@ exports.seed = function (knex, Promise) {
             email: 'c@c.com'
           })
         ])
-      })
+      }),
+    knex('services').del()
+      .then(knex('services').insert({
+        service_id: 1,
+        endpoint: 'https://phl.carto.com/api/v2/sql',
+        template: '{{#each}}'
   ])
 }
