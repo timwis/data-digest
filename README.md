@@ -10,11 +10,11 @@ node module via `npm install --global sqlite3`
 5. Load sample data via `knex seed:run`
 
 ## Schema
-### services
-| service_id | name | slug | endpoint | template |
 
-### queries
-| query_id | service_id | query |
-
-### subscribers
-| subscriber_id | query_id | email | confirmed |
+services    | queries       | subscribers
+------------|---------------|------------
+service_id  | query_id      | subscriber_id
+name        | service_id    | query_id
+slug        | query         | email
+endpoint    |               | confirmed
+template    |               |
