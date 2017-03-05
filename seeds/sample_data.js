@@ -9,7 +9,7 @@ exports.seed = function (knex, Promise) {
             name: 'Crime incidents',
             slug: 'crime-incidents',
             endpoint: 'https://phl.carto.com/api/v2/sql',
-            template: '<h1>Crime incidents</h1>{{#each response}}<li>{{location_block}}</li>{{/each}}'
+            template: '<h1>Crime incidents</h1>{{#each response.rows}}<li>{{location_block}}</li>{{/each}}'
           })
         ])
       }),
@@ -20,7 +20,7 @@ exports.seed = function (knex, Promise) {
           knex('queries').insert({
             query_id: 1,
             service_id: 1,
-            query: 'q=SELECT * FROM pol_incidents_part1_part2 WHERE dispatch_date_time >= current_date'
+            query: 'q=SELECT * FROM pol_incidents_part1_part2 WHERE dispatch_date_time >= \'2017-02-15\''
           }),
           knex('queries').insert({
             query_id: 2,
