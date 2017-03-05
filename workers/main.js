@@ -55,13 +55,15 @@ var consumeRequest = function(subscription) {
     var result = template({response: JSON.parse(body)})
     let transporter = util.getEmailTransporter(process.env.DEBUG);
     for (let email of subscription.emails) {
+      console.log(process.env.DEFAULT_FROM_EMAIL)
       transporter.sendMail({
         from: process.env.DEFAULT_FROM_EMAIL,
         to: [email],
         subject: 'Your crime data',
-        text: result
+        html: result
       }, (err, info) => {
-        console.log(info.message.toString());
+        console.log(err)
+        if (info && info.message) { console.log(info.message.toString()) }
       });
       }
   })
