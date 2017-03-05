@@ -40,8 +40,14 @@ var scheduleRequests = function(queries) {
 }
 
 var queueRequest = function(subscription) {
+  // Queue the desired request. In the future, this may use SQS, RabbitMQ, or
+  // some other full-featured queue. For now, just schedule in the current
+  // thread.
   setTimeout(() => { consumeRequest(subscription) }, 0)
 }
+
+// Consumer Functions
+// ------------------
 
 var consumeRequest = function(subscription) {
   let url = subscription.endpoint + '?' + subscription.query
@@ -50,23 +56,26 @@ var consumeRequest = function(subscription) {
       console.log('error!')
       return;
     }
-
-    var template = handlebars.compile(subscription.template)
-    var result = template({response: JSON.parse(body)})
-    let transporter = util.getEmailTransporter(process.env.DEBUG);
-    for (let email of subscription.emails) {
-      console.log(process.env.DEFAULT_FROM_EMAIL)
-      transporter.sendMail({
-        from: process.env.DEFAULT_FROM_EMAIL,
-        to: [email],
-        subject: 'Your crime data',
-        html: result
-      }, (err, info) => {
-        console.log(err)
-        if (info && info.message) { console.log(info.message.toString()) }
-      });
-      }
+    sendEmail(subscription, body)
   })
+}
+
+var sendEmail = function(subscription, body) {
+  var template = handlebars.compile(subscription.template)
+  var result = template({response: JSON.parse(body)})
+  let transporter = util.getEmailTransporter(process.env.DEBUG);
+  for (let email of subscription.emails) {
+    console.log(process.env.DEFAULT_FROM_EMAIL)
+    transporter.sendMail({
+      from: process.env.DEFAULT_FROM_EMAIL,
+      to: [email],
+      subject: 'Your crime data',
+      html: result
+    }, (err, info) => {
+      console.log(err)
+      if (info && info.message) { console.log(info.message.toString()) }
+    });
+  }
 }
 
 tick();
