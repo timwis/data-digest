@@ -8,9 +8,10 @@ var knex = require('knex')({
     }
 })
 var request = require('request')
+var handlebars = require('handlebars')
+var nodemailer = require('nodemailer')
 
 var tick = function() {
-  // query database to get queries
   knex.from('queries')
     .innerJoin('subscribers', 'queries.query_id', 'subscribers.query_id')
     .innerJoin('services', 'queries.service_id', 'services.service_id')
@@ -27,7 +28,7 @@ var scheduleRequests = function(queries) {
 
   for (query in queries) {
     subscribers = queries[query];
-    emails = _.map(queries, 'email')
+    emails = subscribers.map(query => query.email)
     queueRequest({
       query,
       emails,
@@ -39,25 +40,35 @@ var scheduleRequests = function(queries) {
 }
 
 var queueRequest = function(subscription) {
-  // Schedule the object to be fetched, etc.
   setTimeout(() => { consumeRequest(subscription) }, 0)
 }
 
 var consumeRequest = function(subscription) {
-  //     make request
   let url = subscription.endpoint + '?' + subscription.query
-  console.log(url)
   request(url, function(error, response, body) {
-    if (error) {
-      console.error(error)
+    if (error || response.statusCode !== 200) {
+      console.log('error!')
       return;
     }
 
-    console.log(body)
+    var template = handlebars.compile(subscription.template)
+    var result = template({response: JSON.parse(body)})
+	for (let email of subscription.emails) {
+	  let transporter = nodemailer.createTransport({
+        streamTransport: true,
+        newline: 'unix',
+        buffer: true
+	  });
+	  transporter.sendMail({
+		from: 'subscribeme@example.com',
+		to: [email],
+		subject: 'Your crime data',
+		text: result
+	  }, (err, info) => {
+		console.log(info.message.toString());
+	  });
+    }
   })
-  //     render template using request's data
-  //     send emails to one or more users
-
 }
 
 tick();
