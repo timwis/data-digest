@@ -1,4 +1,4 @@
-# subscribeme
+# subscribeme [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/subscribeme/Lobby)
 Monitors an API for new data and sends digest emails to subscribers.
 
 ## Installation
