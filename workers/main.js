@@ -9,7 +9,7 @@ var knex = require('knex')({
 })
 var request = require('request')
 var handlebars = require('handlebars')
-var nodemailer = require('nodemailer')
+var util = require('../util')
 
 var tick = function() {
   knex.from('queries')
@@ -53,21 +53,17 @@ var consumeRequest = function(subscription) {
 
     var template = handlebars.compile(subscription.template)
     var result = template({response: JSON.parse(body)})
-	for (let email of subscription.emails) {
-	  let transporter = nodemailer.createTransport({
-        streamTransport: true,
-        newline: 'unix',
-        buffer: true
-	  });
-	  transporter.sendMail({
-		from: 'subscribeme@example.com',
-		to: [email],
-		subject: 'Your crime data',
-		text: result
-	  }, (err, info) => {
-		console.log(info.message.toString());
-	  });
-    }
+    let transporter = util.getEmailTransporter(process.env.DEBUG);
+    for (let email of subscription.emails) {
+      transporter.sendMail({
+        from: process.env.DEFAULT_FROM_EMAIL,
+        to: [email],
+        subject: 'Your crime data',
+        text: result
+      }, (err, info) => {
+        console.log(info.message.toString());
+      });
+      }
   })
 }
 
