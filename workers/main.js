@@ -1,17 +1,17 @@
-'use strict'
+const nodeEnv = process.env.NODE_ENV || 'development'
+const dbConfig = require('../knexfile')[nodeEnv]
+const knex = require('knex')(dbConfig)
 
-var _ = require('lodash')
-var knex = require('knex')({
-    dialect: 'sqlite3',
-    connection: {
-        filename: '../dev.sqlite3'
-    }
-})
-var request = require('request')
-var handlebars = require('handlebars')
-var util = require('../util')
+const _ = require('lodash')
+const request = require('request')
+const handlebars = require('handlebars')
+const util = require('../util')
+
+// Scheduler Functions
+// -------------------
 
 var tick = function() {
+  // Pull the subscribers from the database
   knex.from('queries')
     .innerJoin('subscribers', 'queries.query_id', 'subscribers.query_id')
     .innerJoin('services', 'queries.service_id', 'services.service_id')
