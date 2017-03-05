@@ -7,7 +7,7 @@ exports.up = function (knex, Promise) {
       table.string('endpoint')
       table.text('template')
     }),
-    knex.schema.createTableIfNotExists('queries', (table) => {
+    knex.schema.table('queries', (table) => {
       table.integer('service_id').references('services.id')
     })
   ])
