@@ -2,6 +2,7 @@ const nodeEnv = process.env.NODE_ENV || 'development'
 const dbConfig = require('./knexfile')[nodeEnv]
 const knex = require('knex')(dbConfig)
 const serverRouter = require('server-router')
+const jsonBody = require('body/json')
 
 module.exports = serverRouter([
   [
@@ -14,7 +15,79 @@ module.exports = serverRouter([
             res.end(error)
           })
           .then((service) => {
+            res.setHeader('Content-Type', 'application/json')
             res.end(JSON.stringify(service))
+          })
+      }
+    }
+  ],
+  [
+    '/services/:service/queries',
+    {
+      get: (req, res, params) => {
+        getService(params.service)
+          .catch((error) => {
+            res.writeHead(404);
+            res.end(error)
+          })
+          .then((service) => {
+            knex('queries').where('service_id', service.service_id).then((rows) => {
+              res.setHeader('Content-Type', 'application/json')
+              res.end(JSON.stringify(rows))
+            })
+          })
+      }
+    }
+  ],
+  [
+    '/services/:service/subscribers',
+    {
+      get: (req, res, params) => {
+        getService(params.service)
+          .catch((error) => {
+            res.writeHead(404);
+            res.end(error)
+          })
+          .then((service) => {
+            knex('queries').where('service_id', service.service_id).innerJoin('subscribers', 'subscribers.query_id', 'queries.query_id').then((rows) => {
+              res.setHeader('Content-Type', 'application/json')
+              res.end(JSON.stringify(rows))
+            })
+          })
+      },
+      post: (req, res, params) => {
+        getService(params.service)
+          .catch((error) => {
+            res.writeHead(404);
+            res.end(error)
+          })
+          .then((service) => {
+            jsonBody(req, res, (error, body) => {
+              // validate body
+              if (!body.query || !body.email) {
+                res.writeHead(400)
+                res.end('query and email required to create subscriber')
+                return
+              }
+
+              // try to get existing query
+              knex('queries').where('service_id', service.service_id).where('query', body.query).then((rows) => {
+                if (rows.length) {
+                  createSubscriber(rows[0].query_id, body.email).then((subscriber_id) => {
+                    res.end(`Created subscriber ${subscriber_id} for existing query`);
+                  })
+                } else {
+                  knex('queries').insert({
+                    service_id: service.service_id,
+                    query: body.query
+                  }).returning('query_id').then((query_id) => {
+                    createSubscriber(query_id, body.email).then((subscriber_id) => {
+                      res.end(`Created subscriber ${subscriber_id} for new query ${query_id}`);
+                    })
+                  })
+                }
+              })
+            })
           })
       }
     }
@@ -37,5 +110,14 @@ function getService(service) {
         reject(`service "${service}" not found`)
       }
     })
+  })
+}
+
+function createSubscriber(query_id, email) {
+  return new Promise((resolve, reject) => {
+    knex('subscribers').insert({
+      query_id: query_id,
+      email: email
+    }).returning('subscriber_id').then(resolve).catch(reject)
   })
 }
