@@ -3,16 +3,14 @@
   "version": "0.1.0",
   "description": "",
   "main": "index.js",
-  "directories": {
-    "test": "test"
-  },
   "scripts": {
-    "test": "node test/server.spec.js | tap-spec"
+    "test": "ava"
   },
   "keywords": [],
   "author": "timwis <tim@timwis.com>",
   "license": "MIT",
   "dependencies": {
+    "ava": "^0.18.2",
     "body": "^5.1.0",
     "handlebars": "^4.0.6",
     "knex": "^0.12.7",
