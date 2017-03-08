@@ -55,12 +55,12 @@ test('GET to /services/crime-incidents/subscribers returns list of subscribers',
     })
 })
 
-test('POST to /services/crime-incidents/subscribers returns 200', (t) => {
+test('POST to /services/crime-incidents/subscribers returns 201', (t) => {
   t.plan(1)
   request(router)
     .post('/services/crime-incidents/subscribers')
     .send({ email: 'foo@bar.com', query: 'q=test' })
-    .expect(200)
+    .expect(201)
     .end((err, res) => {
       if (err) return t.fail(err)
       t.pass('success')
