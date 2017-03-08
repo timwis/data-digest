@@ -1,79 +1,78 @@
-const test = require('tape')
+const test = require('ava')
 const request = require('supertest')
 
-const router = require('../server/router')
+const server = require('../server/server')
 
-test('GET to /services/unknown returns 404', (t) => {
-  t.plan(1)
-  request(router)
+test.cb('GET to /services/unknown returns 404', (t) => {
+  request(server)
     .get('/services/foo')
     .expect(404)
     .end((err, res) => {
       if (err) return t.fail(err)
       t.pass()
+      t.end()
     })
 })
 
-test('GET to /services/crime-incidents returns service object', (t) => {
-  t.plan(1)
-  request(router)
+test.cb('GET to /services/crime-incidents returns service object', (t) => {
+  request(server)
     .get('/services/crime-incidents')
     .expect(200)
     .expect('Content-type', 'application/json')
     .end((err, res) => {
       if (err) return t.fail(err)
-      t.equal(res.body.slug, 'crime-incidents', 'slug is crime-incidents')
+      t.is(res.body.slug, 'crime-incidents', 'slug is crime-incidents')
+      t.end()
     })
 })
 
-test('GET to /services/crime-incidents/queries returns list of queries', (t) => {
-  t.plan(4)
-  request(router)
+test.cb('GET to /services/crime-incidents/queries returns list of queries', (t) => {
+  request(server)
     .get('/services/crime-incidents/queries')
     .expect(200)
     .expect('Content-type', 'application/json')
     .end((err, res) => {
       if (err) return t.fail(err)
-      t.ok(Array.isArray(res.body), 'response is an array')
-      t.ok(res.body[0].query_id, 'query_id property exists')
-      t.ok(res.body[0].query, 'query property exists')
-      t.ok(res.body[0].service_id, 'service_id property exists')
+      t.true(Array.isArray(res.body), 'response is an array')
+      t.truthy(res.body[0].query_id, 'query_id property exists')
+      t.truthy(res.body[0].query, 'query property exists')
+      t.truthy(res.body[0].service_id, 'service_id property exists')
+      t.end()
     })
 })
 
-test('GET to /services/crime-incidents/subscribers returns list of subscribers', (t) => {
-  t.plan(3)
-  request(router)
+test.cb('GET to /services/crime-incidents/subscribers returns list of subscribers', (t) => {
+  request(server)
     .get('/services/crime-incidents/subscribers')
     .expect(200)
     .expect('Content-type', 'application/json')
     .end((err, res) => {
       if (err) return t.fail(err)
-      t.ok(Array.isArray(res.body), 'response is array')
-      t.ok(res.body[0].subscriber_id, 'subscriber_id property exists')
-      t.ok(res.body[0].email, 'email property exists')
+      t.true(Array.isArray(res.body), 'response is array')
+      t.truthy(res.body[0].subscriber_id, 'subscriber_id property exists')
+      t.truthy(res.body[0].email, 'email property exists')
+      t.end()
     })
 })
 
-test('POST to /services/crime-incidents/subscribers returns 201', (t) => {
-  t.plan(1)
-  request(router)
+test.cb('POST to /services/crime-incidents/subscribers returns 200 or 201', (t) => {
+  request(server)
     .post('/services/crime-incidents/subscribers')
     .send({ email: 'foo@bar.com', query: 'q=test' })
-    .expect(201)
     .end((err, res) => {
       if (err) return t.fail(err)
-      t.pass('success')
+      t.true((res.statusCode === 200 || res.statusCode === 201), 'status code is 200 or 201')
+      t.end()
     })
 })
 
-test('GET to /unknown returns 404', (t) => {
-  t.plan(1)
-  request(router)
+test.cb('GET to /unknown returns 404', (t) => {
+  request(server)
     .get('/unknown')
     .expect(404)
     .end((err, res) => {
       if (err) return t.fail(err)
       t.pass('not found')
+      t.end()
     })
 })
