@@ -73,38 +73,30 @@ app.post('/services/:service/subscribers', postSubscriberSchema, async (req, rep
   }
 })
  
-function getService(service) {
-  return new Promise((resolve, reject) => {
-    knex('services').where('slug', service).then((rows) => {
-      if (rows.length) {
-        resolve(rows[0])
-      } else {
-        reject(`service "${service}" not found`)
-      }
-    })
-  })
+async function getService (service) {
+  const services = await knex('services').where('slug', service)
+  if (!services.length) throw `Service ${service} not found`
+  else return services[0]
 }
 
-function createSubscriber(query_id, email) {
-  return new Promise((resolve, reject) => {
+async function createSubscriber (queryId, email) {
+  const existingSubscribers = await knex('subscribers')
+    .where('query_id', queryId)
+    .where('email', email)
 
-    // check if subscriber exists already
-    knex('subscribers').where('query_id', query_id).where('email', email).then((rows) => {
-      if (rows.length) {
-        resolve({subscriber_id: rows[0].subscriber_id, created: false})
-        return
-      }
-
-      // create subscriber
-      knex('subscribers').insert({
-        query_id: query_id,
-        email: email
-      }).returning('subscriber_id').then((subscriber_id) => resolve({subscriber_id: subscriber_id, created: true})).catch(reject)
-    })
-  })
+  if (existingSubscribers.length) {
+    const subscriberId = existingSubscribers[0].subscriber_id
+    return { subscriber_id: subscriberId, created: false }
+  } else {
+    const subscriberId = await knex('subscribers').insert({
+      query_id: queryId,
+      email: email
+    }).returning('subscriber_id')
+    return { subscriber_id: subscriberId, created: true }
+  }
 }
 
-if (!module.parent) {
+if (!module.parent) { // Only run if called directly, not within tests
   const port = process.env.PORT || '8080'
   app.listen(port, (err) => {
     if (err) throw err
