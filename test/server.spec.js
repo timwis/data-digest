@@ -1,7 +1,7 @@
 const test = require('tape')
 const request = require('supertest')
 
-const router = require('../router')
+const router = require('../server/router')
 
 test('GET to /services/unknown returns 404', (t) => {
   t.plan(1)

@@ -1,5 +1,5 @@
 const nodeEnv = process.env.NODE_ENV || 'development'
-const dbConfig = require('./knexfile')[nodeEnv]
+const dbConfig = require('../knexfile')[nodeEnv]
 const knex = require('knex')(dbConfig)
 const serverRouter = require('server-router')
 const jsonBody = require('body/json')
@@ -58,7 +58,7 @@ module.exports = serverRouter([
                 res.setHeader('Content-Type', 'application/json')
                 res.end(JSON.stringify(rows))
               })
-            })
+          })
       },
       post: (req, res, params) => {
         getService(params.service)
