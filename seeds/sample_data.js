@@ -25,7 +25,7 @@ exports.seed = function (knex, Promise) {
           knex('queries').insert({
             query_id: 2,
             service_id: 1,
-            query: 'q=SELECT * FROM li_clean_seal WHERE actiondate >= current_date - 1'
+            query: 'q=SELECT * FROM li_clean_seal WHERE actdate >= \'2017-02-15\''
           })
         ])
       }),
