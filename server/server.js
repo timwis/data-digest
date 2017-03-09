@@ -2,6 +2,19 @@ const fastify = require('fastify')
 
 module.exports = createServer
 
+if (!module.parent) { // Only run if called directly, not within tests
+  const nodeEnv = process.env.NODE_ENV || 'development'
+  const dbConfig = require('../knexfile')[nodeEnv]
+  const db = require('knex')(dbConfig)
+
+  const app = createServer(db)
+  const port = process.env.PORT || '8080'
+  app.listen(port, (err) => {
+    if (err) throw err
+    console.log(`Server listening on port ${app.server.address().port}`)
+  })
+}
+
 // db -> app
 function createServer (db) {
   const app = fastify()
@@ -97,17 +110,4 @@ function createServer (db) {
       return { subscriber_id: subscriberId, created: true }
     }
   }
-}
-
-if (!module.parent) { // Only run if called directly, not within tests
-  const nodeEnv = process.env.NODE_ENV || 'development'
-  const dbConfig = require('../knexfile')[nodeEnv]
-  const db = require('knex')(dbConfig)
-
-  const app = createServer(db)
-  const port = process.env.PORT || '8080'
-  app.listen(port, (err) => {
-    if (err) throw err
-    console.log(`Server listening on port ${app.server.address().port}`)
-  })
 }
