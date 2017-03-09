@@ -1,6 +1,3 @@
-const nodeEnv = process.env.NODE_ENV || 'development'
-const dbConfig = require('../knexfile')[nodeEnv]
-const db = require('knex')(dbConfig)
 const groupBy = require('lodash/groupBy')
 const map = require('lodash/map')
 const axios = require('axios')
@@ -18,7 +15,12 @@ module.exports = {
   consumeJob
 }
 
-tick(db) // run tick. need to move to its own file.
+if (!module.parent) { // Only run if called directly, not within tests
+  const nodeEnv = process.env.NODE_ENV || 'development'
+  const dbConfig = require('../knexfile')[nodeEnv]
+  const db = require('knex')(dbConfig)
+  tick(db)
+}
 
 async function tick (db) {
   try {

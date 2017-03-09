@@ -1,13 +1,24 @@
 const test = require('ava')
 const find = require('lodash/find')
-
-const nodeEnv = process.env.NODE_ENV || 'development'
-const dbConfig = require('../knexfile')[nodeEnv]
-const db = require('knex')(dbConfig)
+const knex = require('knex')
 
 const {getUniqueQueries} = require('../workers/main')
 
+async function createDatabase () {
+  const db = knex({
+    client: 'sqlite3',
+    connection: { filename: ':memory:' },
+    migrations: { directory: __dirname + '/../migrations' },
+    seeds: {directory: __dirname + '/../seeds' },
+    useNullAsDefault: true
+  })
+  await db.migrate.latest()
+  await db.seed.run()
+  return db
+}
+
 test('getUniqueQueries gets unique queries with all emails', async (t) => {
+  const db = await createDatabase()
   const queries = await getUniqueQueries(db)
 
   t.is(queries.length, 2, 'number of queries') // another test makes this fail
