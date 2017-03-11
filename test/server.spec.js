@@ -66,14 +66,33 @@ test('GET to /services/crime-incidents/subscribers returns list of subscribers',
     })
 })
 
-test('POST to /services/crime-incidents/subscribers returns 200 or 201', async (t) => {
+test('POST to /services/crime-incidents/subscribers returns 201 for new subscription', async (t) => {
   const db = await createDatabase()
   const server = createServer(db)
+  const payload = { // already exists in seed data
+    email: 'foo@foo.foo',
+    url: 'https://phl.carto.com/api/v2/sql?q=SELECT * FROM foo'
+  }
   return request(server)
     .post('/services/crime-incidents/subscribers')
-    .send({ email: 'foo@bar.com', url: 'q=test' })
+    .send(payload)
     .then((res) => {
-      t.true((res.statusCode === 200 || res.statusCode === 201), 'status code is 200 or 201')
+      t.is(res.statusCode, 201, 'status code is 201')
+    })
+})
+
+test('POST to /services/crime-incidents/subscribers returns 200 for existing subscription', async (t) => {
+  const db = await createDatabase()
+  const server = createServer(db)
+  const payload = { // already exists in seed data
+    email: 'a@a.com',
+    url: 'https://phl.carto.com/api/v2/sql?q=SELECT * FROM pol_incidents_part1_part2 WHERE dispatch_date_time >= \'2017-02-15\''
+  }
+  return request(server)
+    .post('/services/crime-incidents/subscribers')
+    .send(payload)
+    .then((res) => {
+      t.is(res.statusCode, 200, 'status code is 200')
     })
 })
 

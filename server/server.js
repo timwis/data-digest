@@ -72,10 +72,11 @@ function createServer (db) {
         const subscriberId = subscriber.subscriber_id
         reply.code(statusCode).send(`Created subscriber ${subscriberId} for existing query`)
       } else {
-        const queryId = await db('queries').insert({
+        const insertedQueryIds = await db('queries').insert({
           service_id: service.service_id,
           url: req.body.url
         }).returning('query_id')
+        const queryId = insertedQueryIds[0]
         const subscriber = await createSubscriber(queryId, req.body.email)
         const statusCode = subscriber.created ? 201 : 200
         const subscriberId = subscriber.subscriber_id
