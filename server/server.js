@@ -72,15 +72,19 @@ function createServer (db) {
         const subscriberId = subscriber.subscriber_id
         reply.code(statusCode).send(`Created subscriber ${subscriberId} for existing query`)
       } else {
-        const insertedQueryIds = await db('queries').insert({
-          service_id: service.service_id,
-          url: req.body.url
-        }).returning('query_id')
-        const queryId = insertedQueryIds[0]
-        const subscriber = await createSubscriber(queryId, req.body.email)
-        const statusCode = subscriber.created ? 201 : 200
-        const subscriberId = subscriber.subscriber_id
-        reply.code(statusCode).send(`Created subscriber ${subscriberId} for new query ${queryId}`)
+        if (isUrlValid(endpoint, url)) {
+          const insertedQueryIds = await db('queries').insert({
+            service_id: service.service_id,
+            url: req.body.url
+          }).returning('query_id')
+          const queryId = insertedQueryIds[0]
+          const subscriber = await createSubscriber(queryId, req.body.email)
+          const statusCode = subscriber.created ? 201 : 200
+          const subscriberId = subscriber.subscriber_id
+          reply.code(statusCode).send(`Created subscriber ${subscriberId} for new query ${queryId}`)
+        } else {
+          reply.code(400).send(`Invalid url`)
+        }
       }
     } catch (err) {
       reply.code(404).send(err)
@@ -110,5 +114,10 @@ function createServer (db) {
       }).returning('subscriber_id')
       return { subscriber_id: subscriberId, created: true }
     }
+  }
+
+  function isUrlValid (endpoint, url) {
+    const regex = new RegExp(endpoint)
+    return regex.test(url)
   }
 }

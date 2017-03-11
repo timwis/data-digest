@@ -96,6 +96,21 @@ test('POST to /services/crime-incidents/subscribers returns 200 for existing sub
     })
 })
 
+test('POST to /services/crime-incidents/subscribers returns 400 for invalid url', async (t) => {
+  const db = await createDatabase()
+  const server = createServer(db)
+  const payload = { // already exists in seed data
+    email: 'foo@bar.com',
+    url: 'https://invalidurl.com'
+  }
+  return request(server)
+    .post('/services/crime-incidents/subscribers')
+    .send(payload)
+    .then((res) => {
+      t.is(res.statusCode, 400, 'status code is 400')
+    })
+})
+
 test('GET to /unknown returns 404', (t) => {
   const server = createServer()
   return request(server)
