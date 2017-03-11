@@ -55,7 +55,7 @@ function createServer (db) {
       service: { type: 'string' }
     },
     payload: {
-      query: { type: 'string' },
+      url: { type: 'string' },
       email: { type: 'string', format: 'email' }
     }
   }
@@ -64,7 +64,7 @@ function createServer (db) {
       const service = await getService(req.params.service)
       const existingQueries = await db('queries')
         .where('service_id', service.service_id)
-        .where('query', req.body.query)
+        .where('url', req.body.url)
       if (existingQueries.length) {
         const queryId = existingQueries[0].query_id
         const subscriber = await createSubscriber(queryId, req.body.email)
@@ -74,7 +74,7 @@ function createServer (db) {
       } else {
         const queryId = await db('queries').insert({
           service_id: service.service_id,
-          query: req.body.query
+          url: req.body.url
         }).returning('query_id')
         const subscriber = await createSubscriber(queryId, req.body.email)
         const statusCode = subscriber.created ? 201 : 200

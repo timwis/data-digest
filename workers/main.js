@@ -36,11 +36,11 @@ async function getUniqueQueries (db) {
       .innerJoin('subscribers', 'queries.query_id', 'subscribers.query_id')
       .innerJoin('services', 'queries.service_id', 'services.service_id')
 
-    const subscribersByQuery = groupBy(subscribers, 'query')
+    const subscribersByQuery = groupBy(subscribers, 'url')
 
-    const queries = map(subscribersByQuery, (subscribers, query) => {
+    const queries = map(subscribersByQuery, (subscribers, url) => {
       return {
-        query,
+        url,
         emails: map(subscribers, 'email'),
         endpoint: subscribers[0].endpoint,
         template: subscribers[0].template

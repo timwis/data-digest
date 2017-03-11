@@ -47,7 +47,7 @@ test('GET to /services/crime-incidents/queries returns list of queries', async (
     .then((res) => {
       t.true(Array.isArray(res.body), 'response is an array')
       t.truthy(res.body[0].query_id, 'query_id property exists')
-      t.truthy(res.body[0].query, 'query property exists')
+      t.truthy(res.body[0].url, 'url property exists')
       t.truthy(res.body[0].service_id, 'service_id property exists')
     })
 })
@@ -71,7 +71,7 @@ test('POST to /services/crime-incidents/subscribers returns 200 or 201', async (
   const server = createServer(db)
   return request(server)
     .post('/services/crime-incidents/subscribers')
-    .send({ email: 'foo@bar.com', query: 'q=test' })
+    .send({ email: 'foo@bar.com', url: 'q=test' })
     .then((res) => {
       t.true((res.statusCode === 200 || res.statusCode === 201), 'status code is 200 or 201')
     })
