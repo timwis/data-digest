@@ -42,6 +42,6 @@ services    | queries       | subscribers
 ------------|---------------|------------
 service_id  | query_id      | subscriber_id
 name        | service_id    | query_id
-slug        | query         | email
+slug        | url           | email
 endpoint    |               | confirmed
 template    |               |

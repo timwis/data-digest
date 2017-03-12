@@ -47,7 +47,7 @@ test('GET to /services/crime-incidents/queries returns list of queries', async (
     .then((res) => {
       t.true(Array.isArray(res.body), 'response is an array')
       t.truthy(res.body[0].query_id, 'query_id property exists')
-      t.truthy(res.body[0].query, 'query property exists')
+      t.truthy(res.body[0].url, 'url property exists')
       t.truthy(res.body[0].service_id, 'service_id property exists')
     })
 })
@@ -66,14 +66,48 @@ test('GET to /services/crime-incidents/subscribers returns list of subscribers',
     })
 })
 
-test('POST to /services/crime-incidents/subscribers returns 200 or 201', async (t) => {
+test('POST to /services/crime-incidents/subscribers returns 201 for new subscription', async (t) => {
   const db = await createDatabase()
   const server = createServer(db)
+  const payload = { // already exists in seed data
+    email: 'foo@foo.foo',
+    url: 'https://phl.carto.com/api/v2/sql?q=SELECT * FROM foo'
+  }
   return request(server)
     .post('/services/crime-incidents/subscribers')
-    .send({ email: 'foo@bar.com', query: 'q=test' })
+    .send(payload)
     .then((res) => {
-      t.true((res.statusCode === 200 || res.statusCode === 201), 'status code is 200 or 201')
+      t.is(res.statusCode, 201, 'status code is 201')
+    })
+})
+
+test('POST to /services/crime-incidents/subscribers returns 200 for existing subscription', async (t) => {
+  const db = await createDatabase()
+  const server = createServer(db)
+  const payload = { // already exists in seed data
+    email: 'a@a.com',
+    url: 'https://phl.carto.com/api/v2/sql?q=SELECT * FROM pol_incidents_part1_part2 WHERE dispatch_date_time >= \'2017-02-15\''
+  }
+  return request(server)
+    .post('/services/crime-incidents/subscribers')
+    .send(payload)
+    .then((res) => {
+      t.is(res.statusCode, 200, 'status code is 200')
+    })
+})
+
+test('POST to /services/crime-incidents/subscribers returns 400 for invalid url', async (t) => {
+  const db = await createDatabase()
+  const server = createServer(db)
+  const payload = { // already exists in seed data
+    email: 'foo@bar.com',
+    url: 'https://invalidurl.com'
+  }
+  return request(server)
+    .post('/services/crime-incidents/subscribers')
+    .send(payload)
+    .then((res) => {
+      t.is(res.statusCode, 400, 'status code is 400')
     })
 })
 
