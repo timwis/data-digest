@@ -1,81 +1,83 @@
-const nodeEnv = process.env.NODE_ENV || 'worker_development'
-const dbConfig = require('../knexfile')[nodeEnv]
-const knex = require('knex')(dbConfig)
-
-const _ = require('lodash')
-const request = require('request')
+const groupBy = require('lodash/groupBy')
+const map = require('lodash/map')
+const axios = require('axios')
 const handlebars = require('handlebars')
-const util = require('../util')
 
-// Scheduler Functions
-// -------------------
+const transporter = require('../util').getEmailTransporter(process.env.DEBUG)
 
-var tick = function() {
-  // Pull the subscribers from the database
-  knex.from('queries')
-    .innerJoin('subscribers', 'queries.query_id', 'subscribers.query_id')
-    .innerJoin('services', 'queries.service_id', 'services.service_id')
-    .then(function(rows) {
-      var queries = _.groupBy(rows, function(q) {
-          return q.query;
-      })
-      scheduleRequests(queries)
-    })
+const emailFrom = process.env.DEFAULT_FROM_EMAIL || 'noreply@noreply.com'
+const emailSubject = 'Your crime data'
+
+module.exports = {
+  tick,
+  getUniqueQueries,
+  queueJob,
+  consumeJob
 }
 
-var scheduleRequests = function(queries) {
-  let query, data, emails, subscribers
+if (!module.parent) { // Only run if called directly, not within tests
+  const nodeEnv = process.env.NODE_ENV || 'development'
+  const dbConfig = require('../knexfile')[nodeEnv]
+  const db = require('knex')(dbConfig)
+  tick(db)
+}
 
-  for (query in queries) {
-    subscribers = queries[query];
-    emails = subscribers.map(query => query.email)
-    queueRequest({
-      query,
-      emails,
-      endpoint: subscribers[0].endpoint,
-      template: subscribers[0].template,
-    })
+async function tick (db) {
+  try {
+    const jobs = await getUniqueQueries(db)
+    jobs.forEach(queueJob)
+  } catch (err) {
+    console.error('Error fetching subscribers')
   }
-
 }
 
-var queueRequest = function(subscription) {
-  // Queue the desired request. In the future, this may use SQS, RabbitMQ, or
+async function getUniqueQueries (db) {
+    const subscribers = await db.from('queries')
+      .innerJoin('subscribers', 'queries.query_id', 'subscribers.query_id')
+      .innerJoin('services', 'queries.service_id', 'services.service_id')
+
+    const subscribersByQuery = groupBy(subscribers, 'query')
+
+    const queries = map(subscribersByQuery, (subscribers, query) => {
+      return {
+        query,
+        emails: map(subscribers, 'email'),
+        endpoint: subscribers[0].endpoint,
+        template: subscribers[0].template
+      }
+    })
+    return queries
+}
+
+function queueJob (job) {
+  // Queue the desired job. In the future, this may use SQS, RabbitMQ, or
   // some other full-featured queue. For now, just schedule in the current
   // thread.
-  setTimeout(() => { consumeRequest(subscription) }, 0)
+  setTimeout(() => { consumeJob(job) }, 0)
 }
 
-// Consumer Functions
-// ------------------
-
-var consumeRequest = function(subscription) {
-  let url = subscription.endpoint + '?' + subscription.query
-  request(url, function(error, response, body) {
-    if (error || response.statusCode !== 200) {
-      console.log('error!')
-      return;
-    }
-    sendEmail(subscription, body)
-  })
-}
-
-var sendEmail = function(subscription, body) {
-  var template = handlebars.compile(subscription.template)
-  var result = template({response: JSON.parse(body)})
-  let transporter = util.getEmailTransporter(process.env.DEBUG);
-  for (let email of subscription.emails) {
-    console.log(process.env.DEFAULT_FROM_EMAIL)
-    transporter.sendMail({
-      from: process.env.DEFAULT_FROM_EMAIL,
-      to: [email],
-      subject: 'Your crime data',
-      html: result
-    }, (err, info) => {
-      console.log(err)
-      if (info && info.message) { console.log(info.message.toString()) }
-    });
+async function consumeJob (job) {
+  const url = job.endpoint + '?' + job.query
+  try {
+    const response = await axios.get(url)
+    const results = await sendEmail(job, response.data)
+    console.log(`Sent ${results.length} emails`)
+    results.forEach((result) => { console.log(result.message.toString()) })
+  } catch (err) { // Not sure this will catch non-200 statusCodes
+    console.error(err)
   }
 }
 
-tick();
+function sendEmail (job, data) { // TODO: pass down transporter as arg
+  const template = handlebars.compile(job.template)
+  const body = template({ response: data })
+  const emailsSent = job.emails.map((email) => {
+    return transporter.sendMail({
+      from: emailFrom,
+      to: [email],
+      subject: emailSubject,
+      html: body
+    })
+  })
+  return Promise.all(emailsSent)
+}

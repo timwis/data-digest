@@ -1,78 +1,85 @@
 const test = require('ava')
 const request = require('supertest')
+const knex = require('knex')
 
-const server = require('../server/server')
+const createServer = require('../server/server')
 
-test.cb('GET to /services/unknown returns 404', (t) => {
-  request(server)
+async function createDatabase () {
+  const db = knex({
+    client: 'sqlite3',
+    connection: { filename: ':memory:' },
+    migrations: { directory: __dirname + '/../migrations' },
+    seeds: {directory: __dirname + '/../seeds' },
+    useNullAsDefault: true
+  })
+  await db.migrate.latest()
+  await db.seed.run()
+  return db
+}
+
+test('GET to /services/unknown returns 404', async (t) => {
+  const db = await createDatabase()
+  const server = createServer(db)
+  return request(server)
     .get('/services/foo')
     .expect(404)
-    .end((err, res) => {
-      if (err) return t.fail(err)
-      t.pass()
-      t.end()
-    })
 })
 
-test.cb('GET to /services/crime-incidents returns service object', (t) => {
-  request(server)
+test('GET to /services/crime-incidents returns service object', async (t) => {
+  const db = await createDatabase()
+  const server = createServer(db)
+  return request(server)
     .get('/services/crime-incidents')
     .expect(200)
     .expect('Content-type', 'application/json')
-    .end((err, res) => {
-      if (err) return t.fail(err)
+    .then((res) => {
       t.is(res.body.slug, 'crime-incidents', 'slug is crime-incidents')
-      t.end()
     })
 })
 
-test.cb('GET to /services/crime-incidents/queries returns list of queries', (t) => {
-  request(server)
+test('GET to /services/crime-incidents/queries returns list of queries', async (t) => {
+  const db = await createDatabase()
+  const server = createServer(db)
+  return request(server)
     .get('/services/crime-incidents/queries')
     .expect(200)
     .expect('Content-type', 'application/json')
-    .end((err, res) => {
-      if (err) return t.fail(err)
+    .then((res) => {
       t.true(Array.isArray(res.body), 'response is an array')
       t.truthy(res.body[0].query_id, 'query_id property exists')
       t.truthy(res.body[0].query, 'query property exists')
       t.truthy(res.body[0].service_id, 'service_id property exists')
-      t.end()
     })
 })
 
-test.cb('GET to /services/crime-incidents/subscribers returns list of subscribers', (t) => {
-  request(server)
+test('GET to /services/crime-incidents/subscribers returns list of subscribers', async (t) => {
+  const db = await createDatabase()
+  const server = createServer(db)
+  return request(server)
     .get('/services/crime-incidents/subscribers')
     .expect(200)
     .expect('Content-type', 'application/json')
-    .end((err, res) => {
-      if (err) return t.fail(err)
+    .then((res) => {
       t.true(Array.isArray(res.body), 'response is array')
       t.truthy(res.body[0].subscriber_id, 'subscriber_id property exists')
       t.truthy(res.body[0].email, 'email property exists')
-      t.end()
     })
 })
 
-test.cb('POST to /services/crime-incidents/subscribers returns 200 or 201', (t) => {
-  request(server)
+test('POST to /services/crime-incidents/subscribers returns 200 or 201', async (t) => {
+  const db = await createDatabase()
+  const server = createServer(db)
+  return request(server)
     .post('/services/crime-incidents/subscribers')
     .send({ email: 'foo@bar.com', query: 'q=test' })
-    .end((err, res) => {
-      if (err) return t.fail(err)
+    .then((res) => {
       t.true((res.statusCode === 200 || res.statusCode === 201), 'status code is 200 or 201')
-      t.end()
     })
 })
 
-test.cb('GET to /unknown returns 404', (t) => {
-  request(server)
+test('GET to /unknown returns 404', (t) => {
+  const server = createServer()
+  return request(server)
     .get('/unknown')
     .expect(404)
-    .end((err, res) => {
-      if (err) return t.fail(err)
-      t.pass('not found')
-      t.end()
-    })
 })
