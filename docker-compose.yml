@@ -1,0 +1,30 @@
+version: '2'
+services:
+  db:
+    image: postgres
+    ports:
+      - '5433:5432'
+
+  scheduler:
+    depends_on:
+      - db
+    image: node:9-alpine
+    user: node
+    working_dir: /home/node/app
+    volumes:
+      - ./:/home/node/app
+    command: npm run scheduler
+    environment:
+      DATABASE_URL: postgres://postgres:pwd@db:5432/postgres
+
+  bootstrap:
+    depends_on:
+      - db
+    image: node:9-alpine
+    user: node
+    working_dir: /home/node/app
+    volumes:
+      - ./:/home/node/app
+    command: npm run bootstrap
+    environment:
+      DATABASE_URL: postgres://postgres:pwd@db:5432/postgres
