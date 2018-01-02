@@ -1,4 +1,6 @@
 const nodemailer = require('nodemailer')
+const parseMessyTime = require('parse-messy-time')
+const formatDate = require('date-fns/format')
 
 const getEmailTransporter = function (stream) {
   if (stream) {
@@ -20,6 +22,13 @@ const getEmailTransporter = function (stream) {
   }
 }
 
+const formatDateHelper = function (dateString, dateFormat) {
+  const parsedDate = parseMessyTime(dateString)
+  const formattedDate = formatDate(parsedDate, dateFormat)
+  return formattedDate
+}
+
 module.exports = {
-  getEmailTransporter
+  getEmailTransporter,
+  formatDateHelper
 }
