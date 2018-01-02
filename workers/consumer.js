@@ -1,8 +1,9 @@
 const axios = require('axios')
 const handlebars = require('handlebars')
 const Tortoise = require('tortoise')
-const { getEmailTransporter } = require('../util')
+const { getEmailTransporter, formatDateHelper } = require('../util')
 
+handlebars.registerHelper('formatDate', formatDateHelper)
 const DEBUG = (process.env.NODE_ENV !== 'production')
 const transporter = getEmailTransporter(DEBUG)
 const RABBITMQ_URL = process.env.RABBITMQ_URL
@@ -23,7 +24,8 @@ if (!module.parent) { // Only run if called directly, not within tests
 
 async function consumeJob (job, ack, nack) {
   try {
-    const response = await axios.get(job.url)
+    const url = handlebars.compile(job.url)()
+    const response = await axios.get(url)
     const results = await sendEmail(job, response.data)
     console.log(`Sent ${results.length} emails`)
     results.forEach((result) => { console.log(result.message.toString()) })

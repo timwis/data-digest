@@ -21,12 +21,12 @@ exports.seed = async function (knex) {
     {
       id: 1,
       service_id: 1,
-      url: `https://phl.carto.com/api/v2/sql?q=SELECT * FROM incidents_part1_part2 WHERE dc_dist = '24' AND dispatch_date >= '2017-12-31'`
+      url: `https://phl.carto.com/api/v2/sql?q=SELECT * FROM incidents_part1_part2 WHERE dc_dist = '24' AND dispatch_date >= '{{formatDate 'yesterday' 'YYYY-MM-DD'}}'`
     },
     {
       id: 2,
       service_id: 1,
-      url: `https://phl.carto.com/api/v2/sql?q=SELECT * FROM incidents_part1_part2 WHERE dc_dist = '25' AND dispatch_date >= '2017-12-31'`
+      url: `https://phl.carto.com/api/v2/sql?q=SELECT * FROM incidents_part1_part2 WHERE dc_dist = '25' AND dispatch_date >= '{{formatDate 'yesterday' 'YYYY-MM-DD'}}'`
     }
   ])
 
