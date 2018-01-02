@@ -44,11 +44,16 @@ function sendEmail (job, data) { // TODO: pass down transporter as arg
   const body = bodyTemplate({ response: data })
 
   const emailsSent = job.emails.map((email) => {
-    transporter.sendMail({
-      from: emailFrom,
-      to: [email],
-      subject: subject,
-      html: body
+    return new Promise((resolve, reject) => {
+      transporter.sendMail({
+        from: emailFrom,
+        to: [email],
+        subject: subject,
+        html: body
+      }, (err, info) => {
+        if (err) reject(err)
+        else resolve(info)
+      })
     })
   })
   return Promise.all(emailsSent)
