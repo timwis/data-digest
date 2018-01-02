@@ -20,7 +20,9 @@ const getEmailTransporter = function (stream) {
         domain: MAILGUN_DOMAIN
       }
     }
-    return pify(nodemailer.createTransport(mailgun(config)))
+    return pify(nodemailer.createTransport(mailgun(config)), {
+      include: ['sendMail']
+    })
   }
 }
 
