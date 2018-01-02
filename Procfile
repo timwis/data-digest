@@ -1,3 +1,4 @@
+release: npm run db:migrate
 consumer: npm run consumer
 scheduler: npm run scheduler
-bootstrap: npm run bootstrap
+seed: npm run db:seed
