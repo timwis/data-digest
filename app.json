@@ -2,6 +2,11 @@
   "name": "subscribeme",
   "description": "",
   "repository": "https://github.com/timwis/subscribeme",
+  "formation": {
+    "consumer": {
+      "quantity": 1
+    }
+  },
   "addons": [
     "heroku-postgresql:hobby-dev",
     "rabbitmq-bigwig:pipkin",
