@@ -4,10 +4,7 @@
   "repository": "https://github.com/timwis/subscribeme",
   "addons": [
     "heroku-postgresql:hobby-dev",
-    "mailgun:starter",
-    {
-      "plan": "rabbitmq-bigwig:pipkin",
-      "as": "RABBITMQ"
-    }
+    "rabbitmq-bigwig:pipkin",
+    "mailgun:starter"
   ]
 }

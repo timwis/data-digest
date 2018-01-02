@@ -6,7 +6,7 @@ const { getEmailTransporter, formatDateHelper } = require('../util')
 handlebars.registerHelper('formatDate', formatDateHelper)
 const DEBUG = (process.env.NODE_ENV !== 'production')
 const transporter = getEmailTransporter(DEBUG)
-const RABBITMQ_URL = process.env.RABBITMQ_URL
+const RABBITMQ_URL = process.env.RABBITMQ_URL || process.env.RABBITMQ_BIGWIG_URL
 const emailFrom = process.env.DEFAULT_FROM_EMAIL || 'noreply@noreply.com'
 
 module.exports = {

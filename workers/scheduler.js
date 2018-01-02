@@ -3,7 +3,8 @@ const map = require('lodash/map')
 const knex = require('knex')
 const Tortoise = require('tortoise')
 
-const { NODE_ENV, RABBITMQ_URL } = process.env
+const NODE_ENV = process.env.NODE_ENV
+const RABBITMQ_URL = process.env.RABBITMQ_URL || process.env.RABBITMQ_BIGWIG_URL
 const dbConfig = require('../knexfile')[NODE_ENV || 'development']
 
 module.exports = {
