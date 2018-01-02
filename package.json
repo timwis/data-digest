@@ -27,6 +27,7 @@
     "npm-run-all": "^4.1.2",
     "parse-messy-time": "^2.1.0",
     "pg": "^7.4.0",
+    "pify": "^3.0.0",
     "redis": "^2.6.3",
     "sqlite3": "^3.1.8",
     "tortoise": "^1.0.1"

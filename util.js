@@ -2,6 +2,7 @@ const nodemailer = require('nodemailer')
 const parseMessyTime = require('parse-messy-time')
 const formatDate = require('date-fns/format')
 const mailgun = require('nodemailer-mailgun-transport')
+const pify = require('pify')
 
 const { MAILGUN_API_KEY, MAILGUN_DOMAIN } = process.env
 
@@ -19,7 +20,7 @@ const getEmailTransporter = function (stream) {
         domain: MAILGUN_DOMAIN
       }
     }
-    return nodemailer.createTransport(mailgun(config))
+    return pify(nodemailer.createTransport(mailgun(config)))
   }
 }
 
