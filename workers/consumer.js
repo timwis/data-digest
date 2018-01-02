@@ -1,5 +1,6 @@
 const axios = require('axios')
 const handlebars = require('handlebars')
+const Tortoise = require('tortoise')
 
 const transporter = require('../util').getEmailTransporter(process.env.DEBUG)
 
@@ -12,6 +13,16 @@ module.exports = {
 
 if (!module.parent) { // Only run if called directly, not within tests
   console.log('consuming jobs')
+  const RABBITMQ_URL = process.env.RABBITMQ_URL
+  const tortoise = new Tortoise(RABBITMQ_URL)
+  tortoise
+    .queue('queries')
+    .prefetch(1)
+    .json()
+    .subscribe((msg, ack) => {
+      console.log('received', msg)
+      ack()
+    })
 }
 
 async function consumeJob (job) {

@@ -8,6 +8,7 @@ services:
   scheduler:
     depends_on:
       - db
+      - queue
     image: node:9-alpine
     user: node
     working_dir: /home/node/app
@@ -16,6 +17,7 @@ services:
     command: npm run scheduler
     environment:
       DATABASE_URL: postgres://postgres:pwd@db:5432/postgres
+      RABBITMQ_URL: amqp://queue
 
   bootstrap:
     depends_on:
@@ -28,3 +30,18 @@ services:
     command: npm run bootstrap
     environment:
       DATABASE_URL: postgres://postgres:pwd@db:5432/postgres
+
+  queue:
+    image: rabbitmq:3
+
+  consumer:
+    depends_on:
+      - queue
+    image: node:9-alpine
+    user: node
+    working_dir: /home/node/app
+    volumes:
+      - ./:/home/node/app
+    command: npm run consumer
+    environment:
+      RABBITMQ_URL: amqp://queue

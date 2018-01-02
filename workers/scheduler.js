@@ -1,23 +1,31 @@
 const groupBy = require('lodash/groupBy')
 const map = require('lodash/map')
+const Tortoise = require('tortoise')
 
 module.exports = {
   tick,
-  getUniqueQueries,
-  queueJob
+  getUniqueQueries
 }
 
 if (!module.parent) { // Only run if called directly, not within tests
   const nodeEnv = process.env.NODE_ENV || 'development'
   const dbConfig = require('../knexfile')[nodeEnv]
   const db = require('knex')(dbConfig)
-  tick(db).then(() => db.destroy())
+  const RABBITMQ_URL = process.env.RABBITMQ_URL
+  const tortoise = new Tortoise(RABBITMQ_URL)
+  const queue = tortoise.queue('queries')
+  tick(db, queue).then(() => {
+    db.destroy()
+    tortoise.destroy()
+    process.exit() // HACK: tortoise/queue hangs
+  })
 }
 
-async function tick (db) {
+async function tick (db, queue) {
   try {
     const jobs = await getUniqueQueries(db)
-    jobs.forEach(queueJob)
+    const publishPromises = jobs.map(queue.publish)
+    await Promise.all(publishPromises)
   } catch (err) {
     console.error('Error fetching subscribers')
   }
@@ -38,8 +46,4 @@ async function getUniqueQueries (db) {
     }
   })
   return queries
-}
-
-function queueJob (job) {
-  console.log(job)
 }

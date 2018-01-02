@@ -6,6 +6,7 @@
   "scripts": {
     "test": "ava",
     "scheduler": "node workers/scheduler",
+    "consumer": "node workers/consumer",
     "bootstrap": "run-s db:*",
     "db:migrate": "knex migrate:latest --env development",
     "db:seed": "knex seed:run --env development"
@@ -24,7 +25,8 @@
     "npm-run-all": "^4.1.2",
     "pg": "^7.4.0",
     "redis": "^2.6.3",
-    "sqlite3": "^3.1.8"
+    "sqlite3": "^3.1.8",
+    "tortoise": "^1.0.1"
   },
   "devDependencies": {
     "supertest": "^3.0.0",
