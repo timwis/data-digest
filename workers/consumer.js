@@ -28,7 +28,7 @@ async function consumeJob (job, ack, nack) {
     const response = await axios.get(url)
     const results = await sendEmail(job, response.data)
     console.log(`Sent ${results.length} emails`)
-    results.forEach((result) => { console.log(result.message.toString()) })
+    results.forEach((result) => { console.log(result) }) // .message.toString()) })
     ack()
   } catch (err) { // Not sure this will catch non-200 statusCodes
     console.error(err)
