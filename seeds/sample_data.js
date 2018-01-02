@@ -10,7 +10,7 @@ exports.seed = async function (knex) {
       <h1>Crime incidents</h1>
       <ul>
       {{#each response.rows}}
-        <li>{{location_block}}</li>
+        <li>{{text_general_code}} on {{location_block}}</li>
       {{/each}}
       </ul>
     `
@@ -21,12 +21,12 @@ exports.seed = async function (knex) {
     {
       id: 1,
       service_id: 1,
-      url: 'https://phl.carto.com/api/v2/sql?q=SELECT * FROM incidents_part1_part2 WHERE dc_dist = 1 AND dispatch_date_time >= \'2017-12-31\''
+      url: `https://phl.carto.com/api/v2/sql?q=SELECT * FROM incidents_part1_part2 WHERE dc_dist = '24' AND dispatch_date >= '2017-12-31'`
     },
     {
       id: 2,
       service_id: 1,
-      url: 'https://phl.carto.com/api/v2/sql?q=SELECT * FROM incidents_part1_part2 WHERE dc_dist = 2 AND dispatch_date_time >= \'2017-12-31\''
+      url: `https://phl.carto.com/api/v2/sql?q=SELECT * FROM incidents_part1_part2 WHERE dc_dist = '25' AND dispatch_date >= '2017-12-31'`
     }
   ])
 

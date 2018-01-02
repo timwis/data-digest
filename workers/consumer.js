@@ -23,9 +23,8 @@ if (!module.parent) { // Only run if called directly, not within tests
 
 async function consumeJob (job, ack, nack) {
   try {
-    // const response = await axios.get(job.url)
-    const response = require('../test/fixtures/incidents_fixture.json')
-    const results = await sendEmail(job, response)
+    const response = await axios.get(job.url)
+    const results = await sendEmail(job, response.data)
     console.log(`Sent ${results.length} emails`)
     results.forEach((result) => { console.log(result.message.toString()) })
     ack()
