@@ -1,6 +1,10 @@
 const groupBy = require('lodash/groupBy')
 const map = require('lodash/map')
+const knex = require('knex')
 const Tortoise = require('tortoise')
+
+const { NODE_ENV, RABBITMQ_URL } = process.env
+const dbConfig = require('../knexfile')[NODE_ENV || 'development']
 
 module.exports = {
   tick,
@@ -8,10 +12,7 @@ module.exports = {
 }
 
 if (!module.parent) { // Only run if called directly, not within tests
-  const nodeEnv = process.env.NODE_ENV || 'development'
-  const dbConfig = require('../knexfile')[nodeEnv]
-  const db = require('knex')(dbConfig)
-  const RABBITMQ_URL = process.env.RABBITMQ_URL
+  const db = knex(dbConfig)
   const tortoise = new Tortoise(RABBITMQ_URL)
   const queue = tortoise.queue('queries')
   tick(db, queue).then(() => {
@@ -42,7 +43,8 @@ async function getUniqueQueries (db) {
     return {
       url,
       emails: map(subscribers, 'email'),
-      template: subscribers[0].template
+      subjectTemplate: subscribers[0].subject_template,
+      bodyTemplate: subscribers[0].body_template
     }
   })
   return queries

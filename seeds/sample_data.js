@@ -5,7 +5,15 @@ exports.seed = async function (knex) {
     name: 'Crime incidents',
     slug: 'crime-incidents',
     endpoint: 'https:\\/\\/phl.carto.com\\/api\\/v2\\/sql\\?q=.+',
-    template: '<h1>Crime incidents</h1>{{#each response.rows}}<li>{{location_block}}</li>{{/each}}'
+    subject_template: '{{response.rows.length}} crimes',
+    body_template: `
+      <h1>Crime incidents</h1>
+      <ul>
+      {{#each response.rows}}
+        <li>{{location_block}}</li>
+      {{/each}}
+      </ul>
+    `
   })
 
   await knex('queries').del()
@@ -13,12 +21,12 @@ exports.seed = async function (knex) {
     {
       id: 1,
       service_id: 1,
-      url: 'https://phl.carto.com/api/v2/sql?q=SELECT * FROM pol_incidents_part1_part2 WHERE dispatch_date_time >= \'2017-02-15\''
+      url: 'https://phl.carto.com/api/v2/sql?q=SELECT * FROM incidents_part1_part2 WHERE dc_dist = 1 AND dispatch_date_time >= \'2017-12-31\''
     },
     {
       id: 2,
       service_id: 1,
-      url: 'https://phl.carto.com/api/v2/sql?q=SELECT * FROM li_clean_seal WHERE actdate >= \'2017-02-15\''
+      url: 'https://phl.carto.com/api/v2/sql?q=SELECT * FROM incidents_part1_part2 WHERE dc_dist = 2 AND dispatch_date_time >= \'2017-12-31\''
     }
   ])
 

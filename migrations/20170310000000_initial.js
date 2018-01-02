@@ -5,7 +5,8 @@ exports.up = function (knex) {
       table.string('name')
       table.string('slug')
       table.string('endpoint')
-      table.text('template')
+      table.string('subject_template')
+      table.text('body_template')
     })
     .createTable('queries', (table) => {
       table.increments('id').primary()
