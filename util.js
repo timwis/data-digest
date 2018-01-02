@@ -1,6 +1,9 @@
 const nodemailer = require('nodemailer')
 const parseMessyTime = require('parse-messy-time')
 const formatDate = require('date-fns/format')
+const mailgun = require('nodemailer-mailgun-transport')
+
+const MAILGUN_API_KEY = process.env.MAILGUN_API_KEY
 
 const getEmailTransporter = function (stream) {
   if (stream) {
@@ -10,15 +13,12 @@ const getEmailTransporter = function (stream) {
       buffer: true
     })
   } else {
-    return nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: process.env.EMAIL_PORT,
-      // secure: true,
+    const config = {
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
+        api_key: MAILGUN_API_KEY
       }
-    })
+    }
+    return nodemailer.createTransport(mailgun(config))
   }
 }
 
