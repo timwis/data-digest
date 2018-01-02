@@ -51,9 +51,13 @@ function sendEmail (job, data) { // TODO: pass down transporter as arg
         subject: subject,
         html: body
       }, (err, info) => {
-        console.log('sendMail', info)
-        if (err) reject(err)
-        else resolve(info)
+        if (err) {
+          console.error('sendMail error', err)
+          reject(err)
+        } else {
+          console.log('sendMail success', info)
+          resolve(info)
+        }
       })
     })
   })
