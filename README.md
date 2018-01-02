@@ -1,4 +1,4 @@
-# subscribeme [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/subscribeme/Lobby)
+# subscribeme [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/subscribeme/Lobby) [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 Monitors an API for new data and sends digest emails to subscribers.
 
 SubscribeMe is meant to be a service for developers who want to let their users
@@ -8,7 +8,7 @@ emails, and worrying about how it will scale. Using SubscribeMe, developers can
 simply specify the data source's API, configure an email template, and add a
 "subscribe" button to their application.
 
-## How it [will] work~~s~~
+## How it works
 SubscribeMe's database has a `services` table. A service is a data source being
 subscribed to. The developer will configure their service, specifying the
 base endpoint (ie. `https://phl.carto.com/api/v2/sql`) and an email digest template

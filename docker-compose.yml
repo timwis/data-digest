@@ -30,6 +30,7 @@ services:
     command: npm run bootstrap
     environment:
       DATABASE_URL: postgres://postgres:pwd@db:5432/postgres
+      NODE_ENV: development
 
   queue:
     image: rabbitmq:3

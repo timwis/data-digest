@@ -8,8 +8,8 @@
     "scheduler": "node workers/scheduler",
     "consumer": "node workers/consumer",
     "bootstrap": "run-s db:*",
-    "db:migrate": "knex migrate:latest --env development",
-    "db:seed": "knex seed:run --env development"
+    "db:migrate": "knex migrate:latest",
+    "db:seed": "knex seed:run"
   },
   "keywords": [],
   "author": "timwis <tim@timwis.com>",
