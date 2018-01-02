@@ -29,6 +29,7 @@ async function tick (db, queue) {
     await Promise.all(publishPromises)
   } catch (err) {
     console.error('Error fetching subscribers')
+    console.error(err)
   }
 }
 
