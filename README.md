@@ -1,4 +1,4 @@
-# subscribeme [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/subscribeme/Lobby) [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+# subscribeme [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/subscribeme/Lobby) 
 Monitors an API for new data and sends digest emails to subscribers.
 
 SubscribeMe is meant to be a service for developers who want to let their users
@@ -50,3 +50,21 @@ Start consumer
 
 Run scheduler
 > `docker-compose run --rm scheduler`
+
+## Deployment
+Deploy application to heroku
+> [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
+In the heroku dashboard of the deployed application, click the **MailGun** logo.
+
+Alternatively, use the [heroku cli](https://devcenter.heroku.com/articles/heroku-cli) to get to your MailGun dashboard.
+> `heroku addons:open mailgun`
+
+Add and verify a domain to send email from, or add and verify individual authorized recipients
+> there isn't really a command to show for this step...
+
+Load seed data into your database
+> `heroku run seed`
+
+Run the scheduler (or set it up using the scheduler add-on)
+> `heroku run scheduler`
