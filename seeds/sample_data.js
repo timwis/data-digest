@@ -35,17 +35,17 @@ exports.seed = async function (knex) {
     {
       id: 1,
       query_id: 1,
-      email: 'a@a.com'
+      email: 'subscribeme-a@mailinator.com'
     },
     {
       id: 2,
       query_id: 1,
-      email: 'b@b.com'
+      email: 'subscribeme-b@mailinator.com'
     },
     {
       id: 3,
       query_id: 2,
-      email: 'c@c.com'
+      email: 'subscribeme-c@mailinator.com'
     }
   ])
 }

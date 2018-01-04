@@ -6,7 +6,7 @@ const { getEmailTransporter, formatDateHelper } = require('../util')
 handlebars.registerHelper('formatDate', formatDateHelper)
 const DEBUG = (process.env.NODE_ENV !== 'production')
 const transporter = getEmailTransporter(DEBUG)
-const RABBITMQ_URL = process.env.RABBITMQ_URL
+const RABBITMQ_URL = process.env.RABBITMQ_URL || process.env.RABBITMQ_BIGWIG_URL
 const emailFrom = process.env.DEFAULT_FROM_EMAIL || 'noreply@noreply.com'
 
 module.exports = {
@@ -17,6 +17,7 @@ if (!module.parent) { // Only run if called directly, not within tests
   const tortoise = new Tortoise(RABBITMQ_URL)
   tortoise
     .queue('queries')
+    .dead('exchange.dead', 'queue.dead')
     .prefetch(1)
     .json()
     .subscribe(consumeJob)
@@ -28,11 +29,12 @@ async function consumeJob (job, ack, nack) {
     const response = await axios.get(url)
     const results = await sendEmail(job, response.data)
     console.log(`Sent ${results.length} emails`)
-    results.forEach((result) => { console.log(result.message.toString()) })
+    results.forEach((result) => { console.log(result) }) // .message.toString()) })
     ack()
   } catch (err) { // Not sure this will catch non-200 statusCodes
     console.error(err)
-    nack()
+    const requeue = false
+    nack(requeue)
   }
 }
 
@@ -44,11 +46,16 @@ function sendEmail (job, data) { // TODO: pass down transporter as arg
   const body = bodyTemplate({ response: data })
 
   const emailsSent = job.emails.map((email) => {
-    return transporter.sendMail({
-      from: emailFrom,
-      to: [email],
-      subject: subject,
-      html: body
+    return new Promise((resolve, reject) => {
+      transporter.sendMail({
+        from: emailFrom,
+        to: [email],
+        subject: subject,
+        html: body
+      }, (err, info) => {
+        if (err) reject(err)
+        else resolve(info)
+      })
     })
   })
   return Promise.all(emailsSent)

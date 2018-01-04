@@ -3,7 +3,8 @@ const map = require('lodash/map')
 const knex = require('knex')
 const Tortoise = require('tortoise')
 
-const { NODE_ENV, RABBITMQ_URL } = process.env
+const NODE_ENV = process.env.NODE_ENV
+const RABBITMQ_URL = process.env.RABBITMQ_URL || process.env.RABBITMQ_BIGWIG_URL
 const dbConfig = require('../knexfile')[NODE_ENV || 'development']
 
 module.exports = {
@@ -15,6 +16,8 @@ if (!module.parent) { // Only run if called directly, not within tests
   const db = knex(dbConfig)
   const tortoise = new Tortoise(RABBITMQ_URL)
   const queue = tortoise.queue('queries')
+  queue.dead('exchange.dead', 'queue.dead')
+
   tick(db, queue).then(() => {
     db.destroy()
     tortoise.destroy()
@@ -29,6 +32,7 @@ async function tick (db, queue) {
     await Promise.all(publishPromises)
   } catch (err) {
     console.error('Error fetching subscribers')
+    console.error(err)
   }
 }
 

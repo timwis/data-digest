@@ -1,4 +1,4 @@
-# subscribeme [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/subscribeme/Lobby)
+# subscribeme [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/subscribeme/Lobby) 
 Monitors an API for new data and sends digest emails to subscribers.
 
 SubscribeMe is meant to be a service for developers who want to let their users
@@ -8,7 +8,7 @@ emails, and worrying about how it will scale. Using SubscribeMe, developers can
 simply specify the data source's API, configure an email template, and add a
 "subscribe" button to their application.
 
-## How it [will] work~~s~~
+## How it works
 SubscribeMe's database has a `services` table. A service is a data source being
 subscribed to. The developer will configure their service, specifying the
 base endpoint (ie. `https://phl.carto.com/api/v2/sql`) and an email digest template
@@ -28,14 +28,6 @@ Since many APIs don't let you filter by date, though, the goal is for
 SubscribeMe to determine whether each record has been sent out before and only
 send new ones (similar to how RSS readers work).
 
-## Installation
-1. Clone this repository
-2. Install [Knex.js](http://knexjs.org/) via `npm install --global knex`
-3. For development, install the [sqlite3](https://www.npmjs.com/package/sqlite3)
-node module via `npm install --global sqlite3`
-4. Run migrations via `knex migrate:latest`
-5. Load sample data via `knex seed:run`
-
 ## Schema
 
 services    | queries       | subscribers
@@ -45,3 +37,37 @@ name        | service_id    | query_id
 slug        | url           | email
 endpoint    |               | confirmed
 template    |               |
+
+## Development
+Start database and queue
+> `docker-compose up db queue`
+
+Run migrations and load seed data
+> `docker-compose run --rm bootstrap`
+
+Start consumer
+> `docker-compose run --rm consumer`
+
+Run scheduler
+> `docker-compose run --rm scheduler`
+
+## Deployment
+Deploy application to heroku
+> [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
+In the heroku dashboard of the deployed application, click the **MailGun** logo.
+
+Alternatively, use the [heroku cli](https://devcenter.heroku.com/articles/heroku-cli) to get to your MailGun dashboard.
+> `heroku addons:open mailgun`
+
+Add and verify a domain to send email from, or add and verify individual authorized recipients
+> there isn't really a command to show for this step...
+
+If you added your own domain to mailgun, change the `MAILGUN_DOMAIN` environment variable in your heroku app.
+> `heroku config:set MAILGUN_DOMAIN=yourdomain.com`
+
+Load seed data into your database
+> `heroku run seed`
+
+Run the scheduler (or set it up using the scheduler add-on)
+> `heroku run scheduler`
