@@ -28,14 +28,6 @@ Since many APIs don't let you filter by date, though, the goal is for
 SubscribeMe to determine whether each record has been sent out before and only
 send new ones (similar to how RSS readers work).
 
-## Installation
-1. Clone this repository
-2. Install [Knex.js](http://knexjs.org/) via `npm install --global knex`
-3. For development, install the [sqlite3](https://www.npmjs.com/package/sqlite3)
-node module via `npm install --global sqlite3`
-4. Run migrations via `knex migrate:latest`
-5. Load sample data via `knex seed:run`
-
 ## Schema
 
 services    | queries       | subscribers
@@ -45,3 +37,16 @@ name        | service_id    | query_id
 slug        | url           | email
 endpoint    |               | confirmed
 template    |               |
+
+## Development
+Start database and queue
+> `docker-compose up db queue`
+
+Run migrations and load seed data
+> `docker-compose run --rm bootstrap`
+
+Start consumer
+> `docker-compose run --rm consumer`
+
+Run scheduler
+> `docker-compose run --rm scheduler`
