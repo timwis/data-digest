@@ -17,6 +17,7 @@ if (!module.parent) { // Only run if called directly, not within tests
   const tortoise = new Tortoise(RABBITMQ_URL)
   tortoise
     .queue('queries')
+    .dead('exchange.dead', 'queue.dead')
     .prefetch(1)
     .json()
     .subscribe(consumeJob)
@@ -32,7 +33,8 @@ async function consumeJob (job, ack, nack) {
     ack()
   } catch (err) { // Not sure this will catch non-200 statusCodes
     console.error(err)
-    nack()
+    const requeue = false
+    nack(requeue)
   }
 }
 

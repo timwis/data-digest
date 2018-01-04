@@ -16,6 +16,8 @@ if (!module.parent) { // Only run if called directly, not within tests
   const db = knex(dbConfig)
   const tortoise = new Tortoise(RABBITMQ_URL)
   const queue = tortoise.queue('queries')
+  queue.dead('exchange.dead', 'queue.dead')
+
   tick(db, queue).then(() => {
     db.destroy()
     tortoise.destroy()
