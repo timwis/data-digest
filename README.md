@@ -10,15 +10,15 @@ simply specify the data source's API, configure an email template, and add a
 
 ## How it works
 SubscribeMe's database has a `services` table. A service is a data source being
-subscribed to. The developer will configure their service, specifying the
-base endpoint (ie. `https://phl.carto.com/api/v2/sql`) and an email digest template
-(using [handlebars](http://handlebarsjs.com/) to inject the data).
+subscribed to. The developer will configure their service, specifying the valid
+URL pattern via regex (ie. `https:\/\/data.com\/datasets\/[A-Za-z0-9]\.json`)
+and an email digest template (using [handlebars](http://handlebarsjs.com/) to
+inject the data).
 
 The developer can then add a 'subscribe' form to their application for users to
 fill in their email address. On submission, the form should send a `POST`
-request to their SubscribeMe service containing the email address and the query
-being subscribed to (ie. `?q=SELECT * FROM crimes WHERE district = 12 AND date =
-current_date`).
+request to their SubscribeMe service containing the email address and the url
+being subscribed to (ie. `https://data.com/datasets/crimes.json?date={{ formatDate 'today' 'YYYY-MM-DD' }}`)
 
 Every day, SubscribeMe will execute the query, render the result into the
 template, and send an email to all the subscribers of that query.
@@ -30,13 +30,14 @@ send new ones (similar to how RSS readers work).
 
 ## Schema
 
-services    | queries       | subscribers
-------------|---------------|------------
-service_id  | query_id      | subscriber_id
-name        | service_id    | query_id
-slug        | url           | email
-endpoint    |               | confirmed
-template    |               |
+services          | queries       | subscribers
+------------------|---------------|------------
+id                | id            | id
+name              | service_id    | query_id
+slug              | url           | email
+url_regex         |               | status
+subject_template  |               | unsubscribe_token
+body_template     |               |
 
 ## Development
 Start database and queue
