@@ -8,9 +8,7 @@ const { MAILGUN_API_KEY, MAILGUN_DOMAIN } = process.env
 const getEmailTransporter = function (stream) {
   if (stream) {
     return nodemailer.createTransport({
-      streamTransport: true,
-      newline: 'unix',
-      buffer: true
+      jsonTransport: true
     })
   } else {
     const config = {

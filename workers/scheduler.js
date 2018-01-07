@@ -46,7 +46,7 @@ async function getUniqueQueries (db) {
   const queries = map(subscribersByQuery, (subscribers, url) => {
     return {
       url,
-      emails: map(subscribers, 'email'),
+      recipients: map(subscribers, 'email'),
       subjectTemplate: subscribers[0].subject_template,
       bodyTemplate: subscribers[0].body_template
     }
