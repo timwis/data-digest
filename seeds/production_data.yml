@@ -1,0 +1,19 @@
+####
+# Edit this file and load via:
+# heroku run db:seed seeds/production_data.yml services
+####
+services:
+  - id: 1
+    name: Crime incidents
+    slug: crime-incidents
+    endpoint: https:\/\/phl\.carto\.com\/api\/v2\/sql\/?\?q=.+
+    subject_template: "{{data.rows.length}} crimes"
+    body_template: |
+      {{#if data.rows.length}}
+        <h1>Crime incidents</h1>
+        <ul>
+        {{#each data.rows}}
+          <li>{{text_general_code}} on {{location_block}}</li>
+        {{/each}}
+        </ul>
+      {{/if}}

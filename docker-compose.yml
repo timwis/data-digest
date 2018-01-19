@@ -19,7 +19,7 @@ services:
       DATABASE_URL: postgres://postgres:pwd@db:5432/postgres
       RABBITMQ_URL: amqp://queue
 
-  bootstrap:
+  node:
     depends_on:
       - db
     image: node:9-alpine
@@ -27,7 +27,6 @@ services:
     working_dir: /home/node/app
     volumes:
       - ./:/home/node/app
-    command: npm run bootstrap
     environment:
       DATABASE_URL: postgres://postgres:pwd@db:5432/postgres
       NODE_ENV: development

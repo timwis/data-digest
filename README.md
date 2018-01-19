@@ -44,7 +44,8 @@ Start database and queue
 > `docker-compose up db queue`
 
 Run migrations and load seed data
-> `docker-compose run --rm bootstrap`
+> `docker-compose run --rm node npm run db:migrate`
+> `docker-compose run --rm node npm run db:seed seeds/test_data.yml services queries subscribers`
 
 Start consumer
 > `docker-compose run --rm consumer`
@@ -68,7 +69,7 @@ If you added your own domain to mailgun, change the `MAILGUN_DOMAIN` environment
 > `heroku config:set MAILGUN_DOMAIN=yourdomain.com`
 
 Load seed data into your database
-> `heroku run seed`
+> `heroku run seed seeds/production_data.yml services`
 
 Run the scheduler (or set it up using the scheduler add-on)
 > `heroku run scheduler`
