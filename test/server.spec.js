@@ -3,17 +3,17 @@ const request = require('supertest')
 const knex = require('knex')
 
 const createServer = require('../server/server')
+const seed = require('../seeds/seed')
 
 async function createDatabase () {
   const db = knex({
     client: 'sqlite3',
     connection: { filename: ':memory:' },
     migrations: { directory: __dirname + '/../migrations' },
-    seeds: {directory: __dirname + '/../seeds' },
     useNullAsDefault: true
   })
   await db.migrate.latest()
-  await db.seed.run()
+  await seed(db)
   return db
 }
 
