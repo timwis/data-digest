@@ -7,8 +7,8 @@ const seed = require('../seeds/seed')
 
 async function createDatabase () {
   const db = knex({
-    client: 'sqlite3',
-    connection: { filename: ':memory:' },
+    client: 'pg',
+    connection: process.env.DATABASE_URL,
     migrations: { directory: __dirname + '/../migrations' },
     useNullAsDefault: true
   })

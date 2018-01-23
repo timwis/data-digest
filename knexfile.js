@@ -8,7 +8,8 @@ module.exports = {
 
   test: {
     client: 'sqlite3',
-    connection: ':memory:'
+    connection: ':memory:',
+    useNullAsDefault: true
   },
 
   production: {

@@ -2,16 +2,13 @@ const test = require('ava')
 const request = require('supertest')
 const knex = require('knex')
 
+const NODE_ENV = process.env.NODE_ENV || 'test'
+const dbConfig = require('../knexfile')[NODE_ENV]
 const createServer = require('../server/server')
 const seed = require('../seeds/seed')
 
 async function createDatabase () {
-  const db = knex({
-    client: 'sqlite3',
-    connection: { filename: ':memory:' },
-    migrations: { directory: __dirname + '/../migrations' },
-    useNullAsDefault: true
-  })
+  const db = knex(dbConfig)
   await db.migrate.latest()
   await seed(db)
   return db

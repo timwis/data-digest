@@ -45,3 +45,19 @@ services:
     command: npm run consumer
     environment:
       RABBITMQ_URL: amqp://queue
+
+  server:
+    depends_on:
+      - db
+    ports:
+      - '8080:8080'
+    image: node:9-alpine
+    user: node
+    working_dir: /home/node/app
+    command: npm run dev
+    volumes:
+      - ./:/home/node/app
+    environment:
+      DATABASE_URL: postgres://postgres:pwd@db:5432/postgres
+      NODE_ENV: development
+
