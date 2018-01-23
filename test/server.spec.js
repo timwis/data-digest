@@ -4,7 +4,7 @@ const knex = require('knex')
 
 const NODE_ENV = process.env.NODE_ENV || 'test'
 const dbConfig = require('../knexfile')[NODE_ENV]
-const createServer = require('../server/server')
+const createServer = require('../server')
 const seed = require('../seeds/seed')
 
 async function createDatabase () {

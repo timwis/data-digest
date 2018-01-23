@@ -1,11 +1,12 @@
 const fastify = require('fastify')
 const knex = require('knex')
-
+const schemas = require('./schemas')
 const PORT = process.env.PORT || '8080'
 const NODE_ENV = process.env.NODE_ENV || 'development'
 const dbConfig = require('../knexfile')[NODE_ENV]
 
 module.exports = createServer
+console.log(require('util').inspect(schemas.service.create, null, 5))
 
 if (!module.parent) { // Only run if called directly, not within tests
   const db = knex(dbConfig)
@@ -23,6 +24,15 @@ function createServer (db) {
   app.get('/services', async (req, reply) => {
     try {
       return getServices(db)
+    } catch (err) {
+      reply.code(500).send(err)
+    }
+  })
+
+  app.post('/services', { schema: schemas.service.create }, async (req, reply) => {
+    try {
+      const payload = req.body
+      return createService(db, payload)
     } catch (err) {
       reply.code(500).send(err)
     }
@@ -58,13 +68,7 @@ function createServer (db) {
     }
   })
 
-  const postSubscriberSchema = {
-    payload: {
-      url: { type: 'string' },
-      email: { type: 'string', format: 'email' }
-    }
-  }
-  app.post('/services/:serviceSlug/subscribers', postSubscriberSchema, async (req, reply) => {
+  app.post('/services/:serviceSlug/subscribers', { schema: schemas.subscriber.create }, async (req, reply) => {
     try {
       const { serviceSlug } = req.params
       const { url, email } = req.body
@@ -159,4 +163,10 @@ async function createSubscriber (db, queryId, email) {
     }).returning('id')
     return { id: subscriberId, created: true }
   }
+}
+
+function createService (db, payload) {
+  return db('services')
+    .insert(payload)
+    .returning('*')
 }
