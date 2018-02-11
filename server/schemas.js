@@ -1,6 +1,7 @@
 const { superstruct } = require('superstruct')
 const isEmail = require('is-email')
 const isUrl = require('is-url')
+const mapValues = require('lodash/mapValues')
 
 const struct = superstruct({
   types: {
@@ -37,9 +38,16 @@ const Subscriber = {
 module.exports = {
   service: {
     create: struct(Service),
-    update: struct.optional(Service)
+    update: struct(makeOptional(Service))
   },
   subscriber: {
     create: struct(Subscriber)
   }
+}
+
+// Wrap 'string' etc. in struct.optional()
+function makeOptional (Schema) {
+  return mapValues(Schema, (definition) => {
+    return mapValues(definition, (rule) => struct.optional(rule))
+  })
 }

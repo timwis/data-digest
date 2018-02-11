@@ -37,7 +37,7 @@ function createServer (db) {
   }))
 
   app.use(router.routes())
-  // app.use(router.allowedMethods()) // TODO: what's this actually do?
+  app.use(router.allowedMethods())
 
   return app
 }

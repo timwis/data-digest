@@ -36,6 +36,22 @@ router.get(
   }
 )
 
+// update specific service
+router.patch(
+  '/services/:serviceSlug',
+  validate(schemas.service.update),
+  async function (ctx) {
+    const { serviceSlug } = ctx.params
+    const services = await getServicesBySlug(ctx.db, serviceSlug)
+    if (services.length === 0) ctx.throw(404)
+
+    const payload = ctx.request.body
+    const conditions = { id: services[0].id }
+    const service = await updateService(ctx.db, payload, conditions)
+    ctx.body = service
+  }
+)
+
 // add subscriber
 router.post(
   '/services/:serviceSlug/subscribers',
@@ -127,4 +143,15 @@ function createSubscriber (db, { queryId, email }) {
     query_id: queryId,
     email
   }).then((ids) => ids[0])
+}
+
+function updateService (db, updates, conditions) {
+  return db('services')
+    .update(updates)
+    .where(conditions)
+    .then(() => {
+      return db('services')
+        .where(conditions)
+        .then((results) => results[0])
+    })
 }

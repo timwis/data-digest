@@ -5,6 +5,8 @@ const NODE_ENV = process.env.NODE_ENV || 'test'
 const dbConfig = require('../knexfile')[NODE_ENV]
 const createServer = require('../server')
 
+const serviceKeys = ['id', 'name', 'slug', 'endpoint', 'subject_template', 'body_template']
+
 describe('Web server', () => {
   let server, db
 
@@ -65,9 +67,8 @@ describe('Web server', () => {
         .get('/api/services/crime-incidents')
         .expect(200)
         .then((res) => {
-          const expectedKeys = ['id', 'name', 'slug', 'endpoint', 'subject_template', 'body_template']
           const actualKeys = Object.keys(res.body)
-          expect(actualKeys).toEqual(expectedKeys)
+          expect(actualKeys).toEqual(serviceKeys)
         })
     })
 
@@ -75,6 +76,24 @@ describe('Web server', () => {
       await request(server.callback())
         .get('/api/services/unknown')
         .expect(404)
+    })
+  })
+
+  describe('PATCH to /services/:service', () => {
+    it('returns service object', async () => {
+      const payload = {
+        subject_template: 'Changed subject'
+      }
+      await request(server.callback())
+        .patch('/api/services/crime-incidents')
+        .send(payload)
+        .expect(200)
+        .then((res) => {
+          console.log(res.text)
+          const actualKeys = Object.keys(res.body)
+          expect(actualKeys).toEqual(serviceKeys)
+          expect(res.body.subject_template).toBe('Changed subject')
+        })
     })
   })
 
