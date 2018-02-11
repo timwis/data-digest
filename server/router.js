@@ -52,6 +52,20 @@ router.patch(
   }
 )
 
+// delete specific service
+router.delete(
+  '/services/:serviceSlug',
+  async function (ctx) {
+    const { serviceSlug } = ctx.params
+    const services = await getServicesBySlug(ctx.db, serviceSlug)
+    if (services.length === 0) ctx.throw(404)
+
+    const serviceId = services[0].id
+    await deleteService(ctx.db, serviceId)
+    ctx.status = 204
+  }
+)
+
 // add subscriber
 router.post(
   '/services/:serviceSlug/subscribers',
@@ -154,4 +168,10 @@ function updateService (db, updates, conditions) {
         .where(conditions)
         .then((results) => results[0])
     })
+}
+
+function deleteService (db, id) {
+  return db('services')
+    .where('id', id)
+    .delete()
 }

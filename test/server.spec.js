@@ -89,11 +89,45 @@ describe('Web server', () => {
         .send(payload)
         .expect(200)
         .then((res) => {
-          console.log(res.text)
           const actualKeys = Object.keys(res.body)
           expect(actualKeys).toEqual(serviceKeys)
           expect(res.body.subject_template).toBe('Changed subject')
         })
+    })
+
+    it(`doesn't allow unknown properties`, async () => {
+      const payload = {
+        subject_template: 'Changed subject',
+        unknown: 'unknown'
+      }
+      await request(server.callback())
+        .patch('/api/services/crime-incidents')
+        .send(payload)
+        .expect(422)
+    })
+
+    it('returns 404 on unknown service', async () => {
+      const payload = {
+        subject_template: 'Changed subject'
+      }
+      await request(server.callback())
+        .patch('/api/services/unknown')
+        .send(payload)
+        .expect(404)
+    })
+  })
+
+  describe('POST to /services/:service', () => {
+    it('returns 204 on success', async () => {
+      await request(server.callback())
+        .delete('/api/services/crime-incidents')
+        .expect(204)
+    })
+
+    it('returns 404 on unknown service', async () => {
+      await request(server.callback())
+        .delete('/api/services/unknown')
+        .expect(404)
     })
   })
 
