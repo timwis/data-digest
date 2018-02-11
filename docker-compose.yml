@@ -60,4 +60,5 @@ services:
     environment:
       DATABASE_URL: postgres://postgres:pwd@db:5432/postgres
       NODE_ENV: development
+      PORT: 8080
 

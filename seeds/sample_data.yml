@@ -21,6 +21,9 @@ queries:
   - id: 2
     service_id: 1
     url: https://phl.carto.com/api/v2/sql?q=SELECT * FROM incidents_part1_part2 WHERE dc_dist = '25' AND dispatch_date >= '{{formatDate '2 days ago' 'YYYY-MM-DD'}}'
+  - id: 3
+    service_id: 1
+    url: https://phl.carto.com/api/v2/sql?q=SELECT+1
 
 subscribers:
   - id: 1
@@ -32,3 +35,6 @@ subscribers:
   - id: 3
     query_id: 2
     email: subscribeme-c@mailinator.com
+  - id: 4
+    query_id: 3
+    email: subscribeme-d@mailinator.com

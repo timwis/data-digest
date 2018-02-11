@@ -1,38 +1,45 @@
-const schemas = {
-  service: {
-    name: { type: 'string' },
-    slug: { type: 'string' },
-    endpoint: { type: 'string', format: 'regex' },
-    subject_template: { type: 'string' },
-    body_template: { type: 'string' }
-  },
-  subscriber: {
-    url: { type: 'string' },
-    email: { type: 'string', format: 'email' }
+const { superstruct } = require('superstruct')
+const isEmail = require('is-email')
+const isUrl = require('is-url')
+
+const struct = superstruct({
+  types: {
+    regex: (value) => {
+      try {
+        new RegExp(value) // eslint-disable-line
+        return true
+      } catch (err) {
+        return false
+      }
+    },
+    email: (value) => isEmail(value) && value.length < 256,
+    url: (value) => isUrl(value) && value.length < 2048
+  }
+})
+
+const Service = {
+  body: {
+    name: 'string',
+    slug: 'string',
+    endpoint: 'regex',
+    subject_template: 'string',
+    body_template: 'string'
   }
 }
 
-const ALL = Symbol('all properties')
+const Subscriber = {
+  body: {
+    email: 'email',
+    url: 'url'
+  }
+}
 
 module.exports = {
   service: {
-    create: wrap(schemas.service, ALL)
+    create: struct(Service),
+    update: struct.optional(Service)
   },
   subscriber: {
-    create: wrap(schemas.subscriber, ALL)
-  }
-}
-
-function wrap (properties, requiredFields) {
-  const required = (requiredFields === ALL)
-    ? Object.keys(properties)
-    : requiredFields
-
-  return {
-    body: {
-      type: 'object',
-      properties,
-      required
-    }
+    create: struct(Subscriber)
   }
 }

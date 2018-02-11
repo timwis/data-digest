@@ -1,32 +1,19 @@
 const yaml = require('js-yaml')
 const fs = require('fs')
 const assert = require('assert')
+const { join } = require('path')
 
-module.exports = seed
-if (!module.parent) {
-  const nodeEnv = process.env.NODE_ENV || 'development'
-  const dbConfig = require('../knexfile')[nodeEnv]
-  const db = require('knex')(dbConfig)
-  seed(db).then(() => db.destroy())
-}
+const filepath = join(__dirname, 'sample_data.yml')
 
-async function seed (db) {
-  try {
-    const filepath = process.argv[2]
-    const tables = process.argv.slice(3)
-    assert(filepath, `No file path specified`)
-    assert(fs.existsSync(filepath), `File '${filepath}' not found`)
-    assert(tables.length > 0, `No tables specified`)
+exports.seed = async function (db) {
+  assert(fs.existsSync(filepath), `File '${filepath}' not found`)
 
-    const file = fs.readFileSync(filepath, 'utf8')
-    const data = yaml.safeLoad(file)
+  const file = fs.readFileSync(filepath, 'utf8')
+  const data = yaml.safeLoad(file)
+  const tables = Object.keys(data)
 
-    for (let table of tables) {
-      await db(table).del()
-      await db(table).insert(data[table])
-      console.log(`Loaded ${table}`)
-    }
-  } catch (err) {
-    console.error(err.message)
+  for (let table of tables) {
+    await db(table).del()
+    await db(table).insert(data[table])
   }
 }
