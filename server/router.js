@@ -1,13 +1,55 @@
 const Router = require('koa-router')
 const validate = require('koa-superstruct')
+
 const schemas = require('./schemas')
+const passport = require('./auth')
+const NODE_ENV = process.env.NODE_ENV
 
 const router = new Router({ prefix: '/api' })
 module.exports = router
 
+// authenticate with auth code
+router.post(
+  '/authenticate',
+  passport.authenticate('auth0'),
+  async function (ctx) {
+    ctx.body = ctx.state.user
+  }
+)
+
+// open authentication during test mode
+if (NODE_ENV === 'test') {
+  router.post(
+    '/authenticate-test',
+    async function (ctx) {
+      await ctx.login()
+      ctx.status = 200
+    }
+  )
+}
+
+// logout
+router.post(
+  '/logout',
+  async function (ctx) {
+    ctx.logout()
+    ctx.status = 200
+  }
+)
+
+// current user
+router.get(
+  '/user',
+  requireAuth,
+  async function (ctx) {
+    ctx.body = ctx.state.user
+  }
+)
+
 // get all services
 router.get(
   '/services',
+  requireAuth,
   async function (ctx) {
     ctx.body = await getServices(ctx.db)
   }
@@ -16,6 +58,7 @@ router.get(
 // create service
 router.post(
   '/services',
+  requireAuth,
   validate(schemas.service.create),
   async function (ctx) {
     const payload = ctx.request.body
@@ -27,6 +70,7 @@ router.post(
 // get specific service
 router.get(
   '/services/:serviceSlug',
+  requireAuth,
   async function (ctx) {
     const { serviceSlug } = ctx.params
     const services = await getServicesBySlug(ctx.db, serviceSlug)
@@ -39,6 +83,7 @@ router.get(
 // update specific service
 router.patch(
   '/services/:serviceSlug',
+  requireAuth,
   validate(schemas.service.update),
   async function (ctx) {
     const { serviceSlug } = ctx.params
@@ -55,6 +100,7 @@ router.patch(
 // delete specific service
 router.delete(
   '/services/:serviceSlug',
+  requireAuth,
   async function (ctx) {
     const { serviceSlug } = ctx.params
     const services = await getServicesBySlug(ctx.db, serviceSlug)
@@ -91,13 +137,26 @@ router.post(
   }
 )
 
+function requireAuth (ctx, next) {
+  if (ctx.isAuthenticated()) {
+    return next()
+  } else {
+    ctx.status = 401
+  }
+}
+
 function getServices (db) {
   return db('services')
 }
 
 async function createService (db, payload) {
-  const [ serviceId ] = await db('services').insert(payload)
-  const [ service ] = await db('services').where('id', serviceId)
+  const [ serviceId ] = await db('services')
+    .insert(payload)
+    .returning('id')
+
+  const [ service ] = await db('services')
+    .where('id', serviceId)
+
   return service
 }
 
@@ -130,7 +189,8 @@ function createQuery (db, { serviceId, url }) {
   return db('queries').insert({
     service_id: serviceId,
     url
-  }).then((ids) => ids[0])
+  }).returning('id')
+    .then((ids) => ids[0])
 }
 
 async function getOrCreateSubscriber (db, { queryId, email }) {
@@ -156,7 +216,8 @@ function createSubscriber (db, { queryId, email }) {
   return db('subscribers').insert({
     query_id: queryId,
     email
-  }).then((ids) => ids[0])
+  }).returning('id')
+    .then((ids) => ids[0])
 }
 
 function updateService (db, updates, conditions) {
