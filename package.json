@@ -12,6 +12,10 @@
     "db:migrate": "knex migrate:latest",
     "db:seed": "knex seed:run"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/timwis/subscribeme.git"
+  },
   "keywords": [],
   "author": "timwis <tim@timwis.com>",
   "license": "MIT",
