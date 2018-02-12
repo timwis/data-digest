@@ -1,5 +1,6 @@
 const request = require('supertest')
 const knex = require('knex')
+const Cookie = require('tough-cookie').Cookie
 
 const NODE_ENV = process.env.NODE_ENV || 'test'
 const dbConfig = require('../knexfile')[NODE_ENV]
@@ -20,9 +21,17 @@ describe('Web server', () => {
   afterEach(() => db.destroy())
 
   describe('GET to /services', () => {
-    it('returns 200 and list', async () => {
+    it('requires authentication', async () => {
       await request(server.callback())
         .get('/api/services')
+        .expect(401)
+    })
+
+    it('returns 200 and list', async () => {
+      const cookie = await getAuthCookie(server.callback())
+      await request(server.callback())
+        .get('/api/services')
+        .set('Cookie', cookie)
         .expect(200)
         .then((res) => {
           expect(Array.isArray(res.body)).toBe(true)
@@ -31,7 +40,14 @@ describe('Web server', () => {
   })
 
   describe('POST to /services', () => {
+    it('requires authentication', async () => {
+      await request(server.callback())
+        .post('/api/services')
+        .expect(401)
+    })
+
     it('returns 201 and service object on success', async () => {
+      const cookie = await getAuthCookie(server.callback())
       const payload = {
         name: 'Test service',
         slug: 'test-service',
@@ -41,6 +57,7 @@ describe('Web server', () => {
       }
       await request(server.callback())
         .post('/api/services')
+        .set('Cookie', cookie)
         .send(payload)
         .expect(201)
         .then((res) => {
@@ -49,11 +66,13 @@ describe('Web server', () => {
     })
 
     it('returns 422 on missing fields', async () => {
+      const cookie = await getAuthCookie(server.callback())
       const payload = {
         name: 'Test service'
       }
       await request(server.callback())
         .post('/api/services')
+        .set('Cookie', cookie)
         .send(payload)
         .expect(422)
     })
@@ -62,9 +81,17 @@ describe('Web server', () => {
   })
 
   describe('GET to /services/:service', () => {
-    it('returns service object', async () => {
+    it('requires authentication', async () => {
       await request(server.callback())
         .get('/api/services/crime-incidents')
+        .expect(401)
+    })
+
+    it('returns service object', async () => {
+      const cookie = await getAuthCookie(server.callback())
+      await request(server.callback())
+        .get('/api/services/crime-incidents')
+        .set('Cookie', cookie)
         .expect(200)
         .then((res) => {
           const actualKeys = Object.keys(res.body)
@@ -73,19 +100,29 @@ describe('Web server', () => {
     })
 
     it('returns 404 on unknown service', async () => {
+      const cookie = await getAuthCookie(server.callback())
       await request(server.callback())
         .get('/api/services/unknown')
+        .set('Cookie', cookie)
         .expect(404)
     })
   })
 
   describe('PATCH to /services/:service', () => {
+    it('requires authentication', async () => {
+      await request(server.callback())
+        .patch('/api/services/crime-incidents')
+        .expect(401)
+    })
+
     it('returns service object', async () => {
+      const cookie = await getAuthCookie(server.callback())
       const payload = {
         subject_template: 'Changed subject'
       }
       await request(server.callback())
         .patch('/api/services/crime-incidents')
+        .set('Cookie', cookie)
         .send(payload)
         .expect(200)
         .then((res) => {
@@ -96,37 +133,51 @@ describe('Web server', () => {
     })
 
     it(`doesn't allow unknown properties`, async () => {
+      const cookie = await getAuthCookie(server.callback())
       const payload = {
         subject_template: 'Changed subject',
         unknown: 'unknown'
       }
       await request(server.callback())
         .patch('/api/services/crime-incidents')
+        .set('Cookie', cookie)
         .send(payload)
         .expect(422)
     })
 
     it('returns 404 on unknown service', async () => {
+      const cookie = await getAuthCookie(server.callback())
       const payload = {
         subject_template: 'Changed subject'
       }
       await request(server.callback())
         .patch('/api/services/unknown')
+        .set('Cookie', cookie)
         .send(payload)
         .expect(404)
     })
   })
 
-  describe('POST to /services/:service', () => {
-    it('returns 204 on success', async () => {
+  describe('DELETE to /services/:service', () => {
+    it('requires authentication', async () => {
       await request(server.callback())
         .delete('/api/services/crime-incidents')
+        .expect(401)
+    })
+
+    it('returns 204 on success', async () => {
+      const cookie = await getAuthCookie(server.callback())
+      await request(server.callback())
+        .delete('/api/services/crime-incidents')
+        .set('Cookie', cookie)
         .expect(204)
     })
 
     it('returns 404 on unknown service', async () => {
+      const cookie = await getAuthCookie(server.callback())
       await request(server.callback())
         .delete('/api/services/unknown')
+        .set('Cookie', cookie)
         .expect(404)
     })
   })
@@ -167,3 +218,15 @@ describe('Web server', () => {
     })
   })
 })
+
+async function getAuthCookie (server) {
+  return await request(server)
+    .post('/api/authenticate-test')
+    .then((res) => {
+      const cookies = res.headers['set-cookie'][0].split(',') // superagent bug?
+      return cookies
+        .map(Cookie.parse)
+        .map((parsedCookie) => parsedCookie.cookieString())
+        .join(';')
+    })
+}

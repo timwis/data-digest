@@ -34,7 +34,7 @@ function createServer (db) {
   app.context.db = db
   app.use(helmet())
 
-  if (DEBUG) app.use(logger())
+  if (NODE_ENV === 'development') app.use(logger())
 
   app.use(bodyParser({
     enableTypes: ['json'],

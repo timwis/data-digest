@@ -42,7 +42,8 @@
     "pg": "^7.4.0",
     "redis": "^2.6.3",
     "superstruct": "^0.5.0",
-    "tortoise": "^1.0.1"
+    "tortoise": "^1.0.1",
+    "tough-cookie": "^2.3.3"
   },
   "devDependencies": {
     "jest": "^22.2.2",
