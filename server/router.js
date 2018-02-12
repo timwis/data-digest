@@ -150,8 +150,13 @@ function getServices (db) {
 }
 
 async function createService (db, payload) {
-  const [ serviceId ] = await db('services').insert(payload)
-  const [ service ] = await db('services').where('id', serviceId)
+  const [ serviceId ] = await db('services')
+    .insert(payload)
+    .returning('id')
+
+  const [ service ] = await db('services')
+    .where('id', serviceId)
+
   return service
 }
 
@@ -184,7 +189,8 @@ function createQuery (db, { serviceId, url }) {
   return db('queries').insert({
     service_id: serviceId,
     url
-  }).then((ids) => ids[0])
+  }).returning('id')
+    .then((ids) => ids[0])
 }
 
 async function getOrCreateSubscriber (db, { queryId, email }) {
@@ -210,7 +216,8 @@ function createSubscriber (db, { queryId, email }) {
   return db('subscribers').insert({
     query_id: queryId,
     email
-  }).then((ids) => ids[0])
+  }).returning('id')
+    .then((ids) => ids[0])
 }
 
 function updateService (db, updates, conditions) {
