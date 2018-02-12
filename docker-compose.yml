@@ -49,6 +49,7 @@ services:
   server:
     depends_on:
       - db
+      - redis
     ports:
       - '8080:8080'
     image: node:9-alpine
@@ -61,4 +62,11 @@ services:
       DATABASE_URL: postgres://postgres:pwd@db:5432/postgres
       NODE_ENV: development
       PORT: 8080
+      REDIS_URL: "redis://redis:6379"
+      AUTH0_DOMAIN: $AUTH0_DOMAIN
+      AUTH0_CLIENT_ID: $AUTH0_CLIENT_ID
+      AUTH0_CLIENT_SECRET: $AUTH0_CLIENT_SECRET
+      AUTH0_CALLBACK_URL: "http://localhost:8080/callback"
 
+  redis:
+    image: redis:4
