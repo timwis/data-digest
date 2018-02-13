@@ -4,7 +4,7 @@ const Cookie = require('tough-cookie').Cookie
 
 const NODE_ENV = process.env.NODE_ENV || 'test'
 const dbConfig = require('../knexfile')[NODE_ENV]
-const createServer = require('../server')
+const createServer = require('../web/server')
 
 const serviceKeys = ['id', 'name', 'slug', 'endpoint', 'subject_template', 'body_template']
 

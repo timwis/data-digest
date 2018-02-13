@@ -15,7 +15,7 @@ const DEBUG = (NODE_ENV !== 'production')
 const SESSION_KEY = process.env.SESSION_KEY
 const REDIS_URL = process.env.REDIS_URL
 const PORT = process.env.PORT || 3000
-const dbConfig = require('../knexfile')[NODE_ENV]
+const dbConfig = require('../../knexfile')[NODE_ENV]
 assert(SESSION_KEY || DEBUG, 'SESSION_KEY environment variable must be set')
 
 module.exports = createServer

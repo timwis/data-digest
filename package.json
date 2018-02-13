@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node server",
-    "dev": "nodemon server",
+    "start": "node web/server",
+    "dev": "nodemon web/server",
     "test": "jest",
     "scheduler": "node workers/scheduler",
     "consumer": "node workers/consumer",
