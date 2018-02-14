@@ -9,11 +9,12 @@ const router = new Router({ prefix: '/api' })
 module.exports = router
 
 // authenticate with auth code
-router.post(
+router.get(
   '/authenticate',
   passport.authenticate('auth0'),
   async function (ctx) {
-    ctx.body = ctx.state.user
+    ctx.redirect('/')
+    ctx.status = 301
   }
 )
 

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node web/server",
-    "dev": "nodemon web/server",
+    "dev": "nodemon web/server --ignore web/client",
     "client": "nuxt --config-file web/client/nuxt.config.js",
     "test": "jest test",
     "scheduler": "node workers/scheduler",
@@ -46,6 +46,7 @@
     "parse-messy-time": "^2.1.0",
     "passport-auth0": "^0.6.1",
     "pg": "^7.4.0",
+    "query-string": "^5.1.0",
     "redis": "^2.6.3",
     "superstruct": "^0.5.0",
     "tortoise": "^1.0.1",

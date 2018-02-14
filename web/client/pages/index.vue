@@ -7,6 +7,8 @@
       </h1>
       <h2 class="subtitle">
         Monitors an API for new data and sends digest emails to subscribers.
+        <p>{{ user.nickname }}</p>
+        <nuxt-link to='/login'>Login</nuxt-link>
       </h2>
       <div class="links">
         <a
@@ -24,11 +26,15 @@
 
 <script>
 import AppLogo from '~/components/AppLogo.vue'
+import { mapState } from 'vuex'
 
 export default {
   components: {
     AppLogo
-  }
+  },
+  computed: mapState({
+    user: (state) => state.user
+  })
 }
 </script>
 
