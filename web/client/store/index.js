@@ -22,6 +22,10 @@ const createStore = () => new Vuex.Store({
     async getServices ({ commit }) {
       const services = await api.getServices()
       commit('SET_SERVICES', services)
+    },
+    async logout ({ commit }) {
+      await api.logout()
+      commit('SET_USER', {})
     }
   }
 })

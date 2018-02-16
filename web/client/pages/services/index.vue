@@ -3,6 +3,8 @@
     Hero(title='Services')
     section.section
       div.container
+        div.padded
+          nuxt-link.button(to='/services/add') Add service
         div.columns.is-multiline
           service-card(
             v-for='service in services'
@@ -34,3 +36,7 @@ export default {
 }
 </script>
 
+<style lang="sass" scoped>
+.padded
+  padding-bottom: 25px
+</style>

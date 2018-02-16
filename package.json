@@ -23,6 +23,7 @@
   "dependencies": {
     "body": "^5.1.0",
     "bulma": "^0.6.2",
+    "bulma-steps": "^1.0.1",
     "date-fns": "^1.29.0",
     "handlebars": "^4.0.6",
     "is-email": "^1.0.0",
@@ -52,7 +53,8 @@
     "redis": "^2.6.3",
     "superstruct": "^0.5.0",
     "tortoise": "^1.0.1",
-    "tough-cookie": "^2.3.3"
+    "tough-cookie": "^2.3.3",
+    "vue-awesome": "^2.3.4"
   },
   "devDependencies": {
     "jest": "^22.2.2",
