@@ -1,5 +1,6 @@
-<template>
-  <div>Redirecting to login page...</div>
+<template lang="pug">
+  section.section
+    div.container Redirecting to login page...
 </template>
 
 <script>
@@ -7,7 +8,9 @@ import { auth0Url } from '../helpers/auth0'
 
 export default {
   created () {
-    window.location.href = auth0Url
+    if (typeof window !== 'undefined') {
+      window.location.href = auth0Url
+    }
   }
 }
 </script>

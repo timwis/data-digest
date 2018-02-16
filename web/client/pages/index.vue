@@ -1,70 +1,36 @@
-<template>
-  <section class="container">
-    <div>
-      <app-logo/>
-      <h1 class="title">
-        subscribeme
-      </h1>
-      <h2 class="subtitle">
-        Monitors an API for new data and sends digest emails to subscribers.
-        <p>{{ user.nickname }}</p>
-        <nuxt-link to='/login'>Login</nuxt-link>
-      </h2>
-      <div class="links">
-        <a
-          href="https://nuxtjs.org/"
-          target="_blank"
-          class="button--green">Documentation</a>
-        <a
-          href="https://github.com/nuxt/nuxt.js"
-          target="_blank"
-          class="button--grey">GitHub</a>
-      </div>
-    </div>
-  </section>
+<template lang="pug">
+  section.hero.is-info.is-fullheight
+    div.hero-head
+      site-nav(:user='user')
+    div.hero-body
+      div.container
+        h1.title SubscribeMe
+        h2.subtitle Monitors an API for new data and sends digest emails to subscribers.
+
+        nuxt-link.button.is-link(
+          v-if='user.nickname'
+          to='/services'
+        ) Get started
+        nuxt-link.button.is-link(
+          v-else
+          to='/login'
+        ) Get started
 </template>
 
+
 <script>
-import AppLogo from '~/components/AppLogo.vue'
 import { mapState } from 'vuex'
+import AppLogo from '~/components/AppLogo'
+import SiteNav from '~/components/SiteNav'
 
 export default {
+  layout: 'no-nav',
   components: {
-    AppLogo
+    AppLogo,
+    SiteNav
   },
   computed: mapState({
     user: (state) => state.user
   })
 }
 </script>
-
-<style>
-.container {
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
-.title {
-  font-family: "Quicksand", "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; /* 1 */
-  display: block;
-  font-weight: 300;
-  font-size: 100px;
-  color: #35495e;
-  letter-spacing: 1px;
-}
-
-.subtitle {
-  font-weight: 300;
-  font-size: 42px;
-  color: #526488;
-  word-spacing: 5px;
-  padding-bottom: 15px;
-}
-
-.links {
-  padding-top: 15px;
-}
-</style>

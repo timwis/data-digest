@@ -1,7 +1,7 @@
 {
   "name": "subscribeme",
   "version": "0.1.0",
-  "description": "",
+  "description": "Monitors an API for new data and sends digest emails to subscribers.",
   "main": "index.js",
   "scripts": {
     "start": "node web/server",
@@ -71,7 +71,8 @@
       "it",
       "expect",
       "beforeEach",
-      "afterEach"
+      "afterEach",
+      "fetch"
     ]
   }
 }
