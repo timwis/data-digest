@@ -14,7 +14,8 @@ if (AUTH0_DOMAIN && AUTH0_CLIENT_ID && AUTH0_CLIENT_SECRET && AUTH0_CALLBACK_URL
     domain: AUTH0_DOMAIN,
     clientID: AUTH0_CLIENT_ID,
     clientSecret: AUTH0_CLIENT_SECRET,
-    callbackURL: AUTH0_CALLBACK_URL
+    callbackURL: AUTH0_CALLBACK_URL,
+    scope: 'openid profile'
   }, function (accessToken, refreshToken, extraParams, profile, done) {
     done(null, profile)
   })

@@ -15,7 +15,7 @@ describe('Web server', () => {
     db = knex(dbConfig)
     await db.migrate.latest()
     await db.seed.run()
-    server = createServer(db)
+    server = await createServer(db)
   })
 
   afterEach(() => db.destroy())

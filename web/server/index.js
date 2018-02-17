@@ -6,9 +6,11 @@ const helmet = require('koa-helmet')
 const bodyParser = require('koa-bodyparser')
 const session = require('koa-session')
 const redisStore = require('koa-redis')
+const { Nuxt, Builder } = require('nuxt')
 
 const router = require('./router')
 const passport = require('./auth')
+const nuxtConfig = require('../client/nuxt.config')
 
 const NODE_ENV = process.env.NODE_ENV || 'development'
 const DEBUG = (NODE_ENV !== 'production')
@@ -22,14 +24,15 @@ module.exports = createServer
 
 if (!module.parent) {
   const db = knex(dbConfig)
-  const app = createServer(db)
-  app.listen(PORT, (err) => {
-    if (err) throw err
-    console.log(`Web server listening on ${PORT}`)
+  createServer(db).then((app) => {
+    app.listen(PORT, (err) => {
+      if (err) throw err
+      console.log(`Web server listening on ${PORT}`)
+    })
   })
 }
 
-function createServer (db) {
+async function createServer (db) {
   const app = new Koa()
   app.context.db = db
   app.use(helmet())
@@ -52,6 +55,27 @@ function createServer (db) {
 
   app.use(router.routes())
   app.use(router.allowedMethods())
+
+  // Nuxt.js
+  if (NODE_ENV !== 'test') {
+    const nuxt = new Nuxt(nuxtConfig)
+    if (NODE_ENV === 'development') {
+      const builder = new Builder(nuxt)
+      await builder.build()
+    }
+    app.use(async (ctx, next) => {
+      await next()
+      ctx.status = 200
+      return new Promise((resolve, reject) => {
+        ctx.res.on('close', resolve)
+        ctx.res.on('finish', resolve)
+        if (ctx.state) ctx.req.state = ctx.state // pass user info to nuxt
+        nuxt.render(ctx.req, ctx.res, (promise) => {
+          promise.then(resolve).catch(reject)
+        })
+      })
+    })
+  }
 
   return app
 }
