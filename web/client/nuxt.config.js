@@ -1,3 +1,5 @@
+const nodeExternals = require('webpack-node-externals')
+
 module.exports = {
   srcDir: 'web/client',
   env: {
@@ -17,7 +19,27 @@ module.exports = {
     ]
   },
   loading: { color: '#3B8070' },
+  build: {
+    vendor: [
+      'vue-awesome'
+    ],
+    extend (config, { isServer }) {
+      if (isServer) {
+        config.externals = [
+          nodeExternals({
+            whitelist: [/es6-promise|\.(?!(?:js|json)$).{1,5}$/i, /^vue-awesome/]
+          })
+        ]
+      }
+      config.resolve.alias.handlebars = 'handlebars/dist/handlebars'
+    }
+  },
   css: [
-    'bulma'
+    'bulma',
+    'bulma-steps/dist/bulma-steps.min.css'
+  ],
+  plugins: [
+    '~/plugins/vue-awesome',
+    { src: '~/plugins/vue-codemirror', ssr: false }
   ]
 }
