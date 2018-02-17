@@ -24,17 +24,7 @@
 
 <script>
 import Handlebars from '~/components/Handlebars'
-
-export default {
-  props: [ 'url' ],
-  data () {
-    return {
-      sampleData: null,
-      codemirrorOpts: {
-        mode: { name: 'handlebars', base: 'text/html' },
-        tabSize: 2
-      },
-      template: `{{#if data.rows.length}}
+const defaultTemplate = `{{#if data.rows.length}}
   <h1>Your daily results</h1>
   <ul>
   {{#each data.rows}}
@@ -42,6 +32,17 @@ export default {
   {{/each}}
   </ul>
 {{/if}}`
+
+export default {
+  props: [ 'url', 'currentTemplate' ],
+  data () {
+    return {
+      sampleData: null,
+      codemirrorOpts: {
+        mode: { name: 'handlebars', base: 'text/html' },
+        tabSize: 2
+      },
+      template: this.currentTemplate || defaultTemplate
     }
   },
   methods: {

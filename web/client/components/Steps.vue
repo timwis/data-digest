@@ -7,7 +7,12 @@
       div.step-marker
         icon(v-if='current > (index + 1)' name='check')
       div.step-details
-        p.step-title {{ step.title }}
+        p.step-title
+          a(
+            v-if='current > (index +1)'
+            @click.prevent="$emit('select', index + 1)"
+          ) {{ step.title }}
+          span(v-else) {{ step.title }}
         p {{ step.description }}
 </template>
 

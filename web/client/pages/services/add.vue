@@ -21,11 +21,12 @@
                 div.control
                   button.button.is-info(type='submit') Configure
 
-        Steps(:current='step')
+        Steps(:current='step' @select='onSelectStep')
 
         ConfigureTemplate(
           v-if='step === 1'
           :url='url'
+          :current-template='template'
           @submit='onSubmitTemplate'
         )
 </template>
@@ -39,7 +40,8 @@ export default {
   data () {
     return {
       step: 0,
-      url: 'https://phl.carto.com/api/v2/sql?q=SELECT * FROM incidents_part1_part2 LIMIT 5'
+      url: 'https://phl.carto.com/api/v2/sql?q=SELECT * FROM incidents_part1_part2 LIMIT 5',
+      template: null
     }
   },
   methods: {
@@ -49,8 +51,11 @@ export default {
       this.step = 1
     },
     onSubmitTemplate (template) {
-      console.log('received template', template)
+      this.template = template
       this.step = 2
+    },
+    onSelectStep (newStep) {
+      this.step = newStep
     }
   },
   components: {
