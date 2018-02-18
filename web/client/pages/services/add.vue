@@ -29,6 +29,14 @@
           :current-template='template'
           @submit='onSubmitTemplate'
         )
+        ServiceDetails(
+          v-if='step === 2'
+          :url='url'
+          :current-name='name'
+          :current-subject-template='subjectTemplate'
+          :current-endpoint='endpoint'
+          @submit='onSubmitDetails'
+        )
 </template>
 
 <script>
@@ -37,6 +45,7 @@ import { mapState, mapMutations } from 'vuex'
 import Hero from '~/components/Hero'
 import Steps from '~/components/Steps'
 import ServiceTemplate from '~/components/ServiceTemplate'
+import ServiceDetails from '~/components/ServiceDetails'
 
 export default {
   data () {
@@ -46,12 +55,16 @@ export default {
   },
   computed: mapState({
     url: (state) => state.draftService.url,
-    template: (state) => state.draftService.template
+    template: (state) => state.draftService.template,
+    name: (state) => state.draftService.name,
+    subjectTemplate: (state) => state.draftService.subjectTemplate,
+    endpoint: (state) => state.draftService.endpoint
   }),
   methods: {
     ...mapMutations('draftService', {
       setDraftUrl: 'SET_URL',
       setDraftTemplate: 'SET_TEMPLATE',
+      setDraftDetails: 'SET_DETAILS',
       resetDraft: 'RESET'
     }),
     onSubmitUrl (event) {
@@ -66,12 +79,17 @@ export default {
     },
     onSelectStep (newStep) {
       this.step = newStep
+    },
+    onSubmitDetails (details) {
+      this.setDraftDetails(details)
+      this.step = 3
     }
   },
   components: {
     Hero,
     Steps,
-    ServiceTemplate
+    ServiceTemplate,
+    ServiceDetails
   }
 }
 </script>

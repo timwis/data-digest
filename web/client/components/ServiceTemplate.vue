@@ -19,7 +19,7 @@
       )
     button.button.is-large.is-info(
       type='submit'
-    ) Next!
+    ) Next
 </template>
 
 <script>
