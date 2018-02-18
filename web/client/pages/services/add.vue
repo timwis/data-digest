@@ -23,7 +23,7 @@
 
         Steps(:current='step' @select='onSelectStep')
 
-        ConfigureTemplate(
+        ServiceTemplate(
           v-if='step === 1'
           :url='url'
           :current-template='template'
@@ -36,7 +36,7 @@ import { mapState, mapMutations } from 'vuex'
 
 import Hero from '~/components/Hero'
 import Steps from '~/components/Steps'
-import ConfigureTemplate from '~/components/ConfigureTemplate'
+import ServiceTemplate from '~/components/ServiceTemplate'
 
 export default {
   data () {
@@ -71,7 +71,7 @@ export default {
   components: {
     Hero,
     Steps,
-    ConfigureTemplate
+    ServiceTemplate
   }
 }
 </script>
