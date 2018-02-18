@@ -32,6 +32,8 @@
 </template>
 
 <script>
+import { mapState, mapMutations } from 'vuex'
+
 import Hero from '~/components/Hero'
 import Steps from '~/components/Steps'
 import ConfigureTemplate from '~/components/ConfigureTemplate'
@@ -39,19 +41,27 @@ import ConfigureTemplate from '~/components/ConfigureTemplate'
 export default {
   data () {
     return {
-      step: 0,
-      url: 'https://phl.carto.com/api/v2/sql?q=SELECT * FROM incidents_part1_part2 LIMIT 5',
-      template: null
+      step: 0
     }
   },
+  computed: mapState({
+    url: (state) => state.draftService.url,
+    template: (state) => state.draftService.template
+  }),
   methods: {
+    ...mapMutations('draftService', {
+      setDraftUrl: 'SET_URL',
+      setDraftTemplate: 'SET_TEMPLATE',
+      resetDraft: 'RESET'
+    }),
     onSubmitUrl (event) {
       const urlField = event.currentTarget.url
-      this.url = urlField.value
+      this.resetDraft()
+      this.setDraftUrl(urlField.value)
       this.step = 1
     },
     onSubmitTemplate (template) {
-      this.template = template
+      this.setDraftTemplate(template)
       this.step = 2
     },
     onSelectStep (newStep) {

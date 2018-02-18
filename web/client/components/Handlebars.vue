@@ -12,12 +12,11 @@ export default {
   },
   computed: {
     html () {
-      if (!this.template || !this.sampleData) return 'no'
+      if (!this.template || !this.sampleData) return ''
       try {
         const compiledTemplate = handlebars.compile(this.template)
         return compiledTemplate({ data: this.sampleData })
       } catch (err) {
-        console.log('caught')
         return err.message
       }
     }

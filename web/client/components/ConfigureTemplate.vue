@@ -24,6 +24,7 @@
 
 <script>
 import Handlebars from '~/components/Handlebars'
+
 const defaultTemplate = `{{#if data.rows.length}}
   <h1>Your daily results</h1>
   <ul>
