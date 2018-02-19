@@ -31,10 +31,6 @@ export default {
     {
       title: 'Details',
       description: 'Email subject, etc.'
-    },
-    {
-      title: 'Embed',
-      description: 'How to let your users subscribe'
     }
   ]
 }

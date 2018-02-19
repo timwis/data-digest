@@ -1,5 +1,6 @@
 <template lang="pug">
   div
+    h2.title.is-3 Service created!
     p
       | Add subscribers by sending a <code>POST</code> request
       | containing the subscriber's <code>email</code> and the

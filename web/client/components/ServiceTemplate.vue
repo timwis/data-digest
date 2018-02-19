@@ -6,16 +6,31 @@
         pre#sample-data {{ sampleData }}
       div.column
         h4.title.is-4 Template
-        no-ssr
-          codemirror#template(
-            v-model='template'
-            :options='codemirrorOpts'
-          )
+        div.field
+          label.label(for='subjectTemplate') Email subject
+          div.control
+            no-ssr
+              codemirror#subjectTemplate(
+                v-model='subjectTemplate'
+                :options='codemirrorOpts'
+              )
+        div.field
+          label.label(for='bodyTemplate') Email body
+          div.control
+            no-ssr
+              codemirror#bodyTemplate(
+                v-model='bodyTemplate'
+                :options='codemirrorOpts'
+              )
     div
       h4.title.is-4 Preview
-      Handlebars#preview(
+      Handlebars#subjectPreview(
         :sample-data='sampleData'
-        :template='template'
+        :template='subjectTemplate'
+      )
+      Handlebars#bodyPreview(
+        :sample-data='sampleData'
+        :template='bodyTemplate'
       )
     button.button.is-large.is-info(
       type='submit'
@@ -25,10 +40,12 @@
 <script>
 import { stripIndent } from 'common-tags'
 import Handlebars from '~/components/Handlebars'
+import pick from 'lodash/pick'
 
-const defaultTemplate = stripIndent`
+const defaultSubjectTemplate = `You have {{ data.rows.length }} listings today`
+const defaultBodyTemplate = stripIndent`
   {{#if data.rows.length}}
-    <h1>Your daily results</h1>
+    <h1>Your daily listings</h1>
     <ul>
     {{#each data.rows}}
       <li>{{title}}</li>
@@ -37,7 +54,7 @@ const defaultTemplate = stripIndent`
   {{/if}}`
 
 export default {
-  props: [ 'url', 'currentTemplate' ],
+  props: [ 'url', 'currentSubjectTemplate', 'currentBodyTemplate' ],
   data () {
     return {
       sampleData: null,
@@ -45,7 +62,8 @@ export default {
         mode: { name: 'handlebars', base: 'text/html' },
         tabSize: 2
       },
-      template: this.currentTemplate || defaultTemplate
+      subjectTemplate: this.currentSubjectTemplate || defaultSubjectTemplate,
+      bodyTemplate: this.currentBodyTemplate || defaultBodyTemplate
     }
   },
   methods: {
@@ -54,8 +72,9 @@ export default {
       this.sampleData = await response.json()
     },
     onSubmit (event) {
-      if (this.template.length > 0) {
-        this.$emit('submit', this.template)
+      if (this.bodyTemplate.length > 0 && this.subjectTemplate.length > 0) {
+        const payload = pick(this, ['subjectTemplate', 'bodyTemplate'])
+        this.$emit('submit', payload)
       }
     }
   },
@@ -77,19 +96,39 @@ export default {
 <style lang="sass">
 #sample-data
   width: 400px
-  height: 250px
+  height: 360px
   overflow: auto
 
-#template
-  height: 250px
+@mixin border
+  border: 1px #dbdbdb solid
+  border-radius: 3px
 
 .CodeMirror
-  height: 250px
-  border: 1px #ddd solid
+  @include border
 
-#preview
+#subjectTemplate
+  .CodeMirror
+    width: inherit
+    height: auto
+    overflow: auto
+
+#bodyTemplate
   height: 250px
-  border: 1px #ddd solid
+
+  .CodeMirror
+    width: inherit
+    height: 250px
+
+#subjectPreview
+  @include border
+  height: 36px
+  margin-bottom: 10px
+  padding: 5px
+  font-weight: bold
+
+#bodyPreview
+  @include border
+  height: 250px
   margin-bottom: 25px
   overflow: auto
 </style>

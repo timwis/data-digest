@@ -13,18 +13,6 @@
         p.help What would you call this subscription?
 
     div.field
-      label.label(for='subjectTemplate') Email subject
-      div.control
-        input.input(
-          id='subjectTemplate'
-          type='text'
-          :placeholder="'e.g. You have {{ data.rows.length }} listings today'"
-          :value='currentSubjectTemplate'
-          required
-        )
-        p.help(v-html="'You can inject <code>{{ data }}</code> here too.'")
-
-    div.field
       label.label(for='endpoint') URL validation
       div.control
         input.input(
@@ -33,7 +21,7 @@
           :value='endpoint'
           required
         )
-        p.help(v-html='`Use regex. Need to inject the current date? Wait until the next step; this is just validation.`')
+        p.help Your users can subscribe to any URL that passes this regex validation.
 
     button.button.is-large.is-info(
       type='submit'
@@ -47,7 +35,6 @@ export default {
   props: [
     'url',
     'currentName',
-    'currentSubjectTemplate',
     'currentEndpoint'
   ],
   data () {

@@ -26,14 +26,14 @@
         ServiceTemplate(
           v-if='step === 1'
           :url='url'
-          :current-template='template'
+          :current-subject-template='subjectTemplate'
+          :current-body-template='bodyTemplate'
           @submit='onSubmitTemplate'
         )
         ServiceDetails(
           v-if='step === 2'
           :url='url'
           :current-name='name'
-          :current-subject-template='subjectTemplate'
           :current-endpoint='endpoint'
           @submit='onSubmitDetails'
         )
@@ -59,17 +59,17 @@ export default {
       step: 0
     }
   },
-  computed: mapState({
-    url: (state) => state.draftService.url,
-    template: (state) => state.draftService.template,
-    name: (state) => state.draftService.name,
-    subjectTemplate: (state) => state.draftService.subjectTemplate,
-    endpoint: (state) => state.draftService.endpoint
-  }),
+  computed: mapState('draftService', [
+    'url',
+    'subjectTemplate',
+    'bodyTemplate',
+    'name',
+    'endpoint'
+  ]),
   methods: {
     ...mapMutations('draftService', {
       setDraftUrl: 'SET_URL',
-      setDraftTemplate: 'SET_TEMPLATE',
+      setDraftTemplates: 'SET_TEMPLATES',
       setDraftDetails: 'SET_DETAILS',
       resetDraft: 'RESET'
     }),
@@ -79,8 +79,8 @@ export default {
       this.setDraftUrl(urlField.value)
       this.step = 1
     },
-    onSubmitTemplate (template) {
-      this.setDraftTemplate(template)
+    onSubmitTemplate (templates) {
+      this.setDraftTemplates(templates)
       this.step = 2
     },
     onSelectStep (newStep) {
