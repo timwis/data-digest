@@ -53,6 +53,7 @@
     "pg": "^7.4.0",
     "query-string": "^5.1.0",
     "redis": "^2.6.3",
+    "slug": "^0.9.1",
     "superstruct": "^0.5.0",
     "tortoise": "^1.0.1",
     "tough-cookie": "^2.3.3",

@@ -50,7 +50,6 @@ describe('Web server', () => {
       const cookie = await getAuthCookie(server.callback())
       const payload = {
         name: 'Test service',
-        slug: 'test-service',
         endpoint: 'http://endpoint.com',
         subject_template: 'Daily test service',
         body_template: 'Here is your test data'
@@ -62,6 +61,24 @@ describe('Web server', () => {
         .expect(201)
         .then((res) => {
           expect(res.body).toMatchObject(payload)
+        })
+    })
+
+    it('generates a slug from the name', async () => {
+      const cookie = await getAuthCookie(server.callback())
+      const payload = {
+        name: 'Test service',
+        endpoint: 'http://endpoint.com',
+        subject_template: 'Daily test service',
+        body_template: 'Here is your test data'
+      }
+      await request(server.callback())
+        .post('/api/services')
+        .set('Cookie', cookie)
+        .send(payload)
+        .expect(201)
+        .then((res) => {
+          expect(res.body.slug).toBe('test-service')
         })
     })
 
