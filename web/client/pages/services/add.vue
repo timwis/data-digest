@@ -37,6 +37,11 @@
           :current-endpoint='endpoint'
           @submit='onSubmitDetails'
         )
+        ServiceEmbed(
+          v-if='step === 3'
+          :url='url'
+          :name='name'
+        )
 </template>
 
 <script>
@@ -46,6 +51,7 @@ import Hero from '~/components/Hero'
 import Steps from '~/components/Steps'
 import ServiceTemplate from '~/components/ServiceTemplate'
 import ServiceDetails from '~/components/ServiceDetails'
+import ServiceEmbed from '~/components/ServiceEmbed'
 
 export default {
   data () {
@@ -89,7 +95,8 @@ export default {
     Hero,
     Steps,
     ServiceTemplate,
-    ServiceDetails
+    ServiceDetails,
+    ServiceEmbed
   }
 }
 </script>

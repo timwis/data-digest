@@ -33,7 +33,7 @@
           :value='endpoint'
           required
         )
-        p.help(v-html='`Need to inject the current date? Wait until the next step. This is just validation.`')
+        p.help(v-html='`Use regex. Need to inject the current date? Wait until the next step; this is just validation.`')
 
     button.button.is-large.is-info(
       type='submit'

@@ -23,16 +23,18 @@
 </template>
 
 <script>
+import { stripIndent } from 'common-tags'
 import Handlebars from '~/components/Handlebars'
 
-const defaultTemplate = `{{#if data.rows.length}}
-  <h1>Your daily results</h1>
-  <ul>
-  {{#each data.rows}}
-    <li>{{title}}</li>
-  {{/each}}
-  </ul>
-{{/if}}`
+const defaultTemplate = stripIndent`
+  {{#if data.rows.length}}
+    <h1>Your daily results</h1>
+    <ul>
+    {{#each data.rows}}
+      <li>{{title}}</li>
+    {{/each}}
+    </ul>
+  {{/if}}`
 
 export default {
   props: [ 'url', 'currentTemplate' ],
