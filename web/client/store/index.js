@@ -22,6 +22,10 @@ export const actions = {
     const services = await api.getServices()
     commit('SET_SERVICES', services)
   },
+  async createService (ctx, payload) {
+    const service = await api.createService(payload)
+    return service
+  },
   async logout ({ commit }) {
     await api.logout()
     commit('SET_USER', {})

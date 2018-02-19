@@ -37,15 +37,11 @@
           :current-endpoint='endpoint'
           @submit='onSubmitDetails'
         )
-        ServiceEmbed(
-          v-if='step === 3'
-          :url='url'
-          :name='name'
-        )
 </template>
 
 <script>
-import { mapState, mapMutations } from 'vuex'
+import { mapState, mapMutations, mapActions } from 'vuex'
+import pick from 'lodash/pick'
 
 import Hero from '~/components/Hero'
 import Steps from '~/components/Steps'
@@ -73,6 +69,9 @@ export default {
       setDraftDetails: 'SET_DETAILS',
       resetDraft: 'RESET'
     }),
+    ...mapActions([
+      'createService'
+    ]),
     onSubmitUrl (event) {
       const urlField = event.currentTarget.url
       this.resetDraft()
@@ -86,9 +85,18 @@ export default {
     onSelectStep (newStep) {
       this.step = newStep
     },
-    onSubmitDetails (details) {
+    async onSubmitDetails (details) {
       this.setDraftDetails(details)
       this.step = 3
+
+      const payload = pick(this, [
+        'name',
+        'subjectTemplate',
+        'bodyTemplate',
+        'endpoint'
+      ])
+      const service = await this.createService(payload)
+      // this.$router.push(`/services/${service.slug}`)
     }
   },
   components: {
