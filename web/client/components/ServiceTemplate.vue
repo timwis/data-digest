@@ -1,10 +1,10 @@
 <template lang="pug">
   form(@submit.prevent='onSubmit')
     div.columns
-      div.column
+      div.column#sample-data-container
         h4.title.is-4 URL response
         pre#sample-data {{ sampleData }}
-      div.column
+      div.column#template-container
         h4.title.is-4 Template
         div.field
           label.label(for='subjectTemplate') Email subject
@@ -94,10 +94,11 @@ export default {
 </script>
 
 <style lang="sass">
-#sample-data
-  width: 400px
-  height: 360px
+#sample-data-container
   overflow: auto
+
+#sample-data
+  height: 360px
 
 @mixin border
   border: 1px #dbdbdb solid
@@ -106,22 +107,22 @@ export default {
 .CodeMirror
   @include border
 
+#template-container
+  overflow-x: auto
+
 #subjectTemplate
   .CodeMirror
-    width: inherit
     height: auto
-    overflow: auto
 
 #bodyTemplate
-  height: 250px
-
   .CodeMirror
-    width: inherit
-    height: 250px
+    height: auto
 
 #subjectPreview
   @include border
-  height: 36px
+  min-height: 36px
+  max-height: 72px
+  overflow: auto
   margin-bottom: 10px
   padding: 5px
   font-weight: bold
