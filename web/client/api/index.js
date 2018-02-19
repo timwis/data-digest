@@ -7,6 +7,11 @@ export function getServices () {
     .then((res) => res.json())
 }
 
+export function getService (slug) {
+  return fetch(`/api/services/${slug}`, fetchOpts)
+    .then((res) => res.json())
+}
+
 export function logout () {
   const opts = { ...fetchOpts, method: 'POST' }
   return fetch('/api/logout', opts)

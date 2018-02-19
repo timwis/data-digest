@@ -1,6 +1,5 @@
 <template lang="pug">
   div
-    h2.title.is-3 Service created!
     p
       | Add subscribers by sending a <code>POST</code> request
       | containing the subscriber's <code>email</code> and the
@@ -19,12 +18,12 @@
     p
       | Your website can change the <code>url</code> being subscribed
       | to, adding a user's ID, category, etc., so long as the <code>url</code>
-      | validates against the regex you entered in the previous step.
+      | validates against the service's regex (<code>{{ endpoint }}</code>).
       | If you want a date injected into the <code>url</code> when
       | the subscription runs, use the special <code>formatDate</code>
       | handlebars tag. For example:
 
-    pre(v-text="`https://example.com/?start_date={{ formatDate '2 days ago' 'YYYY-MM-DD' }}`")
+    pre(v-text="`https://example.com/api/?start_date={{ formatDate '2 days ago' 'YYYY-MM-DD' }}`")
 </template>
 
 <script>
@@ -32,24 +31,22 @@ import urlJoin from 'url-join'
 import { stripIndent } from 'common-tags'
 
 const HOSTNAME = process.env.HOSTNAME
+const sampleEmail = `sample@sample.com`
+const sampleUrl = `https://example.com/api/latest/`
 
 export default {
-  props: [ 'url', 'name' ],
+  props: ['slug', 'endpoint'],
   data () {
     return {
       tab: 'curl'
     }
   },
   computed: {
-    slug () {
-      // TODO: Create the slug server-side
-      return this.name.toLowerCase().replace(' ', '-')
-    },
     subscriptionEndpoint () {
       return urlJoin(HOSTNAME, `/services/${this.slug}/subscribers`)
     },
     curl () {
-      const payload = { email: 'sample@sample.com', url: this.url }
+      const payload = { email: sampleEmail, url: sampleUrl }
       return stripIndent`
         curl -H "Content-Type: application/json" \\
         -X POST '${JSON.stringify(payload)}' \\
@@ -59,8 +56,8 @@ export default {
     javascript () {
       return stripIndent`
         const payload = {
-          email: 'sample@sample.com',
-          url: '${this.url}'
+          email: '${sampleEmail}',
+          url: '${sampleUrl}'
         }
         fetch('${this.subscriptionEndpoint}', {
           method: 'POST',
