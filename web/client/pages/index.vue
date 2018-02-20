@@ -20,13 +20,11 @@
 
 <script>
 import { mapState } from 'vuex'
-import AppLogo from '~/components/AppLogo'
 import SiteNav from '~/components/SiteNav'
 
 export default {
   layout: 'no-nav',
   components: {
-    AppLogo,
     SiteNav
   },
   computed: mapState({

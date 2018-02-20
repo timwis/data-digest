@@ -1,9 +1,12 @@
+const nodeExternals = require('webpack-node-externals')
+
 module.exports = {
   srcDir: 'web/client',
   env: {
     AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID,
     AUTH0_DOMAIN: process.env.AUTH0_DOMAIN,
-    AUTH0_CALLBACK_URL: process.env.AUTH0_CALLBACK_URL
+    AUTH0_CALLBACK_URL: process.env.AUTH0_CALLBACK_URL,
+    HOSTNAME: process.env.HOSTNAME
   },
   head: {
     title: 'subscribeme',
@@ -17,7 +20,27 @@ module.exports = {
     ]
   },
   loading: { color: '#3B8070' },
+  build: {
+    vendor: [
+      'vue-awesome'
+    ],
+    extend (config, { isServer }) {
+      if (isServer) {
+        config.externals = [
+          nodeExternals({
+            whitelist: [/es6-promise|\.(?!(?:js|json)$).{1,5}$/i, /^vue-awesome/]
+          })
+        ]
+      }
+      config.resolve.alias.handlebars = 'handlebars/dist/handlebars'
+    }
+  },
   css: [
-    'bulma'
+    'bulma',
+    'bulma-steps/dist/bulma-steps.min.css'
+  ],
+  plugins: [
+    '~/plugins/vue-awesome',
+    { src: '~/plugins/vue-codemirror', ssr: false }
   ]
 }

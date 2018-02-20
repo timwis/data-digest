@@ -1,33 +1,41 @@
-import Vuex from 'vuex'
-
 import * as api from '~/api'
 
-const createStore = () => new Vuex.Store({
-  state: {
-    user: {},
-    services: []
-  },
-  mutations: {
-    SET_USER (state, user) {
-      state.user = user
-    },
-    SET_SERVICES (state, services) {
-      state.services = services
-    }
-  },
-  actions: {
-    nuxtServerInit ({ commit }, { req }) {
-      if (req.state.user) commit('SET_USER', req.state.user)
-    },
-    async getServices ({ commit }) {
-      const services = await api.getServices()
-      commit('SET_SERVICES', services)
-    },
-    async logout ({ commit }) {
-      await api.logout()
-      commit('SET_USER', {})
-    }
-  }
+export const state = () => ({
+  user: {},
+  services: [],
+  currentService: {}
 })
 
-export default createStore
+export const mutations = {
+  SET_USER (state, user) {
+    state.user = user
+  },
+  SET_SERVICES (state, services) {
+    state.services = services
+  },
+  SET_CURRENT_SERVICE (state, service) {
+    state.currentService = service
+  }
+}
+
+export const actions = {
+  nuxtServerInit ({ commit }, { req }) {
+    if (req.state.user) commit('SET_USER', req.state.user)
+  },
+  async getServices ({ commit }) {
+    const services = await api.getServices()
+    commit('SET_SERVICES', services)
+  },
+  async getService ({ commit }, slug) {
+    const service = await api.getService(slug)
+    commit('SET_CURRENT_SERVICE', service)
+  },
+  async createService (ctx, payload) {
+    const service = await api.createService(payload)
+    return service
+  },
+  async logout ({ commit }) {
+    await api.logout()
+    commit('SET_USER', {})
+  }
+}

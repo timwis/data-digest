@@ -21,7 +21,6 @@ const struct = superstruct({
 const Service = {
   body: {
     name: 'string',
-    slug: 'string',
     endpoint: 'regex',
     subject_template: 'string',
     body_template: 'string'
