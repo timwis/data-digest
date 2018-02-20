@@ -149,6 +149,21 @@ describe('Web server', () => {
         })
     })
 
+    it('updates slug if name changes', async () => {
+      const cookie = await getAuthCookie(server.callback())
+      const payload = {
+        name: 'Changed name'
+      }
+      await request(server.callback())
+        .patch('/api/services/crime-incidents')
+        .set('Cookie', cookie)
+        .send(payload)
+        .expect(200)
+        .then((res) => {
+          expect(res.body.slug).toBe('changed-name')
+        })
+    })
+
     it(`doesn't allow unknown properties`, async () => {
       const cookie = await getAuthCookie(server.callback())
       const payload = {

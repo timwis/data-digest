@@ -94,6 +94,7 @@ router.patch(
     if (services.length === 0) ctx.throw(404)
 
     const payload = ctx.request.body
+    if (payload.name) payload.slug = slugify(payload.name)
     const conditions = { id: services[0].id }
     const service = await updateService(ctx.db, payload, conditions)
     ctx.body = service
