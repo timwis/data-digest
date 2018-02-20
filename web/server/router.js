@@ -66,7 +66,7 @@ router.post(
   async function (ctx) {
     const payload = ctx.request.body
     payload.id = shortid.generate()
-    payload.slug = slugify(payload.name)
+    payload.slug = slugify(payload.name, payload.id)
     ctx.body = await createService(ctx.db, payload)
     ctx.status = 201
   }
@@ -96,7 +96,10 @@ router.patch(
     if (services.length === 0) ctx.throw(404)
 
     const payload = ctx.request.body
-    if (payload.name) payload.slug = slugify(payload.name)
+    if (payload.name) {
+      const id = serviceSlug.split('-').pop()
+      payload.slug = slugify(payload.name, id)
+    }
     const conditions = { id: services[0].id }
     const service = await updateService(ctx.db, payload, conditions)
     ctx.body = service
@@ -155,8 +158,8 @@ function getServices (db) {
   return db('services')
 }
 
-function slugify (input) {
-  return slug(input, { lower: true })
+function slugify (input, id) {
+  return `${slug(input, { lower: true })}-${id}`
 }
 
 async function createService (db, payload) {

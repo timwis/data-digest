@@ -7,6 +7,8 @@ const dbConfig = require('../knexfile')[NODE_ENV]
 const createServer = require('../web/server')
 
 const serviceKeys = ['id', 'name', 'slug', 'endpoint', 'subject_template', 'body_template']
+const sampleId = 'eWRhpRV'
+const sampleSlug = `crime-incidents-${sampleId}`
 
 describe('Web server', () => {
   let server, db
@@ -78,8 +80,9 @@ describe('Web server', () => {
         .send(payload)
         .expect(201)
         .then((res) => {
-          expect(res.body.id.length).toBeGreaterThanOrEqual(6)
-          expect(res.body.slug).toBe('test-service')
+          const id = res.body.id
+          expect(id.length).toBeGreaterThanOrEqual(6)
+          expect(res.body.slug).toBe(`test-service-${id}`)
         })
     })
 
@@ -101,14 +104,14 @@ describe('Web server', () => {
   describe('GET to /services/:service', () => {
     it('requires authentication', async () => {
       await request(server.callback())
-        .get('/api/services/crime-incidents')
+        .get(`/api/services/${sampleSlug}`)
         .expect(401)
     })
 
     it('returns service object', async () => {
       const cookie = await getAuthCookie(server.callback())
       await request(server.callback())
-        .get('/api/services/crime-incidents')
+        .get(`/api/services/${sampleSlug}`)
         .set('Cookie', cookie)
         .expect(200)
         .then((res) => {
@@ -129,7 +132,7 @@ describe('Web server', () => {
   describe('PATCH to /services/:service', () => {
     it('requires authentication', async () => {
       await request(server.callback())
-        .patch('/api/services/crime-incidents')
+        .patch(`/api/services/${sampleSlug}`)
         .expect(401)
     })
 
@@ -139,7 +142,7 @@ describe('Web server', () => {
         subject_template: 'Changed subject'
       }
       await request(server.callback())
-        .patch('/api/services/crime-incidents')
+        .patch(`/api/services/${sampleSlug}`)
         .set('Cookie', cookie)
         .send(payload)
         .expect(200)
@@ -156,12 +159,12 @@ describe('Web server', () => {
         name: 'Changed name'
       }
       await request(server.callback())
-        .patch('/api/services/crime-incidents')
+        .patch(`/api/services/${sampleSlug}`)
         .set('Cookie', cookie)
         .send(payload)
         .expect(200)
         .then((res) => {
-          expect(res.body.slug).toBe('changed-name')
+          expect(res.body.slug).toBe(`changed-name-${sampleId}`)
         })
     })
 
@@ -172,7 +175,7 @@ describe('Web server', () => {
         unknown: 'unknown'
       }
       await request(server.callback())
-        .patch('/api/services/crime-incidents')
+        .patch(`/api/services/${sampleSlug}`)
         .set('Cookie', cookie)
         .send(payload)
         .expect(422)
@@ -194,14 +197,14 @@ describe('Web server', () => {
   describe('DELETE to /services/:service', () => {
     it('requires authentication', async () => {
       await request(server.callback())
-        .delete('/api/services/crime-incidents')
+        .delete(`/api/services/${sampleSlug}`)
         .expect(401)
     })
 
     it('returns 204 on success', async () => {
       const cookie = await getAuthCookie(server.callback())
       await request(server.callback())
-        .delete('/api/services/crime-incidents')
+        .delete(`/api/services/${sampleSlug}`)
         .set('Cookie', cookie)
         .expect(204)
     })
@@ -215,7 +218,7 @@ describe('Web server', () => {
     })
   })
 
-  describe('POST to /services/crime-incidents/subscribers', () => {
+  describe('POST to /services/:service/subscribers', () => {
     it('returns 201 for new subscription', async () => {
       const query = 'SELECT * FROM foo'
       const payload = { // already exists in seed data
@@ -223,7 +226,7 @@ describe('Web server', () => {
         url: `https://phl.carto.com/api/v2/sql?q=${encodeURIComponent(query)}`
       }
       await request(server.callback())
-        .post('/api/services/crime-incidents/subscribers')
+        .post(`/api/services/${sampleSlug}/subscribers`)
         .send(payload)
         .expect(201)
     })
@@ -234,7 +237,7 @@ describe('Web server', () => {
         url: `https://phl.carto.com/api/v2/sql?q=SELECT+1`
       }
       await request(server.callback())
-        .post('/api/services/crime-incidents/subscribers')
+        .post(`/api/services/${sampleSlug}/subscribers`)
         .send(payload)
         .expect(200)
     })
@@ -245,7 +248,7 @@ describe('Web server', () => {
         url: `http://invalid.com`
       }
       await request(server.callback())
-        .post('/api/services/crime-incidents/subscribers')
+        .post(`/api/services/${sampleSlug}/subscribers`)
         .send(payload)
         .expect(422)
     })

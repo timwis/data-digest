@@ -1,7 +1,7 @@
 services:
   - id: eWRhpRV
     name: Crime incidents
-    slug: crime-incidents
+    slug: crime-incidents-eWRhpRV
     endpoint: https:\/\/phl\.carto\.com\/api\/v2\/sql\/?\?q=.+
     subject_template: "{{data.rows.length}} crimes"
     body_template: |
