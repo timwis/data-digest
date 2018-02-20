@@ -1,6 +1,7 @@
 const Router = require('koa-router')
 const validate = require('koa-superstruct')
 const slug = require('slug')
+const shortid = require('shortid')
 
 const schemas = require('./schemas')
 const passport = require('./auth')
@@ -64,6 +65,7 @@ router.post(
   validate(schemas.service.create),
   async function (ctx) {
     const payload = ctx.request.body
+    payload.id = shortid.generate()
     payload.slug = slugify(payload.name)
     ctx.body = await createService(ctx.db, payload)
     ctx.status = 201
@@ -158,12 +160,11 @@ function slugify (input) {
 }
 
 async function createService (db, payload) {
-  const [ serviceId ] = await db('services')
+  await db('services')
     .insert(payload)
-    .returning('id')
 
   const [ service ] = await db('services')
-    .where('id', serviceId)
+    .where('id', payload.id)
 
   return service
 }

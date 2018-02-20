@@ -64,7 +64,7 @@ describe('Web server', () => {
         })
     })
 
-    it('generates a slug from the name', async () => {
+    it('generates an id and slug from the name', async () => {
       const cookie = await getAuthCookie(server.callback())
       const payload = {
         name: 'Test service',
@@ -78,6 +78,7 @@ describe('Web server', () => {
         .send(payload)
         .expect(201)
         .then((res) => {
+          expect(res.body.id.length).toBeGreaterThanOrEqual(6)
           expect(res.body.slug).toBe('test-service')
         })
     })

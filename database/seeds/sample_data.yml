@@ -1,5 +1,5 @@
 services:
-  - id: 1
+  - id: eWRhpRV
     name: Crime incidents
     slug: crime-incidents
     endpoint: https:\/\/phl\.carto\.com\/api\/v2\/sql\/?\?q=.+
@@ -16,13 +16,13 @@ services:
 
 queries:
   - id: 1
-    service_id: 1
+    service_id: eWRhpRV
     url: https://phl.carto.com/api/v2/sql?q=SELECT * FROM incidents_part1_part2 WHERE dc_dist = '24' AND dispatch_date >= '{{formatDate '2 days ago' 'YYYY-MM-DD'}}'
   - id: 2
-    service_id: 1
+    service_id: eWRhpRV
     url: https://phl.carto.com/api/v2/sql?q=SELECT * FROM incidents_part1_part2 WHERE dc_dist = '25' AND dispatch_date >= '{{formatDate '2 days ago' 'YYYY-MM-DD'}}'
   - id: 3
-    service_id: 1
+    service_id: eWRhpRV
     url: https://phl.carto.com/api/v2/sql?q=SELECT+1
 
 subscribers:

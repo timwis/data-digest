@@ -1,7 +1,7 @@
 exports.up = function (knex) {
   return knex.schema
     .createTable('services', (table) => {
-      table.increments('id').primary()
+      table.text('id').primary()
       table.string('name')
       table.string('slug')
       table.string('endpoint')
@@ -10,7 +10,7 @@ exports.up = function (knex) {
     })
     .createTable('queries', (table) => {
       table.increments('id').primary()
-      table.integer('service_id').references('services.id').onDelete('CASCADE')
+      table.text('service_id').references('services.id').onDelete('CASCADE')
       table.string('url')
     })
     .createTable('subscribers', (table) => {
