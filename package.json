@@ -22,8 +22,10 @@
   "license": "MIT",
   "dependencies": {
     "body": "^5.1.0",
+    "buefy": "^0.6.3",
     "bulma": "^0.6.2",
     "bulma-steps": "^1.0.1",
+    "camelcase-keys": "^4.2.0",
     "common-tags": "^1.7.2",
     "date-fns": "^1.29.0",
     "get-form-data": "^2.0.0",
@@ -53,6 +55,7 @@
     "pg": "^7.4.0",
     "query-string": "^5.1.0",
     "redis": "^2.6.3",
+    "shortid": "^2.2.8",
     "slug": "^0.9.1",
     "snakecase-keys": "^1.1.0",
     "superstruct": "^0.5.0",

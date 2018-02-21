@@ -37,10 +37,12 @@ module.exports = {
   },
   css: [
     'bulma',
-    'bulma-steps/dist/bulma-steps.min.css'
+    'bulma-steps/dist/bulma-steps.min.css',
+    'buefy/lib/buefy.css'
   ],
   plugins: [
     '~/plugins/vue-awesome',
-    { src: '~/plugins/vue-codemirror', ssr: false }
+    { src: '~/plugins/vue-codemirror', ssr: false },
+    '~/plugins/buefy'
   ]
 }
