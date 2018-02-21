@@ -4,15 +4,12 @@
       | Add subscribers by sending a <code>POST</code> request
       | containing the subscriber's <code>email</code> and the
       | <code>url</code> being subscribed to.
-    div.tabs
-      ul
-        li(:class='{"is-active": tab === "curl"}')
-          a(@click='tab = "curl"') cURL
-        li(:class='{"is-active": tab === "javascript"}')
-          a(@click='tab = "javascript"') JavaScript
 
-    pre(v-if='tab === "curl"') {{ curl }}
-    pre(v-if='tab === "javascript"') {{ javascript }}
+    b-tabs(v-model='activeTab')
+      b-tab-item(label='cURL')
+        pre {{ curl }}
+      b-tab-item(label='JavaScript')
+        pre {{ javascript }}
 
     h4.title.is-4 Dynamic URLs
     p
@@ -38,7 +35,7 @@ export default {
   props: ['slug', 'endpoint'],
   data () {
     return {
-      tab: 'curl'
+      activeTab: 0
     }
   },
   computed: {

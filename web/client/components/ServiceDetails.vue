@@ -1,27 +1,27 @@
 <template lang="pug">
   form(@submit.prevent='onSubmit')
-    div.field
-      label.label(for='name') Service name
-      div.control
-        input.input(
-          id='name'
-          type='text'
-          placeholder='e.g. Listings'
-          :value='currentName'
-          required
-        )
-        p.help What would you call this subscription?
+    b-field(
+      label='Service name'
+      label-for='name'
+      message='What would you call this subscription?'
+    )
+      b-input(
+        id='name'
+        placeholder='e.g. Listings'
+        :value='currentName'
+        required
+      )
 
-    div.field
-      label.label(for='endpoint') URL validation
-      div.control
-        input.input(
-          id='endpoint'
-          type='text'
-          :value='endpoint'
-          required
-        )
-        p.help Your users can subscribe to any URL that passes this regex validation.
+    b-field(
+      label='URL validation'
+      label-for='endpoint'
+      message='Your users can subscribe to any URL that passes this regex validation.'
+    )
+      b-input(
+        id='endpoint'
+        :value='endpoint'
+        required
+      )
 
     button.button.is-large.is-info(
       type='submit'
