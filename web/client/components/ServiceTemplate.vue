@@ -4,6 +4,7 @@
       div.column#sample-data-container
         h4.title.is-4 URL response
         pre#sample-data {{ sampleData }}
+        b-loading(:active='isLoading')
       div.column#template-container
         h4.title.is-4 Template
         div.field
@@ -58,6 +59,7 @@ export default {
   data () {
     return {
       sampleData: null,
+      isLoading: false,
       codemirrorOpts: {
         mode: { name: 'handlebars', base: 'text/html' },
         tabSize: 2
@@ -68,8 +70,10 @@ export default {
   },
   methods: {
     async fetchSampleData () {
+      this.isLoading = true
       const response = await fetch(this.url)
       this.sampleData = await response.json()
+      this.isLoading = false
     },
     onSubmit (event) {
       if (this.bodyTemplate.length > 0 && this.subjectTemplate.length > 0) {
