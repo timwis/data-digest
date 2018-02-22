@@ -83,7 +83,7 @@ export default {
     }
   },
   mounted () {
-    this.fetchSampleData()
+    if (this.url) this.fetchSampleData()
   },
   watch: {
     url (newValue, oldValue) {
