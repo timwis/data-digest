@@ -20,7 +20,7 @@ export const mutations = {
 
 export const actions = {
   nuxtServerInit ({ commit }, { req }) {
-    if (req.state.user) commit('SET_USER', req.state.user)
+    if (req.user) commit('SET_USER', req.user)
   },
   async getServices ({ commit }) {
     const services = await api.getServices()

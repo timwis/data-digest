@@ -69,7 +69,6 @@ async function createServer (db) {
       return new Promise((resolve, reject) => {
         ctx.res.on('close', resolve)
         ctx.res.on('finish', resolve)
-        if (ctx.state) ctx.req.state = ctx.state // pass user info to nuxt
         nuxt.render(ctx.req, ctx.res, (promise) => {
           promise.then(resolve).catch(reject)
         })
