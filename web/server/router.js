@@ -25,7 +25,12 @@ if (NODE_ENV === 'test') {
   router.post(
     '/authenticate-test',
     async function (ctx) {
-      await ctx.login()
+      await ctx.login({
+        id: 'tester|tester',
+        displayName: 'tester@tester.com',
+        picture: 'http://tester.com/tester.png',
+        nickname: 'tester'
+      })
       ctx.status = 200
     }
   )
@@ -49,12 +54,13 @@ router.get(
   }
 )
 
-// get all services
+// get all services (for current user)
 router.get(
   '/services',
   requireAuth,
   async function (ctx) {
-    ctx.body = await getServices(ctx.db)
+    const userId = ctx.state.user.id
+    ctx.body = await getServices(ctx.db, userId)
   }
 )
 
@@ -67,6 +73,7 @@ router.post(
     const payload = ctx.request.body
     payload.id = shortid.generate()
     payload.slug = slugify(payload.name, payload.id)
+    payload.user_id = ctx.state.user.id
     ctx.body = await createService(ctx.db, payload)
     ctx.status = 201
   }
@@ -78,8 +85,10 @@ router.get(
   requireAuth,
   async function (ctx) {
     const { serviceSlug } = ctx.params
+    const userId = ctx.state.user.id
     const services = await getServicesBySlug(ctx.db, serviceSlug)
     if (services.length === 0) ctx.throw(404)
+    else if (services[0].user_id !== userId) ctx.throw(401)
     ctx.body = services[0]
     ctx.status = 200
   }
@@ -92,12 +101,14 @@ router.patch(
   validate(schemas.service.update),
   async function (ctx) {
     const { serviceSlug } = ctx.params
+    const userId = ctx.state.user.id
     const services = await getServicesBySlug(ctx.db, serviceSlug)
     if (services.length === 0) ctx.throw(404)
+    else if (services[0].user_id !== userId) ctx.throw(401)
 
     const payload = ctx.request.body
     if (payload.name) {
-      const id = serviceSlug.split('-').pop()
+      const id = getIdFromSlug(serviceSlug)
       payload.slug = slugify(payload.name, id)
     }
     const conditions = { id: services[0].id }
@@ -112,8 +123,10 @@ router.delete(
   requireAuth,
   async function (ctx) {
     const { serviceSlug } = ctx.params
+    const userId = ctx.state.user.id
     const services = await getServicesBySlug(ctx.db, serviceSlug)
     if (services.length === 0) ctx.throw(404)
+    else if (services[0].user_id !== userId) ctx.throw(401)
 
     const serviceId = services[0].id
     await deleteService(ctx.db, serviceId)
@@ -154,12 +167,17 @@ function requireAuth (ctx, next) {
   }
 }
 
-function getServices (db) {
+function getServices (db, userId) {
   return db('services')
+    .where('user_id', userId)
 }
 
 function slugify (input, id) {
   return `${slug(input, { lower: true })}-${id}`
+}
+
+function getIdFromSlug (slug) {
+  return slug.split('-').pop()
 }
 
 async function createService (db, payload) {

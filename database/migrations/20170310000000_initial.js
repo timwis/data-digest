@@ -2,6 +2,7 @@ exports.up = function (knex) {
   return knex.schema
     .createTable('services', (table) => {
       table.text('id').primary()
+      table.string('user_id') // references auth0
       table.string('name')
       table.string('slug')
       table.string('endpoint')

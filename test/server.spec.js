@@ -6,9 +6,11 @@ const NODE_ENV = process.env.NODE_ENV || 'test'
 const dbConfig = require('../knexfile')[NODE_ENV]
 const createServer = require('../web/server')
 
-const serviceKeys = ['id', 'name', 'slug', 'endpoint', 'subject_template', 'body_template']
+const serviceKeys = ['id', 'user_id', 'name', 'slug', 'endpoint', 'subject_template', 'body_template']
 const sampleId = 'eWRhpRV'
 const sampleSlug = `crime-incidents-${sampleId}`
+const sampleUserId = `tester|tester`
+const sampleSlugOtherUser = `other-users-service-23TplPdS`
 
 describe('Web server', () => {
   let server, db
@@ -37,6 +39,17 @@ describe('Web server', () => {
         .expect(200)
         .then((res) => {
           expect(Array.isArray(res.body)).toBe(true)
+        })
+    })
+
+    it('only returns services owned by logged-in user', async () => {
+      const cookie = await getAuthCookie(server.callback())
+      await request(server.callback())
+        .get('/api/services')
+        .set('Cookie', cookie)
+        .expect(200)
+        .then((res) => {
+          res.body.forEach((service) => expect(service.user_id).toBe(sampleUserId))
         })
     })
   })
@@ -86,6 +99,24 @@ describe('Web server', () => {
         })
     })
 
+    it('saves logged-in user to user_id field', async () => {
+      const cookie = await getAuthCookie(server.callback())
+      const payload = {
+        name: 'Test service',
+        endpoint: 'http://endpoint.com',
+        subject_template: 'Daily test service',
+        body_template: 'Here is your test data'
+      }
+      await request(server.callback())
+        .post('/api/services')
+        .set('Cookie', cookie)
+        .send(payload)
+        .expect(201)
+        .then((res) => {
+          expect(res.body.user_id).toBe(sampleUserId)
+        })
+    })
+
     it('returns 422 on missing fields', async () => {
       const cookie = await getAuthCookie(server.callback())
       const payload = {
@@ -126,6 +157,14 @@ describe('Web server', () => {
         .get('/api/services/unknown')
         .set('Cookie', cookie)
         .expect(404)
+    })
+
+    it('returns 401 on service belonging to another user', async () => {
+      const cookie = await getAuthCookie(server.callback())
+      await request(server.callback())
+        .get(`/api/services/${sampleSlugOtherUser}`)
+        .set('Cookie', cookie)
+        .expect(401)
     })
   })
 
@@ -192,6 +231,18 @@ describe('Web server', () => {
         .send(payload)
         .expect(404)
     })
+
+    it('returns 401 on service belonging to another user', async () => {
+      const cookie = await getAuthCookie(server.callback())
+      const payload = {
+        subject_template: 'Changed subject'
+      }
+      await request(server.callback())
+        .patch(`/api/services/${sampleSlugOtherUser}`)
+        .set('Cookie', cookie)
+        .send(payload)
+        .expect(401)
+    })
   })
 
   describe('DELETE to /services/:service', () => {
@@ -215,6 +266,14 @@ describe('Web server', () => {
         .delete('/api/services/unknown')
         .set('Cookie', cookie)
         .expect(404)
+    })
+
+    it('returns 401 on service belonging to another user', async () => {
+      const cookie = await getAuthCookie(server.callback())
+      await request(server.callback())
+        .delete(`/api/services/${sampleSlugOtherUser}`)
+        .set('Cookie', cookie)
+        .expect(401)
     })
   })
 
