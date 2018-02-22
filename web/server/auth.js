@@ -24,7 +24,7 @@ if (AUTH0_DOMAIN && AUTH0_CLIENT_ID && AUTH0_CLIENT_SECRET && AUTH0_CALLBACK_URL
 }
 
 passport.serializeUser(function (user, done) {
-  const profile = pick(user, ['displayName', 'picture', 'nickname'])
+  const profile = pick(user, ['id', 'displayName', 'picture', 'nickname'])
   done(null, profile)
 })
 passport.deserializeUser(function (user, done) {

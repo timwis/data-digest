@@ -1,5 +1,6 @@
 services:
   - id: eWRhpRV
+    user_id: tester|tester
     name: Crime incidents
     slug: crime-incidents-eWRhpRV
     endpoint: https:\/\/phl\.carto\.com\/api\/v2\/sql\/?\?q=.+
@@ -13,6 +14,13 @@ services:
         {{/each}}
         </ul>
       {{/if}}
+  - id: 23TplPdS
+    user_id: other|other
+    name: Other user's service
+    slug: other-users-service-23TplPdS
+    endpoint: http:\/\/otheruser\.com\/.+
+    subject_template: Other user's service
+    body_template: Other user's service
 
 queries:
   - id: 1
