@@ -52,10 +52,17 @@ export default {
   },
   methods: {
     ...mapActions([
-      'getService'
+      'getService',
+      'updateService'
     ]),
-    onSubmitDetails (details) {
-      console.log('received', details)
+    async onSubmitDetails (payload) {
+      const slug = this.slug
+      const service = await this.updateService({ slug, payload })
+      if (service.slug !== slug) {
+        const newUrl = `/services/${service.slug}`
+        this.$router.replace(newUrl)
+      }
+      this.activeTab = 0
     }
   },
   components: {
