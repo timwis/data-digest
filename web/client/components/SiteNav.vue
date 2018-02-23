@@ -5,12 +5,15 @@
   )
     div.navbar-brand
       nuxt-link.navbar-item(to='/') subscribeme
-      div.navbar-burger
+      div.navbar-burger(
+        :class="{'is-active': isExpanded}"
+        @click='isExpanded = !isExpanded'
+      )
         span
         span
         span
 
-    div.navbar-menu
+    div.navbar-menu(:class="{'is-active': isExpanded}")
       div.navbar-start
         nuxt-link.navbar-item(to='/') Home
 
@@ -36,6 +39,11 @@ export default {
     user: {
       type: Object,
       default: () => ({})
+    }
+  },
+  data () {
+    return {
+      isExpanded: false
     }
   }
 }
