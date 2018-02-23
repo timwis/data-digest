@@ -3,36 +3,18 @@
     Hero(title='Add service')
     section.section
       div.container
-
-        form.url-container(@submit.prevent='onSubmitUrl')
-          div.field.is-horizontal
-            div.field-label.is-normal
-              label.label(for='url') Data URL
-            div.field-body
-              div.field.has-addons
-                div.control.is-expanded
-                  input.input(
-                    type='url'
-                    id='url'
-                    placeholder='https://...'
-                    :value='url'
-                    required
-                  )
-                div.control
-                  button.button.is-info(type='submit') Configure
-
         Steps(:current='step' @select='onSelectStep')
 
         ServiceTemplate(
           v-if='step === 1'
-          :url='url'
+          :current-sample-url='sampleUrl'
           :current-subject-template='subjectTemplate'
           :current-body-template='bodyTemplate'
           @submit='onSubmitTemplate'
         )
         ServiceDetails(
           v-if='step === 2'
-          :url='url'
+          :sample-url='sampleUrl'
           :current-name='name'
           :current-endpoint='endpoint'
           submit-button='Create'
@@ -53,11 +35,11 @@ import ServiceEmbed from '~/components/ServiceEmbed'
 export default {
   data () {
     return {
-      step: 0
+      step: 1
     }
   },
   computed: mapState('draftService', [
-    'url',
+    'sampleUrl',
     'subjectTemplate',
     'bodyTemplate',
     'name',
@@ -65,7 +47,6 @@ export default {
   ]),
   methods: {
     ...mapMutations('draftService', {
-      setDraftUrl: 'SET_URL',
       setDraftTemplates: 'SET_TEMPLATES',
       setDraftDetails: 'SET_DETAILS',
       resetDraft: 'RESET'
@@ -73,12 +54,6 @@ export default {
     ...mapActions([
       'createService'
     ]),
-    onSubmitUrl (event) {
-      const urlField = event.currentTarget.url
-      this.resetDraft()
-      this.setDraftUrl(urlField.value)
-      this.step = 1
-    },
     onSubmitTemplate (templates) {
       this.setDraftTemplates(templates)
       this.step = 2
@@ -92,6 +67,7 @@ export default {
 
       const payload = pick(this, [
         'name',
+        'sampleUrl',
         'subjectTemplate',
         'bodyTemplate',
         'endpoint'
@@ -109,8 +85,3 @@ export default {
   }
 }
 </script>
-
-<style lang="sass" scoped>
-.url-container
-  padding-bottom: 25px
-</style>

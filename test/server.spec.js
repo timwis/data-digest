@@ -6,7 +6,7 @@ const NODE_ENV = process.env.NODE_ENV || 'test'
 const dbConfig = require('../knexfile')[NODE_ENV]
 const createServer = require('../web/server')
 
-const serviceKeys = ['id', 'user_id', 'name', 'slug', 'endpoint', 'subject_template', 'body_template']
+const serviceKeys = ['id', 'user_id', 'name', 'slug', 'endpoint', 'sample_url', 'subject_template', 'body_template']
 const sampleId = 'eWRhpRV'
 const sampleSlug = `crime-incidents-${sampleId}`
 const sampleUserId = `tester|tester`

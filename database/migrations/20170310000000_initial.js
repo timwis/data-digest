@@ -6,6 +6,7 @@ exports.up = function (knex) {
       table.string('name')
       table.string('slug')
       table.string('endpoint')
+      table.string('sample_url')
       table.string('subject_template')
       table.text('body_template')
     })

@@ -22,6 +22,7 @@ const Service = {
   body: {
     name: 'string',
     endpoint: 'regex',
+    sample_url: 'string?',
     subject_template: 'string',
     body_template: 'string'
   }

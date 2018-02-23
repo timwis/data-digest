@@ -33,14 +33,14 @@ import getFormData from 'get-form-data'
 
 export default {
   props: [
-    'url',
+    'sampleUrl',
     'currentName',
     'currentEndpoint',
     'submitButton'
   ],
   computed: {
     endpoint () {
-      return this.currentEndpoint || (this.url ? escapeRegex(this.url) : '')
+      return this.currentEndpoint || (this.sampleUrl ? escapeRegex(this.sampleUrl) : '')
     }
   },
   methods: {
