@@ -1,7 +1,12 @@
 import snakeCaseKeys from 'snakecase-keys'
 import camelCaseKeys from 'camelcase-keys'
 
-const fetchOpts = { credentials: 'same-origin' }
+const fetchOpts = {
+  credentials: 'same-origin',
+  headers: {
+    'Content-Type': 'application/json'
+  }
+}
 
 export function getServices () {
   return fetch('/api/services', fetchOpts)
@@ -23,8 +28,16 @@ export function logout () {
 export function createService (payload) {
   const payloadSnakeKeys = snakeCaseKeys(payload)
   const body = JSON.stringify(payloadSnakeKeys)
-  const headers = { 'Content-Type': 'application/json' }
-  const opts = { ...fetchOpts, method: 'POST', headers, body }
+  const opts = { ...fetchOpts, method: 'POST', body }
   return fetch('/api/services', opts)
+    .then((res) => res.json())
+}
+
+export function updateService (slug, payload) {
+  const payloadSnakeKeys = snakeCaseKeys(payload)
+  const body = JSON.stringify(payloadSnakeKeys)
+  const opts = { ...fetchOpts, method: 'PATCH', body }
+  console.log(opts)
+  return fetch(`/api/services/${slug}`, opts)
     .then((res) => res.json())
 }

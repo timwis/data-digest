@@ -35,6 +35,7 @@
           :url='url'
           :current-name='name'
           :current-endpoint='endpoint'
+          submit-button='Create'
           @submit='onSubmitDetails'
         )
 </template>

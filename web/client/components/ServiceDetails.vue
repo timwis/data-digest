@@ -25,7 +25,7 @@
 
     button.button.is-large.is-info(
       type='submit'
-    ) Next
+    ) {{ submitButton }}
 </template>
 
 <script>
@@ -35,11 +35,12 @@ export default {
   props: [
     'url',
     'currentName',
-    'currentEndpoint'
+    'currentEndpoint',
+    'submitButton'
   ],
-  data () {
-    return {
-      endpoint: this.currentEndpoint || (this.url ? escapeRegex(this.url) : '')
+  computed: {
+    endpoint () {
+      return this.currentEndpoint || (this.url ? escapeRegex(this.url) : '')
     }
   },
   methods: {
