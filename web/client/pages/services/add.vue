@@ -74,6 +74,7 @@ export default {
         'endpoint'
       ])
       const service = await this.createService(payload)
+      this.resetDraft()
       this.$router.push(`/services/${service.slug}?tab=embed`)
     }
   },

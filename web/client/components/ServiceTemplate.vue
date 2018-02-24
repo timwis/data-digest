@@ -1,5 +1,6 @@
 <template lang="pug">
   div
+    b-loading(:active='isLoading')
     form#sample-url-container(@submit.prevent='onSubmitSampleUrl')
       div.field
         label.label(for='sample-url') Data URL
@@ -15,13 +16,22 @@
             )
           div.control
             button.button.is-info(type='submit') Configure
+        p.help
+          | The URL should return JSON data that you'll use in your email template.
+          a(@click='useExample') Try an example
 
-    form(v-if='sampleUrl' @submit.prevent='onSubmitTemplate')
+    div#sample-url-error(v-if='sampleUrlError')
+      label.label Data URL error
+      p
+        | There was an error fetching the Data URL you provided.
+        | Make sure the Data URL has CORS enabled and returns JSON.
+      pre {{ sampleUrlError }}
+
+    form(v-if='sampleData' @submit.prevent='onSubmitTemplate')
       div.columns
         div.column#sample-data-container
           label.label Data URL response
           pre#sample-data {{ sampleData }}
-          b-loading(:active='isLoading')
         div.column#template-container
           div.field
             label.label(for='subjectTemplate') Email subject
@@ -55,20 +65,10 @@
 </template>
 
 <script>
-import { stripIndent } from 'common-tags'
+import axios from 'axios'
 import Handlebars from '~/components/Handlebars'
 import pick from 'lodash/pick'
-
-const defaultSubjectTemplate = `You have {{ data.rows.length }} listings today`
-const defaultBodyTemplate = stripIndent`
-  {{#if data.rows.length}}
-    <h1>Your daily listings</h1>
-    <ul>
-    {{#each data.rows}}
-      <li>{{title}}</li>
-    {{/each}}
-    </ul>
-  {{/if}}`
+import * as templates from '~/helpers/templates'
 
 export default {
   props: [
@@ -80,6 +80,7 @@ export default {
   data () {
     return {
       sampleData: null,
+      sampleUrlError: null,
       isLoading: false,
       codemirrorOpts: {
         mode: { name: 'handlebars', base: 'text/html' },
@@ -87,35 +88,44 @@ export default {
         autoRefresh: true
       },
       sampleUrl: this.currentSampleUrl || '',
-      subjectTemplate: this.currentSubjectTemplate || defaultSubjectTemplate,
-      bodyTemplate: this.currentBodyTemplate || defaultBodyTemplate
+      subjectTemplate: this.currentSubjectTemplate || templates.defaultSubjectTemplate(),
+      bodyTemplate: this.currentBodyTemplate || templates.defaultBodyTemplate()
     }
   },
   methods: {
-    async fetchSampleData () {
+    async fetchSampleData (url) {
       this.isLoading = true
-      const response = await fetch(this.sampleUrl)
-      this.sampleData = await response.json()
-      this.isLoading = false
+      this.sampleUrlError = null
+      this.sampleData = null
+      try {
+        const response = await axios.get(url)
+        this.sampleData = await response.data
+      } catch (err) {
+        this.sampleUrlError = err.message
+      } finally {
+        this.isLoading = false
+      }
     },
     onSubmitSampleUrl (event) {
       const sampleUrlField = this.$refs.sampleUrl
       this.sampleUrl = sampleUrlField.value
+      this.fetchSampleData(this.sampleUrl)
     },
     onSubmitTemplate (event) {
       if (this.sampleUrl.length > 0 && this.bodyTemplate.length > 0 && this.subjectTemplate.length > 0) {
         const payload = pick(this, ['sampleUrl', 'subjectTemplate', 'bodyTemplate'])
         this.$emit('submit', payload)
       }
+    },
+    useExample () {
+      this.sampleUrl = templates.exampleSampleUrl()
+      this.subjectTemplate = templates.exampleSubjectTemplate()
+      this.bodyTemplate = templates.exampleBodyTemplate()
+      this.fetchSampleData(this.sampleUrl)
     }
   },
   mounted () {
-    if (this.sampleUrl) this.fetchSampleData()
-  },
-  watch: {
-    sampleUrl (newValue, oldValue) {
-      this.fetchSampleData()
-    }
+    if (this.sampleUrl) this.fetchSampleData(this.sampleUrl)
   },
   components: {
     Handlebars
