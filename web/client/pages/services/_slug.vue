@@ -37,6 +37,9 @@
               submit-button='Update'
               @submit='onSubmitEdits'
             )
+
+          b-tab-item(label='Delete')
+            button.button.is-danger(@click='onClickDelete') Delete this service
 </template>
 
 <script>
@@ -75,7 +78,8 @@ export default {
   methods: {
     ...mapActions([
       'getService',
-      'updateService'
+      'updateService',
+      'deleteService'
     ]),
     async onSubmitEdits (payload) {
       const slug = this.slug
@@ -85,6 +89,18 @@ export default {
         this.$router.replace(newUrl)
       }
       this.activeTab = 0
+    },
+    onClickDelete () {
+      this.$dialog.confirm({
+        title: 'Delete this service',
+        message: 'Are you sure you want to <b>delete</b> this service? This action cannot be undone.',
+        confirmText: 'Delete service',
+        type: 'is-danger',
+        onConfirm: async () => {
+          await this.deleteService(this.slug)
+          this.$router.push('/services')
+        }
+      })
     }
   },
   components: {

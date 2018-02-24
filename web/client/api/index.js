@@ -39,4 +39,8 @@ export default class Api {
       .then((res) => res.data)
       .then(camelCaseKeys)
   }
+
+  deleteService (slug) {
+    return this.client.delete(`/api/services/${slug}`)
+  }
 }

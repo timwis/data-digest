@@ -18,6 +18,9 @@ export const mutations = {
   },
   SET_CURRENT_SERVICE (state, service) {
     state.currentService = service
+  },
+  RESET_CURRENT_SERVICE (state) {
+    state.currentService = {}
   }
 }
 
@@ -41,6 +44,10 @@ export const actions = {
     const service = await api.updateService(slug, payload)
     commit('SET_CURRENT_SERVICE', service)
     return service
+  },
+  async deleteService ({ commit }, slug) {
+    await api.deleteService(slug)
+    commit('RESET_CURRENT_SERVICE')
   },
   async logout ({ commit }) {
     await api.logout()
