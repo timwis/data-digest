@@ -16,11 +16,15 @@
     div.navbar-menu(:class="{'is-active': isExpanded}")
       div.navbar-start
         nuxt-link.navbar-item(to='/') Home
+        nuxt-link.navbar-item(
+          v-if='isLoggedIn'
+          to='/services'
+        ) Services
 
       div.navbar-end
         // If logged in
         div.navbar-item.has-dropdown.is-hoverable(
-          v-if='user.nickname'
+          v-if='isLoggedIn'
         )
           a.navbar-link {{ user.nickname }}
           div.navbar-dropdown
@@ -44,6 +48,11 @@ export default {
   data () {
     return {
       isExpanded: false
+    }
+  },
+  computed: {
+    isLoggedIn () {
+      return !!this.user.nickname
     }
   }
 }

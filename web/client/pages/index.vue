@@ -9,7 +9,7 @@
 
         nuxt-link.button.is-link(
           v-if='user.nickname'
-          to='/services'
+          to='/services/add'
         ) Get started
         nuxt-link.button.is-link(
           v-else
