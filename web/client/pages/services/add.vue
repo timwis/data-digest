@@ -10,6 +10,7 @@
           :current-sample-url='sampleUrl'
           :current-subject-template='subjectTemplate'
           :current-body-template='bodyTemplate'
+          submit-button='Next'
           @submit='onSubmitTemplate'
         )
         ServiceDetails(

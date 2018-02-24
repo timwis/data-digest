@@ -51,7 +51,7 @@
         )
       button.button.is-large.is-info(
         type='submit'
-      ) Next
+      ) {{ submitButton }}
 </template>
 
 <script>
@@ -71,14 +71,20 @@ const defaultBodyTemplate = stripIndent`
   {{/if}}`
 
 export default {
-  props: [ 'currentSampleUrl', 'currentSubjectTemplate', 'currentBodyTemplate' ],
+  props: [
+    'currentSampleUrl',
+    'currentSubjectTemplate',
+    'currentBodyTemplate',
+    'submitButton'
+  ],
   data () {
     return {
       sampleData: null,
       isLoading: false,
       codemirrorOpts: {
         mode: { name: 'handlebars', base: 'text/html' },
-        tabSize: 2
+        tabSize: 2,
+        autoRefresh: true
       },
       sampleUrl: this.currentSampleUrl || '',
       subjectTemplate: this.currentSubjectTemplate || defaultSubjectTemplate,
