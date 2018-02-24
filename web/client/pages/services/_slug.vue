@@ -13,7 +13,11 @@
             )
 
           b-tab-item(label='Embed')
-            ServiceEmbed(:slug='slug' :endpoint='endpoint')
+            ServiceEmbed(
+              :slug='slug'
+              :endpoint='endpoint'
+              :sample-url='sampleUrl'
+            )
 
           b-tab-item(label='Template')
             ServiceTemplate(

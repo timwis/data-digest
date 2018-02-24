@@ -29,10 +29,13 @@ import { stripIndent } from 'common-tags'
 
 const HOSTNAME = process.env.HOSTNAME
 const sampleEmail = `sample@sample.com`
-const sampleUrl = `https://example.com/api/latest/`
 
 export default {
-  props: ['slug', 'endpoint'],
+  props: [
+    'slug',
+    'endpoint',
+    'sampleUrl'
+  ],
   data () {
     return {
       activeTab: 0
@@ -43,7 +46,7 @@ export default {
       return urlJoin(HOSTNAME, `/services/${this.slug}/subscribers`)
     },
     curl () {
-      const payload = { email: sampleEmail, url: sampleUrl }
+      const payload = { email: sampleEmail, url: this.sampleUrl }
       return stripIndent`
         curl -H "Content-Type: application/json" \\
         -X POST '${JSON.stringify(payload)}' \\
@@ -54,7 +57,7 @@ export default {
       return stripIndent`
         const payload = {
           email: '${sampleEmail}',
-          url: '${sampleUrl}'
+          url: '${this.sampleUrl}'
         }
         fetch('${this.subscriptionEndpoint}', {
           method: 'POST',
