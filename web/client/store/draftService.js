@@ -1,6 +1,6 @@
 export const state = () => ({
-  sampleData: null,
-  url: 'https://phl.carto.com/api/v2/sql?q=SELECT * FROM incidents_part1_part2 LIMIT 5',
+  // url: 'https://phl.carto.com/api/v2/sql?q=SELECT * FROM incidents_part1_part2 LIMIT 5',
+  sampleUrl: null,
   name: null,
   subjectTemplate: null,
   bodyTemplate: null,
@@ -11,7 +11,8 @@ export const mutations = {
   SET_URL (state, url) {
     state.url = url
   },
-  SET_TEMPLATES (state, { subjectTemplate, bodyTemplate }) {
+  SET_TEMPLATES (state, { sampleUrl, subjectTemplate, bodyTemplate }) {
+    state.sampleUrl = sampleUrl
     state.subjectTemplate = subjectTemplate
     state.bodyTemplate = bodyTemplate
   },

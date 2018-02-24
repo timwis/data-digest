@@ -1,4 +1,7 @@
-import * as api from '~/api'
+import Api from '~/api'
+
+const HOSTNAME = process.env.HOSTNAME
+const api = new Api(HOSTNAME)
 
 export const state = () => ({
   user: {},

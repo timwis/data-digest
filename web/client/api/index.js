@@ -1,43 +1,42 @@
 import snakeCaseKeys from 'snakecase-keys'
 import camelCaseKeys from 'camelcase-keys'
+import axios from 'axios'
 
-const fetchOpts = {
-  credentials: 'same-origin',
-  headers: {
-    'Content-Type': 'application/json'
+export default class Api {
+  constructor (baseURL) {
+    this.client = axios.create({
+      baseURL,
+      withCredentials: true
+    })
   }
-}
 
-export function getServices () {
-  return fetch('/api/services', fetchOpts)
-    .then((res) => res.json())
-    .then((services) => services.map(camelCaseKeys))
-}
+  getServices () {
+    return this.client.get('/api/services')
+      .then((res) => res.data)
+      .then((services) => services.map(camelCaseKeys))
+  }
 
-export function getService (slug) {
-  return fetch(`/api/services/${slug}`, fetchOpts)
-    .then((res) => res.json())
-    .then((service) => camelCaseKeys(service))
-}
+  getService (slug) {
+    return this.client.get(`/api/services/${slug}`)
+      .then((res) => res.data)
+      .then(camelCaseKeys)
+  }
 
-export function logout () {
-  const opts = { ...fetchOpts, method: 'POST' }
-  return fetch('/api/logout', opts)
-}
+  logout () {
+    return this.client.post('/api/logout')
+  }
 
-export function createService (payload) {
-  const payloadSnakeKeys = snakeCaseKeys(payload)
-  const body = JSON.stringify(payloadSnakeKeys)
-  const opts = { ...fetchOpts, method: 'POST', body }
-  return fetch('/api/services', opts)
-    .then((res) => res.json())
-}
+  createService (payload) {
+    const payloadSnakeKeys = snakeCaseKeys(payload)
+    return this.client.post('/api/services', payloadSnakeKeys)
+      .then((res) => res.data)
+      .then(camelCaseKeys)
+  }
 
-export function updateService (slug, payload) {
-  const payloadSnakeKeys = snakeCaseKeys(payload)
-  const body = JSON.stringify(payloadSnakeKeys)
-  const opts = { ...fetchOpts, method: 'PATCH', body }
-  console.log(opts)
-  return fetch(`/api/services/${slug}`, opts)
-    .then((res) => res.json())
+  updateService (slug, payload) {
+    const payloadSnakeKeys = snakeCaseKeys(payload)
+    return this.client.patch(`/api/services/${slug}`, payloadSnakeKeys)
+      .then((res) => res.data)
+      .then(camelCaseKeys)
+  }
 }

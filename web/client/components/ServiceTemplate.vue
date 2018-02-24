@@ -1,41 +1,57 @@
 <template lang="pug">
-  form(@submit.prevent='onSubmit')
-    div.columns
-      div.column#sample-data-container
-        h4.title.is-4 URL response
-        pre#sample-data {{ sampleData }}
-        b-loading(:active='isLoading')
-      div.column#template-container
-        h4.title.is-4 Template
-        div.field
-          label.label(for='subjectTemplate') Email subject
+  div
+    form#sample-url-container(@submit.prevent='onSubmitSampleUrl')
+      div.field
+        label.label(for='sample-url') Data URL
+        div.field.has-addons
+          div.control.is-expanded
+            input.input(
+              type='url'
+              id='sample-url'
+              ref='sampleUrl'
+              placeholder='https://...'
+              :value='sampleUrl'
+              required
+            )
           div.control
-            no-ssr
-              codemirror#subjectTemplate(
-                v-model='subjectTemplate'
-                :options='codemirrorOpts'
-              )
-        div.field
-          label.label(for='bodyTemplate') Email body
-          div.control
-            no-ssr
-              codemirror#bodyTemplate(
-                v-model='bodyTemplate'
-                :options='codemirrorOpts'
-              )
-    div
-      h4.title.is-4 Preview
-      Handlebars#subjectPreview(
-        :sample-data='sampleData'
-        :template='subjectTemplate'
-      )
-      Handlebars#bodyPreview(
-        :sample-data='sampleData'
-        :template='bodyTemplate'
-      )
-    button.button.is-large.is-info(
-      type='submit'
-    ) Next
+            button.button.is-info(type='submit') Configure
+
+    form(v-if='sampleUrl' @submit.prevent='onSubmitTemplate')
+      div.columns
+        div.column#sample-data-container
+          label.label Data URL response
+          pre#sample-data {{ sampleData }}
+          b-loading(:active='isLoading')
+        div.column#template-container
+          div.field
+            label.label(for='subjectTemplate') Email subject
+            div.control
+              no-ssr
+                codemirror#subjectTemplate(
+                  v-model='subjectTemplate'
+                  :options='codemirrorOpts'
+                )
+          div.field
+            label.label(for='bodyTemplate') Email body
+            div.control
+              no-ssr
+                codemirror#bodyTemplate(
+                  v-model='bodyTemplate'
+                  :options='codemirrorOpts'
+                )
+      div
+        h4.title.is-4 Preview
+        Handlebars#subjectPreview(
+          :sample-data='sampleData'
+          :template='subjectTemplate'
+        )
+        Handlebars#bodyPreview(
+          :sample-data='sampleData'
+          :template='bodyTemplate'
+        )
+      button.button.is-large.is-info(
+        type='submit'
+      ) {{ submitButton }}
 </template>
 
 <script>
@@ -55,15 +71,22 @@ const defaultBodyTemplate = stripIndent`
   {{/if}}`
 
 export default {
-  props: [ 'url', 'currentSubjectTemplate', 'currentBodyTemplate' ],
+  props: [
+    'currentSampleUrl',
+    'currentSubjectTemplate',
+    'currentBodyTemplate',
+    'submitButton'
+  ],
   data () {
     return {
       sampleData: null,
       isLoading: false,
       codemirrorOpts: {
         mode: { name: 'handlebars', base: 'text/html' },
-        tabSize: 2
+        tabSize: 2,
+        autoRefresh: true
       },
+      sampleUrl: this.currentSampleUrl || '',
       subjectTemplate: this.currentSubjectTemplate || defaultSubjectTemplate,
       bodyTemplate: this.currentBodyTemplate || defaultBodyTemplate
     }
@@ -71,23 +94,26 @@ export default {
   methods: {
     async fetchSampleData () {
       this.isLoading = true
-      const response = await fetch(this.url)
+      const response = await fetch(this.sampleUrl)
       this.sampleData = await response.json()
       this.isLoading = false
     },
-    onSubmit (event) {
-      if (this.bodyTemplate.length > 0 && this.subjectTemplate.length > 0) {
-        const payload = pick(this, ['subjectTemplate', 'bodyTemplate'])
+    onSubmitSampleUrl (event) {
+      const sampleUrlField = this.$refs.sampleUrl
+      this.sampleUrl = sampleUrlField.value
+    },
+    onSubmitTemplate (event) {
+      if (this.sampleUrl.length > 0 && this.bodyTemplate.length > 0 && this.subjectTemplate.length > 0) {
+        const payload = pick(this, ['sampleUrl', 'subjectTemplate', 'bodyTemplate'])
         this.$emit('submit', payload)
       }
     }
   },
   mounted () {
-    if (this.url) this.fetchSampleData()
+    if (this.sampleUrl) this.fetchSampleData()
   },
   watch: {
-    url (newValue, oldValue) {
-      console.log('url changed', newValue)
+    sampleUrl (newValue, oldValue) {
       this.fetchSampleData()
     }
   },
@@ -98,11 +124,14 @@ export default {
 </script>
 
 <style lang="sass">
+#sample-url-container
+  padding-bottom: 25px
+
 #sample-data-container
   overflow: auto
 
 #sample-data
-  height: 360px
+  height: 270px
 
 @mixin border
   border: 1px #dbdbdb solid
