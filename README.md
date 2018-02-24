@@ -1,4 +1,4 @@
-# subscribeme [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/subscribeme/Lobby) 
+# subscribeme [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/subscribeme/Lobby) [![stability - experimental][experimental-img]][stability-url]
 Monitors an API for new data and sends digest emails to subscribers.
 
 SubscribeMe is meant to be a service for developers who want to let their users
@@ -73,3 +73,6 @@ Load seed data into your database
 
 Run the scheduler (or set it up using the scheduler add-on)
 > `heroku run scheduler`
+
+[experimental-img]: https://img.shields.io/badge/stability-experimental-orange.svg?style=flat-square
+[stability-url]: https://nodejs.org/api/documentation.html#documentation_stability_index

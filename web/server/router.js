@@ -108,7 +108,7 @@ router.patch(
 
     const payload = ctx.request.body
     if (payload.name) {
-      const id = getIdFromSlug(serviceSlug)
+      const id = services[0].id
       payload.slug = slugify(payload.name, id)
     }
     const conditions = { id: services[0].id }
@@ -174,10 +174,6 @@ function getServices (db, userId) {
 
 function slugify (input, id) {
   return `${slug(input, { lower: true })}-${id}`
-}
-
-function getIdFromSlug (slug) {
-  return slug.split('-').pop()
 }
 
 async function createService (db, payload) {

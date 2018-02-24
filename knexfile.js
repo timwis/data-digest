@@ -2,6 +2,7 @@ module.exports = {
   development: {
     client: 'pg',
     connection: process.env.DATABASE_URL,
+    debug: true,
     migrations: {
       directory: './database/migrations'
     },
