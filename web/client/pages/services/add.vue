@@ -7,83 +7,94 @@
 
         ServiceTemplate(
           v-if='step === 1'
-          :current-sample-url='sampleUrl'
-          :current-subject-template='subjectTemplate'
-          :current-body-template='bodyTemplate'
+          :current-sample-url='payload.sampleUrl'
+          :current-subject-template='payload.subjectTemplate'
+          :current-body-template='payload.bodyTemplate'
           submit-button='Next'
           @submit='onSubmitTemplate'
         )
         ServiceDetails(
           v-if='step === 2'
-          :sample-url='sampleUrl'
-          :current-name='name'
-          :current-endpoint='endpoint'
+          :sample-url='payload.sampleUrl'
+          :current-name='payload.name'
+          :current-endpoint='payload.endpoint'
           submit-button='Create'
           @submit='onSubmitDetails'
         )
 </template>
 
 <script>
-import { mapState, mapMutations, mapActions } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 import pick from 'lodash/pick'
 
+import initiateLogin from '~/helpers/auth0'
 import Hero from '~/components/Hero'
 import Steps from '~/components/Steps'
 import ServiceTemplate from '~/components/ServiceTemplate'
 import ServiceDetails from '~/components/ServiceDetails'
-import ServiceEmbed from '~/components/ServiceEmbed'
 
 export default {
   data () {
     return {
-      step: 1
+      step: 1,
+      payload: {
+        sampleUrl: null,
+        subjectTemplate: null,
+        bodyTemplate: null,
+        name: null,
+        endpoint: null
+      }
     }
   },
-  computed: mapState('draftService', [
-    'sampleUrl',
-    'subjectTemplate',
-    'bodyTemplate',
-    'name',
-    'endpoint'
+  computed: mapGetters([
+    'isLoggedIn'
   ]),
   methods: {
-    ...mapMutations('draftService', {
-      setDraftTemplates: 'SET_TEMPLATES',
-      setDraftDetails: 'SET_DETAILS',
-      resetDraft: 'RESET'
-    }),
     ...mapActions([
-      'createService'
+      'createService',
+      'stashDraftService',
+      'removeStashedDraftService',
+      'loadStashedDraftService'
     ]),
-    onSubmitTemplate (templates) {
-      this.setDraftTemplates(templates)
-      this.step = 2
-    },
     onSelectStep (newStep) {
       this.step = newStep
     },
+    async onSubmitTemplate (templates) {
+      Object.assign(this.payload, templates)
+      this.step = 2
+    },
     async onSubmitDetails (details) {
-      this.setDraftDetails(details)
+      Object.assign(this.payload, details)
       this.step = 3
 
-      const payload = pick(this, [
-        'name',
-        'sampleUrl',
-        'subjectTemplate',
-        'bodyTemplate',
-        'endpoint'
-      ])
-      const service = await this.createService(payload)
-      this.resetDraft()
-      this.$router.push(`/services/${service.slug}?tab=embed`)
+      if (this.isLoggedIn) {
+        const service = await this.createService(this.payload)
+        this.redirectToService(service.slug)
+      } else {
+        await this.stashDraftService(this.payload)
+        initiateLogin({ redirect: 'addService' })
+      }
+    },
+    redirectToService (slug) {
+      this.$router.push(`/services/${slug}?tab=embed`)
+    }
+  },
+  async created () {
+    if (this.isLoggedIn) {
+      const draft = await this.loadStashedDraftService()
+      if (draft) {
+        this.step = 3
+        const service = await this.createService(draft)
+        this.removeStashedDraftService()
+        this.redirectToService(service.slug)
+      }
     }
   },
   components: {
     Hero,
     Steps,
     ServiceTemplate,
-    ServiceDetails,
-    ServiceEmbed
+    ServiceDetails
   }
 }
 </script>

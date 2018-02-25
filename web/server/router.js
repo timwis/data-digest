@@ -6,6 +6,10 @@ const shortid = require('shortid')
 const schemas = require('./schemas')
 const passport = require('./auth')
 const NODE_ENV = process.env.NODE_ENV
+const redirectPaths = { // only allow whitelisted redirects
+  index: '/',
+  addService: '/services/add'
+}
 
 const router = new Router({ prefix: '/api' })
 module.exports = router
@@ -15,7 +19,8 @@ router.get(
   '/authenticate',
   passport.authenticate('auth0'),
   async function (ctx) {
-    ctx.redirect('/')
+    const redirectPath = redirectPaths[ctx.query.redirect] || redirectPaths.index
+    ctx.redirect(redirectPath)
     ctx.status = 301
   }
 )

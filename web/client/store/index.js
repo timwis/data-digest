@@ -1,3 +1,4 @@
+import localForage from 'localforage'
 import Api from '~/api'
 
 const HOSTNAME = process.env.HOSTNAME
@@ -6,8 +7,13 @@ const api = new Api(HOSTNAME)
 export const state = () => ({
   user: {},
   services: [],
-  currentService: {}
+  currentService: {},
+  draftService: {}
 })
+
+export const getters = {
+  isLoggedIn: (state) => !!state.user.nickname
+}
 
 export const mutations = {
   SET_USER (state, user) {
@@ -52,5 +58,14 @@ export const actions = {
   async logout ({ commit }) {
     await api.logout()
     commit('SET_USER', {})
+  },
+  async stashDraftService (ctx, draftService) {
+    await localForage.setItem('draftService', draftService)
+  },
+  async removeStashedDraftService ({ commit }) {
+    await localForage.removeItem('draftService')
+  },
+  async loadStashedDraftService ({ commit }) {
+    return await localForage.getItem('draftService')
   }
 }

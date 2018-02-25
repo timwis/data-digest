@@ -4,13 +4,11 @@
 </template>
 
 <script>
-import { auth0Url } from '../helpers/auth0'
+import initiateLogin from '../helpers/auth0'
 
 export default {
   created () {
-    if (typeof window !== 'undefined') {
-      window.location.href = auth0Url
-    }
+    initiateLogin({ redirect: 'index' })
   }
 }
 </script>
