@@ -8,12 +8,7 @@
         h2.subtitle Monitors an API for new data and sends digest emails to subscribers.
 
         nuxt-link.button.is-link(
-          v-if='user.nickname'
           to='/services/add'
-        ) Get started
-        nuxt-link.button.is-link(
-          v-else
-          to='/login'
         ) Get started
 </template>
 
