@@ -2,7 +2,7 @@
   div
     Hero(title='Service details')
     section.section
-      div.container
+      div.container(v-if='isFetched')
         h2.title.is-3 {{ name }}
         b-tabs(v-model='activeTab' type='is-boxed' :animated='false')
           b-tab-item(label='Summary')
@@ -21,7 +21,6 @@
 
           b-tab-item(label='Template')
             ServiceTemplate(
-              v-if='isFetched'
               :current-sample-url='sampleUrl'
               :current-subject-template='subjectTemplate'
               :current-body-template='bodyTemplate'
@@ -31,7 +30,6 @@
 
           b-tab-item(label='Details')
             ServiceDetails(
-              v-if='isFetched'
               :current-name='name'
               :current-endpoint='endpoint'
               submit-button='Update'
@@ -49,10 +47,12 @@ import ServiceEmbed from '~/components/ServiceEmbed'
 import ServiceSummary from '~/components/ServiceSummary'
 import ServiceDetails from '~/components/ServiceDetails'
 import ServiceTemplate from '~/components/ServiceTemplate'
+import ShowError from '~/mixins/ShowError'
 
 const tabs = { summary: 0, embed: 1 }
 
 export default {
+  mixins: [ ShowError ],
   data () {
     return {
       slug: this.$route.params.slug,
@@ -72,8 +72,12 @@ export default {
       return this.subjectTemplate || this.bodyTemplate
     }
   },
-  created () {
-    this.getService(this.slug)
+  async created () {
+    try {
+      await this.getService(this.slug)
+    } catch (err) {
+      this.showError('Something went wrong getting this service')
+    }
   },
   methods: {
     ...mapActions([
@@ -83,12 +87,16 @@ export default {
     ]),
     async onSubmitEdits (payload) {
       const slug = this.slug
-      const service = await this.updateService({ slug, payload })
-      if (service.slug !== slug) {
-        const newUrl = `/services/${service.slug}`
-        this.$router.replace(newUrl)
+      try {
+        const service = await this.updateService({ slug, payload })
+        if (service.slug !== slug) {
+          const newUrl = `/services/${service.slug}`
+          this.$router.replace(newUrl)
+        }
+        this.activeTab = 0
+      } catch (err) {
+        this.showError('Something went wrong updating this service')
       }
-      this.activeTab = 0
     },
     onClickDelete () {
       this.$dialog.confirm({
@@ -97,8 +105,12 @@ export default {
         confirmText: 'Delete service',
         type: 'is-danger',
         onConfirm: async () => {
-          await this.deleteService(this.slug)
-          this.$router.push('/services')
+          try {
+            await this.deleteService(this.slug)
+            this.$router.push('/services')
+          } catch (err) {
+            this.showError('Something went wrong deleting this service')
+          }
         }
       })
     }
