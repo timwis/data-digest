@@ -32,8 +32,10 @@ import Hero from '~/components/Hero'
 import Steps from '~/components/Steps'
 import ServiceTemplate from '~/components/ServiceTemplate'
 import ServiceDetails from '~/components/ServiceDetails'
+import ShowError from '~/mixins/ShowError'
 
 export default {
+  mixins: [ ShowError ],
   data () {
     return {
       step: 1,
@@ -68,8 +70,13 @@ export default {
       this.step = 3
 
       if (this.isLoggedIn) {
-        const service = await this.createService(this.payload)
-        this.redirectToService(service.slug)
+        try {
+          const service = await this.createService(this.payload)
+          this.redirectToService(service.slug)
+        } catch (err) {
+          this.step = 2
+          this.showError('Something went wrong creating the service')
+        }
       } else {
         await this.stashDraftService(this.payload)
         initiateLogin({ redirect: 'addService' })
@@ -84,9 +91,14 @@ export default {
       const draft = await this.loadStashedDraftService()
       if (draft) {
         this.step = 3
-        const service = await this.createService(draft)
         this.removeStashedDraftService()
-        this.redirectToService(service.slug)
+        try {
+          const service = await this.createService(draft)
+          this.redirectToService(service.slug)
+        } catch (err) {
+          this.step = 1
+          this.showError('Something went wrong creating the service')
+        }
       }
     }
   },

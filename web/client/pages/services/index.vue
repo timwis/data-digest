@@ -18,16 +18,22 @@
 import { mapActions, mapState } from 'vuex'
 import Hero from '~/components/Hero'
 import ServiceCard from '~/components/ServiceCard'
+import ShowError from '~/mixins/ShowError'
 
 export default {
+  mixins: [ ShowError ],
   computed: mapState({
     services: (state) => state.services
   }),
   methods: mapActions([
     'getServices'
   ]),
-  mounted () {
-    this.getServices()
+  async created () {
+    try {
+      await this.getServices()
+    } catch (err) {
+      this.showError('Something went wrong getting your list of services')
+    }
   },
   components: {
     Hero,
