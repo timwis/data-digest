@@ -7,7 +7,7 @@
     "start": "node web/server",
     "dev": "nodemon web/server --ignore web/client",
     "client": "nuxt --config-file web/client/nuxt.config.js",
-    "build": "nuxt build",
+    "build": "nuxt build --config-file web/client/nuxt.config.js",
     "test": "jest test",
     "scheduler": "node workers/scheduler",
     "consumer": "node workers/consumer",
