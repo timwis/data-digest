@@ -139,6 +139,23 @@ router.delete(
   }
 )
 
+// get subscribers
+router.get(
+  '/api/services/:serviceSlug/subscribers',
+  requireAuth,
+  async function (ctx) {
+    const { serviceSlug } = ctx.params
+    const userId = ctx.state.user.id
+    const services = await getServicesBySlug(ctx.db, serviceSlug)
+    if (services.length === 0) ctx.throw(404)
+    else if (services[0].user_id !== userId) ctx.throw(401)
+
+    const serviceId = services[0].id
+    const subscribers = await getSubscribers(ctx.db, serviceId)
+    ctx.body = subscribers
+  }
+)
+
 // add subscriber
 router.post(
   '/api/services/:serviceSlug/subscribers',
@@ -240,6 +257,13 @@ function getMatchingSubscribers (db, { queryId, email }) {
   return db('subscribers')
     .where('query_id', queryId)
     .where('email', email)
+}
+
+function getSubscribers (db, serviceId) {
+  return db('subscribers')
+    .select('subscribers.id', 'email', 'query_id', 'queries.url as query_url')
+    .join('queries', 'queries.id', '=', 'subscribers.query_id')
+    .where('queries.service_id', serviceId)
 }
 
 function createSubscriber (db, { queryId, email }) {

@@ -7,6 +7,7 @@ const dbConfig = require('../knexfile')[NODE_ENV]
 const createServer = require('../web/server')
 
 const serviceKeys = ['id', 'user_id', 'name', 'slug', 'endpoint', 'sample_url', 'subject_template', 'body_template']
+const subscriberKeys = ['id', 'email', 'query_id', 'query_url']
 const sampleId = 'eWRhpRV'
 const sampleSlug = `crime-incidents-${sampleId}`
 const sampleUserId = `tester|tester`
@@ -272,6 +273,36 @@ describe('Web server', () => {
       const cookie = await getAuthCookie(server.callback())
       await request(server.callback())
         .delete(`/api/services/${sampleSlugOtherUser}`)
+        .set('Cookie', cookie)
+        .expect(401)
+    })
+  })
+
+  describe('GET to /services/:service/subscribers', () => {
+    it('requires authentication', async () => {
+      await request(server.callback())
+        .get(`/api/services/${sampleSlug}/subscribers`)
+        .expect(401)
+    })
+
+    it('returns 200 and list of subscribers', async () => {
+      const cookie = await getAuthCookie(server.callback())
+      await request(server.callback())
+        .get(`/api/services/${sampleSlug}/subscribers`)
+        .set('Cookie', cookie)
+        .expect(200)
+        .then((res) => {
+          expect(Array.isArray(res.body)).toBe(true)
+          const item = res.body[0]
+          const actualKeys = Object.keys(item)
+          expect(actualKeys).toEqual(subscriberKeys)
+        })
+    })
+
+    it('returns 401 on service belonging to another user', async () => {
+      const cookie = await getAuthCookie(server.callback())
+      await request(server.callback())
+        .get(`/api/services/${sampleSlugOtherUser}/subscribers`)
         .set('Cookie', cookie)
         .expect(401)
     })
