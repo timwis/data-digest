@@ -31,7 +31,7 @@ const Service = {
 const Subscriber = {
   body: {
     email: 'email',
-    url: 'url'
+    url: 'string'
   }
 }
 
