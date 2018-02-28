@@ -3,9 +3,8 @@ import camelCaseKeys from 'camelcase-keys'
 import axios from 'axios'
 
 export default class Api {
-  constructor (baseURL) {
+  constructor () {
     this.client = axios.create({
-      baseURL,
       withCredentials: true
     })
   }
