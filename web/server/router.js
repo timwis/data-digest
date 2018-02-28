@@ -160,7 +160,6 @@ router.post(
     const subscriber = await getOrCreateSubscriber(ctx.db, { queryId, email })
 
     ctx.status = (subscriber.created) ? 201 : 200
-    ctx.body = subscriber.id
   }
 )
 
