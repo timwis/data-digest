@@ -11,12 +11,12 @@ const redirectPaths = { // only allow whitelisted redirects
   addService: '/services/add'
 }
 
-const router = new Router({ prefix: '/api' })
+const router = new Router()
 module.exports = router
 
 // authenticate with auth code
 router.get(
-  '/authenticate',
+  '/callback',
   passport.authenticate('auth0'),
   async function (ctx) {
     const redirectPath = redirectPaths[ctx.query.redirect] || redirectPaths.index
@@ -28,7 +28,7 @@ router.get(
 // open authentication during test mode
 if (NODE_ENV === 'test') {
   router.post(
-    '/authenticate-test',
+    '/callback-test',
     async function (ctx) {
       await ctx.login({
         id: 'tester|tester',
@@ -43,7 +43,7 @@ if (NODE_ENV === 'test') {
 
 // logout
 router.post(
-  '/logout',
+  '/api/logout',
   async function (ctx) {
     ctx.logout()
     ctx.status = 200
@@ -52,7 +52,7 @@ router.post(
 
 // current user
 router.get(
-  '/user',
+  '/api/user',
   requireAuth,
   async function (ctx) {
     ctx.body = ctx.state.user
@@ -61,7 +61,7 @@ router.get(
 
 // get all services (for current user)
 router.get(
-  '/services',
+  '/api/services',
   requireAuth,
   async function (ctx) {
     const userId = ctx.state.user.id
@@ -71,7 +71,7 @@ router.get(
 
 // create service
 router.post(
-  '/services',
+  '/api/services',
   requireAuth,
   validate(schemas.service.create),
   async function (ctx) {
@@ -86,7 +86,7 @@ router.post(
 
 // get specific service
 router.get(
-  '/services/:serviceSlug',
+  '/api/services/:serviceSlug',
   requireAuth,
   async function (ctx) {
     const { serviceSlug } = ctx.params
@@ -101,7 +101,7 @@ router.get(
 
 // update specific service
 router.patch(
-  '/services/:serviceSlug',
+  '/api/services/:serviceSlug',
   requireAuth,
   validate(schemas.service.update),
   async function (ctx) {
@@ -124,7 +124,7 @@ router.patch(
 
 // delete specific service
 router.delete(
-  '/services/:serviceSlug',
+  '/api/services/:serviceSlug',
   requireAuth,
   async function (ctx) {
     const { serviceSlug } = ctx.params
@@ -141,7 +141,7 @@ router.delete(
 
 // add subscriber
 router.post(
-  '/services/:serviceSlug/subscribers',
+  '/api/services/:serviceSlug/subscribers',
   validate(schemas.subscriber.create),
   async function (ctx) {
     const { serviceSlug } = ctx.params
