@@ -316,7 +316,7 @@ describe('Web server', () => {
 
 async function getAuthCookie (server) {
   return await request(server)
-    .post('/api/authenticate-test')
+    .post('/callback-test')
     .then((res) => {
       const cookies = res.headers['set-cookie'][0].split(',') // superagent bug?
       return cookies

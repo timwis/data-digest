@@ -27,7 +27,7 @@
 import urlJoin from 'url-join'
 import { stripIndent } from 'common-tags'
 
-const HOSTNAME = process.env.HOSTNAME
+const HOSTNAME = (typeof window !== 'undefined') && window.location.origin
 const sampleEmail = `sample@sample.com`
 
 export default {
@@ -43,7 +43,7 @@ export default {
   },
   computed: {
     subscriptionEndpoint () {
-      return urlJoin(HOSTNAME, `/services/${this.slug}/subscribers`)
+      return urlJoin(HOSTNAME, `/api/services/${this.slug}/subscribers`)
     },
     curl () {
       const payload = { email: sampleEmail, url: this.sampleUrl }

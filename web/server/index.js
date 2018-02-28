@@ -58,6 +58,7 @@ async function createServer (db) {
 
   // Nuxt.js
   if (NODE_ENV !== 'test') {
+    nuxtConfig.dev = DEBUG
     const nuxt = new Nuxt(nuxtConfig)
     if (NODE_ENV === 'development') {
       const builder = new Builder(nuxt)

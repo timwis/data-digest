@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node web/server",
     "dev": "nodemon web/server --ignore web/client",
-    "client": "nuxt --config-file web/client/nuxt.config.js",
     "build": "nuxt build --config-file web/client/nuxt.config.js",
+    "heroku-postbuild": "npm run build",
     "test": "jest test",
     "scheduler": "node workers/scheduler",
     "consumer": "node workers/consumer",
@@ -46,6 +46,7 @@
     "koa-router": "^7.4.0",
     "koa-session": "^5.8.1",
     "koa-superstruct": "^3.0.0",
+    "localforage": "^1.5.7",
     "lodash": "^4.17.5",
     "node-sass": "^4.7.2",
     "nodemailer": "^3.1.4",

@@ -1,8 +1,7 @@
 import localForage from 'localforage'
 import Api from '~/api'
 
-const HOSTNAME = process.env.HOSTNAME
-const api = new Api(HOSTNAME)
+const api = new Api()
 
 export const state = () => ({
   user: {},
