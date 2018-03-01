@@ -261,7 +261,13 @@ function getMatchingSubscribers (db, { queryId, email }) {
 
 function getSubscribers (db, serviceId) {
   return db('subscribers')
-    .select('subscribers.id', 'email', 'query_id', 'queries.url as query_url')
+    .select([
+      'subscribers.id',
+      'email',
+      'query_id',
+      'queries.url as query_url',
+      'subscribers.created_at'
+    ])
     .join('queries', 'queries.id', '=', 'subscribers.query_id')
     .where('queries.service_id', serviceId)
 }
