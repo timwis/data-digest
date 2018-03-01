@@ -7,6 +7,7 @@ export const state = () => ({
   user: {},
   services: [],
   currentService: {},
+  currentServiceSubscribers: [],
   draftService: {}
 })
 
@@ -26,6 +27,15 @@ export const mutations = {
   },
   RESET_CURRENT_SERVICE (state) {
     state.currentService = {}
+  },
+  RESET_CURRENT_SERVICE_SUBSCRIBERS (state) {
+    state.currentServiceSubscribers = []
+  },
+  SET_CURRENT_SERVICE_SUBSCRIBERS (state, subscribers) {
+    state.currentServiceSubscribers = subscribers
+  },
+  ADD_CURRENT_SERVICE_SUBSCRIBER (state, subscriber) {
+    state.currentServiceSubscribers.push(subscriber)
   }
 }
 
@@ -39,7 +49,9 @@ export const actions = {
   },
   async getService ({ commit }, slug) {
     const service = await api.getService(slug)
+    const subscribers = await api.getSubscribers(slug)
     commit('SET_CURRENT_SERVICE', service)
+    commit('SET_CURRENT_SERVICE_SUBSCRIBERS', subscribers)
   },
   async createService (ctx, payload) {
     const service = await api.createService(payload)
@@ -53,6 +65,12 @@ export const actions = {
   async deleteService ({ commit }, slug) {
     await api.deleteService(slug)
     commit('RESET_CURRENT_SERVICE')
+    commit('RESET_CURRENT_SERVICE_SUBSCRIBERS')
+  },
+  async addSubscriber ({ commit }, { slug, email, url }) {
+    console.log('store', email, url)
+    const subscriber = await api.addSubscriber(slug, { email, url })
+    commit('ADD_CURRENT_SERVICE_SUBSCRIBER', subscriber)
   },
   async logout ({ commit }) {
     await api.logout()
