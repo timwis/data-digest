@@ -151,7 +151,7 @@ router.get(
     else if (services[0].user_id !== userId) ctx.throw(401)
 
     const serviceId = services[0].id
-    const subscribers = await getSubscribers(ctx.db, serviceId)
+    const subscribers = await getServiceSubscribers(ctx.db, serviceId)
     ctx.body = subscribers
   }
 )
@@ -174,9 +174,10 @@ router.post(
     }
 
     const queryId = await getOrCreateQuery(ctx.db, { serviceId, url })
-    const subscriber = await getOrCreateSubscriber(ctx.db, { queryId, email })
+    const result = await getOrCreateSubscriber(ctx.db, { queryId, email })
 
-    ctx.status = (subscriber.created) ? 201 : 200
+    ctx.status = (result.created) ? 201 : 200
+    ctx.body = result.subscriber
   }
 )
 
@@ -245,21 +246,26 @@ async function getOrCreateSubscriber (db, { queryId, email }) {
   const doesSubscriberExist = (existingSubscribers.length > 0)
 
   if (doesSubscriberExist) {
-    const id = existingSubscribers[0].id
-    return { created: false, id }
+    const subscriber = existingSubscribers[0]
+    return { created: false, subscriber }
   } else {
-    const id = await createSubscriber(db, { queryId, email })
-    return { created: true, id }
+    const subscriber = await createSubscriber(db, { queryId, email })
+    return { created: true, subscriber }
   }
 }
 
 function getMatchingSubscribers (db, { queryId, email }) {
-  return db('subscribers')
+  return getSubscribers(db)
     .where('query_id', queryId)
     .where('email', email)
 }
 
-function getSubscribers (db, serviceId) {
+function getServiceSubscribers (db, serviceId) {
+  return getSubscribers(db)
+    .where('queries.service_id', serviceId)
+}
+
+function getSubscribers (db) {
   return db('subscribers')
     .select([
       'subscribers.id',
@@ -269,15 +275,19 @@ function getSubscribers (db, serviceId) {
       'subscribers.created_at'
     ])
     .join('queries', 'queries.id', '=', 'subscribers.query_id')
-    .where('queries.service_id', serviceId)
 }
 
-function createSubscriber (db, { queryId, email }) {
-  return db('subscribers').insert({
+async function createSubscriber (db, { queryId, email }) {
+  const id = await db('subscribers').insert({
     query_id: queryId,
     email
   }).returning('id')
     .then((ids) => ids[0])
+
+  const [ subscriber ] = await getSubscribers(db)
+    .where('subscribers.id', id)
+
+  return subscriber
 }
 
 function updateService (db, updates, conditions) {
