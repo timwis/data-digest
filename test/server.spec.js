@@ -12,6 +12,8 @@ const sampleId = 'eWRhpRV'
 const sampleSlug = `crime-incidents-${sampleId}`
 const sampleUserId = `tester|tester`
 const sampleSlugOtherUser = `other-users-service-23TplPdS`
+const sampleSubscriberId = 1
+const sampleSubscriberIdOtherUser = 5
 
 describe('Web server', () => {
   let server, db
@@ -309,7 +311,7 @@ describe('Web server', () => {
   })
 
   describe('POST to /services/:service/subscribers', () => {
-    it('returns 201 for new subscription', async () => {
+    it('returns 201 and object for new subscription', async () => {
       const query = 'SELECT * FROM foo'
       const payload = { // already exists in seed data
         email: 'foo@foo.foo',
@@ -319,9 +321,13 @@ describe('Web server', () => {
         .post(`/api/services/${sampleSlug}/subscribers`)
         .send(payload)
         .expect(201)
+        .then((res) => {
+          const actualKeys = Object.keys(res.body)
+          expect(actualKeys).toEqual(subscriberKeys)
+        })
     })
 
-    it('returns 200 for existing subscription', async () => {
+    it('returns 200 and object for existing subscription', async () => {
       const payload = { // already exists in seed data
         email: 'subscribeme-d@mailinator.com',
         url: `https://phl.carto.com/api/v2/sql?q=SELECT+1`
@@ -330,6 +336,10 @@ describe('Web server', () => {
         .post(`/api/services/${sampleSlug}/subscribers`)
         .send(payload)
         .expect(200)
+        .then((res) => {
+          const actualKeys = Object.keys(res.body)
+          expect(actualKeys).toEqual(subscriberKeys)
+        })
     })
 
     it('returns 422 for invalid url', async () => {
@@ -341,6 +351,38 @@ describe('Web server', () => {
         .post(`/api/services/${sampleSlug}/subscribers`)
         .send(payload)
         .expect(422)
+    })
+  })
+
+  describe('DELETE to /services/:service/subscribers/:subscriber', () => {
+    it('requires authentication', async () => {
+      await request(server.callback())
+        .delete(`/api/services/${sampleSlug}/subscribers/${sampleSubscriberId}`)
+        .expect(401)
+    })
+
+    it('returns 401 on service belonging to another user', async () => {
+      const cookie = await getAuthCookie(server.callback())
+      await request(server.callback())
+        .delete(`/api/services/${sampleSlugOtherUser}/subscribers/${sampleSubscriberIdOtherUser}`)
+        .set('Cookie', cookie)
+        .expect(401)
+    })
+
+    it('returns 404 on subscriber of wrong service', async () => {
+      const cookie = await getAuthCookie(server.callback())
+      await request(server.callback())
+        .delete(`/api/services/${sampleSlug}/subscribers/${sampleSubscriberIdOtherUser}`)
+        .set('Cookie', cookie)
+        .expect(404)
+    })
+
+    it('returns 204 on success', async () => {
+      const cookie = await getAuthCookie(server.callback())
+      await request(server.callback())
+        .delete(`/api/services/${sampleSlug}/subscribers/${sampleSubscriberId}`)
+        .set('Cookie', cookie)
+        .expect(204)
     })
   })
 })

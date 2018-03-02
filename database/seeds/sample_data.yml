@@ -33,6 +33,9 @@ queries:
   - id: 3
     service_id: eWRhpRV
     url: https://phl.carto.com/api/v2/sql?q=SELECT+1
+  - id: 4
+    service_id: 23TplPdS
+    url: http://otheruser.com/test
 
 subscribers:
   - id: 1
@@ -47,3 +50,6 @@ subscribers:
   - id: 4
     query_id: 3
     email: subscribeme-d@mailinator.com
+  - id: 5
+    query_id: 4
+    email: otheruser-subscriber@mailinator.com

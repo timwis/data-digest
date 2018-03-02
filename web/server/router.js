@@ -181,6 +181,27 @@ router.post(
   }
 )
 
+// delete subscriber
+router.delete(
+  '/api/services/:serviceSlug/subscribers/:subscriberId',
+  requireAuth,
+  async function (ctx) {
+    const { serviceSlug, subscriberId } = ctx.params
+    const userId = ctx.state.user.id
+
+    const services = await getServicesBySlug(ctx.db, serviceSlug)
+    if (services.length === 0) ctx.throw(404)
+    else if (services[0].user_id !== userId) ctx.throw(401)
+    const serviceId = services[0].id
+
+    const subscriber = await getSubscriber(ctx.db, subscriberId)
+    if (!subscriber.id || subscriber.service_id !== serviceId) ctx.throw(404)
+
+    await deleteSubscriber(ctx.db, subscriberId)
+    ctx.status = 204
+  }
+)
+
 function requireAuth (ctx, next) {
   if (ctx.isAuthenticated()) {
     return next()
@@ -277,6 +298,13 @@ function getSubscribers (db) {
     .join('queries', 'queries.id', '=', 'subscribers.query_id')
 }
 
+function getSubscriber (db, subscriberId) {
+  return getSubscribers(db)
+    .select('queries.service_id')
+    .where('subscribers.id', subscriberId)
+    .then((rows) => rows[0])
+}
+
 async function createSubscriber (db, { queryId, email }) {
   const id = await db('subscribers').insert({
     query_id: queryId,
@@ -304,5 +332,11 @@ function updateService (db, updates, conditions) {
 function deleteService (db, id) {
   return db('services')
     .where('id', id)
+    .delete()
+}
+
+function deleteSubscriber (db, subscriberId) {
+  return db('subscribers')
+    .where('id', subscriberId)
     .delete()
 }
