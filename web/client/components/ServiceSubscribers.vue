@@ -12,11 +12,22 @@
       button.button.is-info(type='submit') Add subscriber
 
     h4.title.is-4 Subscribers
-    b-table(:data='subscribers' striped)
+    b-table(
+      :data='subscribers'
+      striped
+      default-sort='createdAt'
+      default-sort-direction='desc'
+    )
       template(slot-scope='props')
-        b-table-column(field='email' label='Email') {{ props.row.email }}
-        b-table-column(field='createdAt' label='Date') {{ props.row.createdAt | formatDate }}
-        b-table-column(field='queryUrl' label='URL') {{ props.row.queryUrl }}
+        b-table-column(width=25)
+          button.button.is-small(@click='$emit(`delete`, props.row.id)')
+            icon(name='close')
+        b-table-column(field='email' label='Email' sortable)
+          | {{ props.row.email }}
+        b-table-column(field='createdAt' label='Date' width=120 sortable)
+          | {{ props.row.createdAt | formatDate }}
+        b-table-column.url(field='queryUrl' label='URL' sortable)
+          | {{ props.row.queryUrl }}
 </template>
 
 <script>
@@ -40,3 +51,9 @@ export default {
 }
 </script>
 
+<style lang="sass" scoped>
+.url
+  overflow-wrap: break-word
+  word-wrap: break-word
+  word-break: break-word
+</style>

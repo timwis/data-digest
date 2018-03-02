@@ -9,6 +9,7 @@
             ServiceSubscribers(
               :subscribers='subscribers'
               @add='onAddSubscriber'
+              @delete='onDeleteSubscriber'
             )
 
           b-tab-item(label='Embed')
@@ -84,7 +85,8 @@ export default {
       'getService',
       'updateService',
       'deleteService',
-      'addSubscriber'
+      'addSubscriber',
+      'deleteSubscriber'
     ]),
     async onSubmitEdits (payload) {
       const slug = this.slug
@@ -120,7 +122,16 @@ export default {
         const slug = this.slug
         await this.addSubscriber({ slug, email, url })
       } catch (err) {
-        this.showError('Somethign went wrong adding this subscriber')
+        this.showError('Something went wrong adding this subscriber')
+      }
+    },
+    async onDeleteSubscriber (subscriberId) {
+      try {
+        const slug = this.slug
+        await this.deleteSubscriber({ slug, subscriberId })
+      } catch (err) {
+        this.showError('Something went wrong deleting this subscriber')
+        console.error(err)
       }
     }
   },

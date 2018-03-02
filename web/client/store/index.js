@@ -1,3 +1,4 @@
+import Vue from 'vue'
 import localForage from 'localforage'
 import Api from '~/api'
 
@@ -36,6 +37,10 @@ export const mutations = {
   },
   ADD_CURRENT_SERVICE_SUBSCRIBER (state, subscriber) {
     state.currentServiceSubscribers.push(subscriber)
+  },
+  REMOVE_CURRENT_SERVICE_SUBSCRIBER (state, subscriberId) {
+    const index = state.currentServiceSubscribers.findIndex((subscriber) => subscriber.id === subscriberId)
+    Vue.delete(state.currentServiceSubscribers, index)
   }
 }
 
@@ -68,9 +73,12 @@ export const actions = {
     commit('RESET_CURRENT_SERVICE_SUBSCRIBERS')
   },
   async addSubscriber ({ commit }, { slug, email, url }) {
-    console.log('store', email, url)
     const subscriber = await api.addSubscriber(slug, { email, url })
     commit('ADD_CURRENT_SERVICE_SUBSCRIBER', subscriber)
+  },
+  async deleteSubscriber ({ commit }, { slug, subscriberId }) {
+    await api.deleteSubscriber(slug, subscriberId)
+    commit('REMOVE_CURRENT_SERVICE_SUBSCRIBER', subscriberId)
   },
   async logout ({ commit }) {
     await api.logout()
