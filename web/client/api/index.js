@@ -42,4 +42,21 @@ export default class Api {
   deleteService (slug) {
     return this.client.delete(`/api/services/${slug}`)
   }
+
+  getSubscribers (slug) {
+    return this.client.get(`/api/services/${slug}/subscribers`)
+      .then((res) => res.data)
+      .then(camelCaseKeys)
+  }
+
+  addSubscriber (slug, payload) {
+    const payloadSnakeKeys = snakeCaseKeys(payload)
+    return this.client.post(`/api/services/${slug}/subscribers`, payloadSnakeKeys)
+      .then((res) => res.data)
+      .then(camelCaseKeys)
+  }
+
+  deleteSubscriber (slug, subscriberId) {
+    return this.client.delete(`/api/services/${slug}/subscribers/${subscriberId}`)
+  }
 }

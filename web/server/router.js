@@ -139,6 +139,23 @@ router.delete(
   }
 )
 
+// get subscribers
+router.get(
+  '/api/services/:serviceSlug/subscribers',
+  requireAuth,
+  async function (ctx) {
+    const { serviceSlug } = ctx.params
+    const userId = ctx.state.user.id
+    const services = await getServicesBySlug(ctx.db, serviceSlug)
+    if (services.length === 0) ctx.throw(404)
+    else if (services[0].user_id !== userId) ctx.throw(401)
+
+    const serviceId = services[0].id
+    const subscribers = await getServiceSubscribers(ctx.db, serviceId)
+    ctx.body = subscribers
+  }
+)
+
 // add subscriber
 router.post(
   '/api/services/:serviceSlug/subscribers',
@@ -157,9 +174,31 @@ router.post(
     }
 
     const queryId = await getOrCreateQuery(ctx.db, { serviceId, url })
-    const subscriber = await getOrCreateSubscriber(ctx.db, { queryId, email })
+    const result = await getOrCreateSubscriber(ctx.db, { queryId, email })
 
-    ctx.status = (subscriber.created) ? 201 : 200
+    ctx.status = (result.created) ? 201 : 200
+    ctx.body = result.subscriber
+  }
+)
+
+// delete subscriber
+router.delete(
+  '/api/services/:serviceSlug/subscribers/:subscriberId',
+  requireAuth,
+  async function (ctx) {
+    const { serviceSlug, subscriberId } = ctx.params
+    const userId = ctx.state.user.id
+
+    const services = await getServicesBySlug(ctx.db, serviceSlug)
+    if (services.length === 0) ctx.throw(404)
+    else if (services[0].user_id !== userId) ctx.throw(401)
+    const serviceId = services[0].id
+
+    const subscriber = await getSubscriber(ctx.db, subscriberId)
+    if (!subscriber.id || subscriber.service_id !== serviceId) ctx.throw(404)
+
+    await deleteSubscriber(ctx.db, subscriberId)
+    ctx.status = 204
   }
 )
 
@@ -228,26 +267,55 @@ async function getOrCreateSubscriber (db, { queryId, email }) {
   const doesSubscriberExist = (existingSubscribers.length > 0)
 
   if (doesSubscriberExist) {
-    const id = existingSubscribers[0].id
-    return { created: false, id }
+    const subscriber = existingSubscribers[0]
+    return { created: false, subscriber }
   } else {
-    const id = await createSubscriber(db, { queryId, email })
-    return { created: true, id }
+    const subscriber = await createSubscriber(db, { queryId, email })
+    return { created: true, subscriber }
   }
 }
 
 function getMatchingSubscribers (db, { queryId, email }) {
-  return db('subscribers')
+  return getSubscribers(db)
     .where('query_id', queryId)
     .where('email', email)
 }
 
-function createSubscriber (db, { queryId, email }) {
-  return db('subscribers').insert({
+function getServiceSubscribers (db, serviceId) {
+  return getSubscribers(db)
+    .where('queries.service_id', serviceId)
+}
+
+function getSubscribers (db) {
+  return db('subscribers')
+    .select([
+      'subscribers.id',
+      'email',
+      'query_id',
+      'queries.url as query_url',
+      'subscribers.created_at'
+    ])
+    .join('queries', 'queries.id', '=', 'subscribers.query_id')
+}
+
+function getSubscriber (db, subscriberId) {
+  return getSubscribers(db)
+    .select('queries.service_id')
+    .where('subscribers.id', subscriberId)
+    .then((rows) => rows[0])
+}
+
+async function createSubscriber (db, { queryId, email }) {
+  const id = await db('subscribers').insert({
     query_id: queryId,
     email
   }).returning('id')
     .then((ids) => ids[0])
+
+  const [ subscriber ] = await getSubscribers(db)
+    .where('subscribers.id', id)
+
+  return subscriber
 }
 
 function updateService (db, updates, conditions) {
@@ -264,5 +332,11 @@ function updateService (db, updates, conditions) {
 function deleteService (db, id) {
   return db('services')
     .where('id', id)
+    .delete()
+}
+
+function deleteSubscriber (db, subscriberId) {
+  return db('subscribers')
+    .where('id', subscriberId)
     .delete()
 }

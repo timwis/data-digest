@@ -5,11 +5,11 @@
       div.container(v-if='isFetched')
         h2.title.is-3 {{ name }}
         b-tabs(v-model='activeTab' type='is-boxed' :animated='false')
-          b-tab-item(label='Summary')
-            ServiceSummary(
-              :subjectTemplate='subjectTemplate'
-              :bodyTemplate='bodyTemplate'
-              :endpoint='endpoint'
+          b-tab-item(label='Subscribers')
+            ServiceSubscribers(
+              :subscribers='subscribers'
+              @add='onAddSubscriber'
+              @delete='onDeleteSubscriber'
             )
 
           b-tab-item(label='Embed')
@@ -44,12 +44,12 @@
 import { mapState, mapActions } from 'vuex'
 import Hero from '~/components/Hero'
 import ServiceEmbed from '~/components/ServiceEmbed'
-import ServiceSummary from '~/components/ServiceSummary'
+import ServiceSubscribers from '~/components/ServiceSubscribers'
 import ServiceDetails from '~/components/ServiceDetails'
 import ServiceTemplate from '~/components/ServiceTemplate'
 import ShowError from '~/mixins/ShowError'
 
-const tabs = { summary: 0, embed: 1 }
+const tabs = { subscribers: 0, embed: 1 }
 
 export default {
   mixins: [ ShowError ],
@@ -66,7 +66,8 @@ export default {
       subjectTemplate: (state) => state.currentService.subjectTemplate,
       bodyTemplate: (state) => state.currentService.bodyTemplate,
       endpoint: (state) => state.currentService.endpoint,
-      sampleUrl: (state) => state.currentService.sampleUrl
+      sampleUrl: (state) => state.currentService.sampleUrl,
+      subscribers: (state) => state.currentServiceSubscribers
     }),
     isFetched () {
       return this.subjectTemplate || this.bodyTemplate
@@ -83,7 +84,9 @@ export default {
     ...mapActions([
       'getService',
       'updateService',
-      'deleteService'
+      'deleteService',
+      'addSubscriber',
+      'deleteSubscriber'
     ]),
     async onSubmitEdits (payload) {
       const slug = this.slug
@@ -113,12 +116,29 @@ export default {
           }
         }
       })
+    },
+    async onAddSubscriber ({ email, url }) {
+      try {
+        const slug = this.slug
+        await this.addSubscriber({ slug, email, url })
+      } catch (err) {
+        this.showError('Something went wrong adding this subscriber')
+      }
+    },
+    async onDeleteSubscriber (subscriberId) {
+      try {
+        const slug = this.slug
+        await this.deleteSubscriber({ slug, subscriberId })
+      } catch (err) {
+        this.showError('Something went wrong deleting this subscriber')
+        console.error(err)
+      }
     }
   },
   components: {
     Hero,
     ServiceEmbed,
-    ServiceSummary,
+    ServiceSubscribers,
     ServiceDetails,
     ServiceTemplate
   }
