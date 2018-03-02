@@ -1,17 +1,24 @@
 <template lang="pug">
   div
     form(@submit.prevent='onSubmit')
-      h4.title.is-4 Add subscriber
-      
-      b-field(label='Email' label-for='email')
-        b-input#email(type='email' required)
+      b-field
+        b-input#email(
+          expanded
+          type='email'
+          required
+          placeholder='Email'
+          v-model='newSubscriber.email'
+        )
+        b-input#url(
+          expanded
+          type='url'
+          required
+          placeholder='URL'
+          v-model='newSubscriber.url'
+        )
+        p.control
+          button.button.is-info(type='submit') Add subscriber
 
-      b-field(label='URL' label-for='url')
-        b-input#url(type='url' required placeholder='https://...')
-
-      button.button.is-info(type='submit') Add subscriber
-
-    h4.title.is-4 Subscribers
     b-table(
       :data='subscribers'
       striped
@@ -36,10 +43,19 @@ import formatDate from 'date-fns/format'
 
 export default {
   props: ['subscribers'],
+  data () {
+    return {
+      newSubscriber: {
+        email: '',
+        url: ''
+      }
+    }
+  },
   methods: {
     onSubmit (event) {
-      const formData = getFormData(event.target)
-      this.$emit('add', formData)
+      this.$emit('add', this.newSubscriber)
+      this.newSubscriber.email = ''
+      this.newSubscriber.url = ''
     }
   },
   filters: {
