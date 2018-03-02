@@ -36,7 +36,7 @@ export const exampleBodyTemplate = () => stripIndent`
     <ul>
     {{#each data.items}}
       <li>
-        <a href="{{url}}">{{name}}</a>
+        <a href="{{html_url}}">{{name}}</a>
         ({{stargazers_count}} stars)
       </li>
     {{/each}}
