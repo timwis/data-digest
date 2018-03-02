@@ -20,6 +20,7 @@
           button.button.is-info(type='submit') Add subscriber
 
     b-table(
+      v-if='subscribers.length > 0'
       :data='subscribers'
       striped
       default-sort='createdAt'
