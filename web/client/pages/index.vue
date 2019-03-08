@@ -4,7 +4,7 @@
       site-nav(:user='user')
     div.hero-body
       div.container
-        h1.title SubscribeMe
+        h1.title Data Digest
         h2.subtitle Monitors an API for new data and sends digest emails to subscribers.
 
         nuxt-link.button.is-link(

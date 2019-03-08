@@ -1,7 +1,7 @@
 {
-  "name": "subscribeme",
+  "name": "data-digest",
   "description": "Monitors an API for new data and sends digest emails to subscribers.",
-  "repository": "https://github.com/timwis/subscribeme",
+  "repository": "https://github.com/timwis/data-digest",
   "formation": {
     "web": {
       "quantity": 1

@@ -329,7 +329,7 @@ describe('Web server', () => {
 
     it('returns 200 and object for existing subscription', async () => {
       const payload = { // already exists in seed data
-        email: 'subscribeme-d@mailinator.com',
+        email: 'data-digest-d@mailinator.com',
         url: `https://phl.carto.com/api/v2/sql?q=SELECT+1`
       }
       await request(server.callback())

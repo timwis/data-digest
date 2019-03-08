@@ -4,7 +4,7 @@
     aria-label='main navigation'
   )
     div.navbar-brand
-      nuxt-link.navbar-item(to='/') subscribeme
+      nuxt-link.navbar-item(to='/') Data Digest
       div.navbar-burger(
         :class="{'is-active': isExpanded}"
         @click='isExpanded = !isExpanded'

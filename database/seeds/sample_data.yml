@@ -40,16 +40,16 @@ queries:
 subscribers:
   - id: 1
     query_id: 1
-    email: subscribeme-a@mailinator.com
+    email: data-digest-a@mailinator.com
   - id: 2
     query_id: 1
-    email: subscribeme-b@mailinator.com
+    email: data-digest-b@mailinator.com
   - id: 3
     query_id: 2
-    email: subscribeme-c@mailinator.com
+    email: data-digest-c@mailinator.com
   - id: 4
     query_id: 3
-    email: subscribeme-d@mailinator.com
+    email: data-digest-d@mailinator.com
   - id: 5
     query_id: 4
     email: otheruser-subscriber@mailinator.com
