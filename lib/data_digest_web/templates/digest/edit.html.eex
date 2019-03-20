@@ -1,0 +1,5 @@
+<h1>Edit Digest</h1>
+
+<%= render "form.html", Map.put(assigns, :action, Routes.digest_path(@conn, :update, @digest)) %>
+
+<span><%= link "Back", to: Routes.digest_path(@conn, :index) %></span>

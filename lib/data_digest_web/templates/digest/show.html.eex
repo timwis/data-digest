@@ -1,0 +1,38 @@
+<h1>Show Digest</h1>
+
+<ul>
+
+  <li>
+    <strong>Slug:</strong>
+    <%= @digest.slug %>
+  </li>
+
+  <li>
+    <strong>Name:</strong>
+    <%= @digest.name %>
+  </li>
+
+  <li>
+    <strong>Endpoint template:</strong>
+    <%= @digest.endpoint_template %>
+  </li>
+
+  <li>
+    <strong>Subject template:</strong>
+    <%= @digest.subject_template %>
+  </li>
+
+  <li>
+    <strong>Body template:</strong>
+    <%= @digest.body_template %>
+  </li>
+
+  <li>
+    <strong>Params schema:</strong>
+    <%= @digest.params_schema %>
+  </li>
+
+</ul>
+
+<span><%= link "Edit", to: Routes.digest_path(@conn, :edit, @digest) %></span>
+<span><%= link "Back", to: Routes.digest_path(@conn, :index) %></span>
