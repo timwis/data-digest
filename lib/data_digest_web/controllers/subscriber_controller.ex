@@ -18,7 +18,9 @@ defmodule DataDigestWeb.SubscriberController do
 
   def create(conn, %{"digest_id" => digest_id, "subscriber" => subscriber_params}) do
     digest = Digests.get_digest!(digest_id)
-    case Digests.create_subscriber(subscriber_params) do
+    params = Map.put(subscriber_params, "digest_id", digest.id)
+
+    case Digests.create_subscriber(params) do
       {:ok, subscriber} ->
         conn
         |> put_flash(:info, "Subscriber created successfully.")

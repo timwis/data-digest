@@ -5,10 +5,6 @@
     </div>
   <% end %>
 
-  <%= label f, :digest_id %>
-  <%= text_input f, :digest_id %>
-  <%= error_tag f, :digest_id %>
-
   <%= label f, :email %>
   <%= text_input f, :email %>
   <%= error_tag f, :email %>
