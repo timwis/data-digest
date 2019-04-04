@@ -3,8 +3,8 @@ defmodule DataDigestWeb.DigestControllerTest do
 
   alias DataDigest.Digests
 
-  @create_attrs %{body_template: "some body_template", endpoint_template: "some endpoint_template", name: "some name", params_schema: %{}, slug: "some slug", subject_template: "some subject_template"}
-  @update_attrs %{body_template: "some updated body_template", endpoint_template: "some updated endpoint_template", name: "some updated name", params_schema: %{}, slug: "some updated slug", subject_template: "some updated subject_template"}
+  @create_attrs %{body_template: "some body_template", endpoint_template: "some endpoint_template", name: "some name", params_schema: nil, slug: "some slug", subject_template: "some subject_template"}
+  @update_attrs %{body_template: "some updated body_template", endpoint_template: "some updated endpoint_template", name: "some updated name", params_schema: nil, slug: "some updated slug", subject_template: "some updated subject_template"}
   @invalid_attrs %{body_template: nil, endpoint_template: nil, name: nil, params_schema: nil, slug: nil, subject_template: nil}
 
   def fixture(:digest) do
