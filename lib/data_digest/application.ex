@@ -11,9 +11,10 @@ defmodule DataDigest.Application do
       # Start the Ecto repository
       DataDigest.Repo,
       # Start the endpoint when the application starts
-      DataDigestWeb.Endpoint
+      DataDigestWeb.Endpoint,
       # Starts a worker by calling: DataDigest.Worker.start_link(arg)
       # {DataDigest.Worker, arg},
+      {DataDigestQueue.Broker, []}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

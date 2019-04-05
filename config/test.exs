@@ -16,3 +16,8 @@ config :data_digest, DataDigest.Repo,
   database: "data_digest_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
+
+# Configure amqp
+config :data_digest, DataDigestQueue.Broker,
+  adapter: ConduitAMQP,
+  url: "amqp://guest:guest@localhost:5672"
