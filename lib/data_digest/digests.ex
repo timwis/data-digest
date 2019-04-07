@@ -197,4 +197,27 @@ defmodule DataDigest.Digests do
   def change_subscriber(%Subscriber{} = subscriber) do
     Subscriber.changeset(subscriber, %{})
   end
+
+  def list_unique_subscriptions() do
+    query = from s in Subscriber,
+            join: d in Digest,
+            on: d.id == s.digest_id,
+            select: %{
+              "emails" => fragment("array_agg(?)", s.email),
+              "params" => s.params,
+              "endpoint_template" => d.endpoint_template,
+              "subject_template" => d.subject_template,
+              "body_template" => d.body_template,
+              "digest_id" => s.digest_id
+            },
+            group_by: [
+              s.digest_id,
+              s.params,
+              d.endpoint_template,
+              d.subject_template,
+              d.body_template
+            ],
+            order_by: [s.digest_id, s.params] # persistent order for tests
+    Repo.all(query)
+  end
 end
