@@ -4,10 +4,10 @@ defmodule DataDigest.Mailer do
 
   @from "noreply@datadigest.app"
 
-  def send_digest(%{:emails => emails, :body => body, :subject => subject}) do
+  def send_digest_job(%{:to => to, :body => body, :subject => subject}) do
     IO.puts "Sending digest"
     new_email(
-      to: emails,
+      to: to,
       from: @from,
       subject: subject,
       html_body: body
