@@ -44,7 +44,11 @@ defmodule DataDigest.MixProject do
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
       {:conduit, "~> 0.12"},
-      {:conduit_amqp, "~> 0.6.3"}
+      {:conduit_amqp, "~> 0.6.3"},
+      {:liquid, "~> 0.9.0"},
+      {:httpoison, "~> 1.4"},
+      {:poison, "~> 3.1"},
+      {:bamboo, "~> 1.2"}
     ]
   end
 

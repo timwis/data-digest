@@ -3,10 +3,22 @@ defmodule DataDigestWeb.DigestController do
 
   alias DataDigest.Digests
   alias DataDigest.Digests.Digest
+  alias DataDigestQueue.Broker
+  alias Conduit.Message
 
   def index(conn, _params) do
     digests = Digests.list_digests()
     render(conn, "index.html", digests: digests)
+  end
+  
+  def schedule(conn, _params) do
+    subscriptions = Digests.list_unique_subscriptions()
+    Enum.map(subscriptions, fn subscription ->
+      %Message{}
+      |> Message.put_body(subscription)
+      |> Broker.publish(:jobs)
+    end)
+    render(conn, "index.html", digests: [])
   end
 
   def new(conn, _params) do

@@ -220,4 +220,31 @@ defmodule DataDigest.Digests do
             order_by: [s.digest_id, s.params] # persistent order for tests
     Repo.all(query)
   end
+
+  def fetch_and_send_digest(subscription) do
+    # url = Mustache.render(subscription["endpoint_template"], subscription["params"])
+    {:ok, url, _} = Liquid.Template.parse(subscription["endpoint_template"])
+    |> Liquid.Template.render(%{"params" => subscription["params"]})
+
+    case HTTPoison.get(url) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: response_body}} ->
+        # IO.puts response_body
+        data = Poison.decode!(response_body)
+        payload = %{"data" => data, "params" => subscription["params"]}
+
+        # subject = Mustache.render(subscription["subject_template"], payload)
+        {:ok, subject, _} = Liquid.Template.parse(subscription["subject_template"])
+        |> Liquid.Template.render(payload)
+
+        # body = Mustache.render(subscription["body_template"], payload)
+        {:ok, body, _} = Liquid.Template.parse(subscription["body_template"])
+        |> Liquid.Template.render(payload)
+
+        DataDigest.Mailer.send_digest(%{emails: subscription["emails"], subject: subject, body: body})
+      {:ok, %HTTPoison.Response{status_code: 404}} ->
+        IO.puts "Not found"
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        IO.inspect reason
+    end
+  end
 end

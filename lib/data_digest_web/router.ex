@@ -20,6 +20,7 @@ defmodule DataDigestWeb.Router do
     resources "/digests", DigestController do
       resources "/subscribers", SubscriberController
     end
+    get "/schedule", DigestController, :schedule
   end
 
   # Other scopes may use custom stacks.

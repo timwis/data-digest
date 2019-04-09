@@ -78,3 +78,7 @@ config :data_digest, DataDigest.Repo,
 config :data_digest, DataDigestQueue.Broker,
   adapter: ConduitAMQP,
   url: "amqp://guest:guest@localhost:5672"
+
+# Configure mail sender
+config :data_digest, DataDigest.Mailer,
+  adapter: Bamboo.TestAdapter
