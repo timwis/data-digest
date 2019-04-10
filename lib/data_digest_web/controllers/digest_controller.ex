@@ -19,7 +19,7 @@ defmodule DataDigestWeb.DigestController do
       |> Message.put_body(digest_job)
       |> Broker.publish(:jobs)
     end)
-    render(conn, "index.html", digests: [])
+    render(conn, "schedule.json", digest_jobs: digest_jobs)
   end
 
   def new(conn, _params) do

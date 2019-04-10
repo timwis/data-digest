@@ -20,6 +20,11 @@ defmodule DataDigestWeb.Router do
     resources "/digests", DigestController do
       resources "/subscribers", SubscriberController
     end
+  end
+
+  scope "/api", DataDigestWeb do
+    pipe_through :api
+
     get "/schedule", DigestController, :schedule
   end
 
