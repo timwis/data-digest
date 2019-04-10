@@ -148,20 +148,4 @@ defmodule DataDigest.DigestsTest do
       assert %Ecto.Changeset{} = Digests.change_subscriber(subscriber)
     end
   end
-
-  describe "subscriptions" do
-    test "list_unique_subscriptions/0 returns unique subscriptions with aggregated emails" do
-      digest1 = digest_fixture(slug: "one")
-      digest2 = digest_fixture(slug: "two")
-      subscriber_fixture(digest_id: digest1.id, email: "a@a.a")
-      subscriber_fixture(digest_id: digest1.id, email: "b@b.b")
-      subscriber_fixture(digest_id: digest2.id, email: "c@c.c")
-
-      subscriptions = Digests.list_unique_subscriptions()
-      assert is_list(subscriptions)
-      [ first | [ second | _ ] ] = subscriptions
-      assert ["a@a.a", "b@b.b"] == first["emails"]
-      assert ["c@c.c"] = second["emails"]
-    end
-  end
 end
