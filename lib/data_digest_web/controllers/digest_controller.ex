@@ -3,15 +3,47 @@ defmodule DataDigestWeb.DigestController do
 
   alias DataDigest.Digests
   alias DataDigest.Digests.Digest
-  alias DataDigestQueue.Broker
-  alias Conduit.Message
   alias DataDigest.DigestJobs
+  alias Conduit.Message
+  alias DataDigestQueue.Broker
+
+  action_fallback DataDigestWeb.FallbackController
 
   def index(conn, _params) do
     digests = Digests.list_digests()
-    render(conn, "index.html", digests: digests)
+    render(conn, "index.json", digests: digests)
   end
-  
+
+  def create(conn, %{"digest" => digest_params}) do
+    with {:ok, %Digest{} = digest} <- Digests.create_digest(digest_params) do
+      conn
+      |> put_status(:created)
+      |> put_resp_header("location", Routes.digest_path(conn, :show, digest))
+      |> render("show.json", digest: digest)
+    end
+  end
+
+  def show(conn, %{"id" => id}) do
+    digest = Digests.get_digest!(id)
+    render(conn, "show.json", digest: digest)
+  end
+
+  def update(conn, %{"id" => id, "digest" => digest_params}) do
+    digest = Digests.get_digest!(id)
+
+    with {:ok, %Digest{} = digest} <- Digests.update_digest(digest, digest_params) do
+      render(conn, "show.json", digest: digest)
+    end
+  end
+
+  def delete(conn, %{"id" => id}) do
+    digest = Digests.get_digest!(id)
+
+    with {:ok, %Digest{}} <- Digests.delete_digest(digest) do
+      send_resp(conn, :no_content, "")
+    end
+  end 
+
   def schedule(conn, _params) do
     digest_jobs = DigestJobs.list_digest_jobs()
     Enum.map(digest_jobs, fn digest_job ->
@@ -20,56 +52,5 @@ defmodule DataDigestWeb.DigestController do
       |> Broker.publish(:jobs)
     end)
     render(conn, "schedule.json", digest_jobs: digest_jobs)
-  end
-
-  def new(conn, _params) do
-    changeset = Digests.change_digest(%Digest{})
-    render(conn, "new.html", changeset: changeset)
-  end
-
-  def create(conn, %{"digest" => digest_params}) do
-    case Digests.create_digest(digest_params) do
-      {:ok, digest} ->
-        conn
-        |> put_flash(:info, "Digest created successfully.")
-        |> redirect(to: Routes.digest_path(conn, :show, digest))
-
-      {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "new.html", changeset: changeset)
-    end
-  end
-
-  def show(conn, %{"id" => id}) do
-    digest = Digests.get_digest!(id)
-    render(conn, "show.html", digest: digest)
-  end
-
-  def edit(conn, %{"id" => id}) do
-    digest = Digests.get_digest!(id)
-    changeset = Digests.change_digest(digest)
-    render(conn, "edit.html", digest: digest, changeset: changeset)
-  end
-
-  def update(conn, %{"id" => id, "digest" => digest_params}) do
-    digest = Digests.get_digest!(id)
-
-    case Digests.update_digest(digest, digest_params) do
-      {:ok, digest} ->
-        conn
-        |> put_flash(:info, "Digest updated successfully.")
-        |> redirect(to: Routes.digest_path(conn, :show, digest))
-
-      {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "edit.html", digest: digest, changeset: changeset)
-    end
-  end
-
-  def delete(conn, %{"id" => id}) do
-    digest = Digests.get_digest!(id)
-    {:ok, _digest} = Digests.delete_digest(digest)
-
-    conn
-    |> put_flash(:info, "Digest deleted successfully.")
-    |> redirect(to: Routes.digest_path(conn, :index))
   end
 end
