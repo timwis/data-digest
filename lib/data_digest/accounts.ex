@@ -56,6 +56,24 @@ defmodule DataDigest.Accounts do
   end
 
   @doc """
+  Finds a user if they exist; otherwise creates the user.
+  """
+  def get_or_create_user(%Ueberauth.Auth{uid: oauth_id, info: %{email: email, image: avatar_url}}) when is_nil(oauth_id) do
+    attrs = %{oauth_id: oauth_id, email: email, avatar_url: avatar_url}
+    {:error, User.changeset(%User{}, attrs)}
+  end
+
+  def get_or_create_user(%Ueberauth.Auth{uid: oauth_id, info: %{email: email, image: avatar_url}}) do
+    case Repo.get_by(User, oauth_id: oauth_id) do
+      %User{} = user ->
+        {:ok, user}
+      nil ->
+        attrs = %{oauth_id: oauth_id, email: email, avatar_url: avatar_url}
+        create_user(attrs)
+    end
+  end
+
+  @doc """
   Updates a user.
 
   ## Examples
