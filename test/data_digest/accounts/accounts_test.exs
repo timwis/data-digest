@@ -2,13 +2,17 @@ defmodule DataDigest.AccountsTest do
   use DataDigest.DataCase
 
   alias DataDigest.Accounts
+  alias Ueberauth.Auth
 
   describe "users" do
     alias DataDigest.Accounts.User
 
-    @valid_attrs %{}
-    @update_attrs %{}
-    @invalid_attrs %{}
+    @valid_attrs %{email: "some email", oauth_id: "some oauth id"}
+    @update_attrs %{email: "another email", oauth_id: "another oauth id"}
+    @invalid_attrs %{email: nil, oauth_id: nil}
+
+    @valid_auth_attrs %Auth{uid: "foo", info: %{email: "b@b.b", image: "xyz"}}
+    @invalid_auth_attrs %Auth{uid: "foo", info: %{email: nil, image: nil}}
 
     def user_fixture(attrs \\ %{}) do
       {:ok, user} =
@@ -33,7 +37,6 @@ defmodule DataDigest.AccountsTest do
       assert {:ok, %User{} = user} = Accounts.create_user(@valid_attrs)
     end
 
-    @tag :skip # until user schema has fields
     test "create_user/1 with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = Accounts.create_user(@invalid_attrs)
     end
@@ -43,7 +46,6 @@ defmodule DataDigest.AccountsTest do
       assert {:ok, %User{} = user} = Accounts.update_user(user, @update_attrs)
     end
 
-    @tag :skip # until user schema has fields
     test "update_user/2 with invalid data returns error changeset" do
       user = user_fixture()
       assert {:error, %Ecto.Changeset{}} = Accounts.update_user(user, @invalid_attrs)
@@ -59,6 +61,28 @@ defmodule DataDigest.AccountsTest do
     test "change_user/1 returns a user changeset" do
       user = user_fixture()
       assert %Ecto.Changeset{} = Accounts.change_user(user)
+    end
+
+    test "get_or_create_user/1 returns existing user" do
+      user = user_fixture()
+      auth = %Auth{uid: user.oauth_id}
+      assert {:ok, %User{} = user} == Accounts.get_or_create_user(auth)
+    end
+
+    test "get_or_create_user/1 creates user if not existing" do
+      {:ok, %User{} = user} = Accounts.get_or_create_user(@valid_auth_attrs)
+      assert user.oauth_id == "foo"
+      assert user.email == "b@b.b"
+      assert user.avatar_url == "xyz"
+    end
+
+    test "get_or_create_user/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Accounts.get_or_create_user(@invalid_auth_attrs)
+    end
+
+    test "get_or_create_user/1 with nil oauth_id returns error changeset" do
+      attrs = %Auth{uid: nil}
+      assert {:error, %Ecto.Changeset{}} = Accounts.get_or_create_user(attrs)
     end
   end
 end

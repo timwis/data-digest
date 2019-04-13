@@ -48,7 +48,9 @@ defmodule DataDigest.MixProject do
       {:liquid, "~> 0.9.0"},
       {:httpoison, "~> 1.4"},
       {:poison, "~> 3.1"},
-      {:bamboo, "~> 1.2"}
+      {:bamboo, "~> 1.2"},
+      {:ueberauth, "~> 0.6"},
+      {:ueberauth_auth0, "~> 0.3"}
     ]
   end
 

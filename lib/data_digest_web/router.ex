@@ -1,6 +1,8 @@
 defmodule DataDigestWeb.Router do
   use DataDigestWeb, :router
 
+  require Ueberauth
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -11,12 +13,22 @@ defmodule DataDigestWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug :fetch_session
   end
 
   scope "/", DataDigestWeb do
     pipe_through :browser
 
     get "/", PageController, :index
+  end
+
+  scope "/auth", DataDigestWeb do
+    pipe_through :api
+
+    get "/:provider", AuthController, :request
+    get "/:provider/callback", AuthController, :callback
+    post "/:provider/callback", AuthController, :callback
+    post "/logout", AuthController, :delete
   end
 
   scope "/api", DataDigestWeb do
