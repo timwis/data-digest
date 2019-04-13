@@ -76,7 +76,7 @@ defmodule DataDigestWeb.DigestControllerTest do
                "body_template" => "some updated body_template",
                "endpoint_template" => "some updated endpoint_template",
                "name" => "some updated name",
-               "params_schema" => {},
+               "params_schema" => %{},
                "slug" => "some updated slug",
                "subject_template" => "some updated subject_template"
              } = json_response(conn, 200)["data"]

@@ -1,4 +1,4 @@
-defmodule DataDigest.DigestsTest do
+defmodule DataDigest.DigestJobsTest do
   use DataDigest.DataCase
 
   alias DataDigest.Digests

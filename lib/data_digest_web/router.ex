@@ -17,15 +17,16 @@ defmodule DataDigestWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
-    resources "/digests", DigestController do
-      resources "/subscribers", SubscriberController
-    end
   end
 
   scope "/api", DataDigestWeb do
     pipe_through :api
 
     get "/schedule", DigestController, :schedule
+
+    resources "/digests", DigestController do
+      resources "/subscribers", Digest.SubscriberController
+    end
   end
 
   # Other scopes may use custom stacks.
