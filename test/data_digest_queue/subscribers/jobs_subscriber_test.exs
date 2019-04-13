@@ -5,6 +5,7 @@ defmodule DataDigestQueue.JobsSubscriberTest do
   alias Conduit.Message
   alias DataDigestQueue.JobsSubscriber
 
+  @tag :skip
   describe "process/2" do
     test "returns acked message" do
       message =
