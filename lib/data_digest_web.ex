@@ -24,6 +24,7 @@ defmodule DataDigestWeb do
       import Plug.Conn
       import DataDigestWeb.Gettext
       alias DataDigestWeb.Router.Helpers, as: Routes
+      import DataDigestWeb.AuthPlugs, only: [require_auth!: 2]
     end
   end
 
@@ -50,6 +51,7 @@ defmodule DataDigestWeb do
       use Phoenix.Router
       import Plug.Conn
       import Phoenix.Controller
+      import DataDigestWeb.AuthPlugs, only: [load_auth: 2]
     end
   end
 

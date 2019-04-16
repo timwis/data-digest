@@ -8,6 +8,7 @@ defmodule DataDigestWeb.DigestController do
   alias DataDigestQueue.Broker
 
   action_fallback DataDigestWeb.FallbackController
+  plug :require_auth! when action in [:show]
 
   def index(conn, _params) do
     digests = Digests.list_digests()
