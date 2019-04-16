@@ -9,7 +9,7 @@ defmodule DataDigest.Digests.Digest do
     field :params_schema, :map
     field :slug, :string
     field :subject_template, :string
-    field :user_id, :id
+    belongs_to :user, DataDigest.Accounts.User
 
     timestamps()
   end

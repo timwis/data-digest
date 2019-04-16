@@ -8,15 +8,20 @@ defmodule DataDigestWeb.DigestController do
   alias DataDigestQueue.Broker
 
   action_fallback DataDigestWeb.FallbackController
-  plug :require_auth! when action in [:show]
+  plug :require_auth! when action in [:index, :show]
 
-  def index(conn, _params) do
-    digests = Digests.list_digests()
+  def action(conn, _) do
+    args = [conn, conn.params, conn.assigns.current_user]
+    apply(__MODULE__, action_name(conn), args)
+  end
+
+  def index(conn, _params, current_user) do
+    digests = Digests.list_user_digests(current_user)
     render(conn, "index.json", digests: digests)
   end
 
-  def create(conn, %{"digest" => digest_params}) do
-    with {:ok, %Digest{} = digest} <- Digests.create_digest(digest_params) do
+  def create(conn, %{"digest" => digest_params}, current_user) do
+    with {:ok, %Digest{} = digest} <- Digests.create_digest(current_user, digest_params) do
       conn
       |> put_status(:created)
       |> put_resp_header("location", Routes.digest_path(conn, :show, digest))
@@ -24,28 +29,28 @@ defmodule DataDigestWeb.DigestController do
     end
   end
 
-  def show(conn, %{"id" => id}) do
-    digest = Digests.get_digest!(id)
+  def show(conn, %{"id" => id}, current_user) do
+    digest = Digests.get_user_digest!(current_user, id)
     render(conn, "show.json", digest: digest)
   end
 
-  def update(conn, %{"id" => id, "digest" => digest_params}) do
-    digest = Digests.get_digest!(id)
+  def update(conn, %{"id" => id, "digest" => digest_params}, current_user) do
+    digest = Digests.get_user_digest!(current_user, id)
 
     with {:ok, %Digest{} = digest} <- Digests.update_digest(digest, digest_params) do
       render(conn, "show.json", digest: digest)
     end
   end
 
-  def delete(conn, %{"id" => id}) do
-    digest = Digests.get_digest!(id)
+  def delete(conn, %{"id" => id}, current_user) do
+    digest = Digests.get_user_digest!(current_user, id)
 
     with {:ok, %Digest{}} <- Digests.delete_digest(digest) do
       send_resp(conn, :no_content, "")
     end
   end 
 
-  def schedule(conn, _params) do
+  def schedule(conn, _params, _current_user) do
     digest_jobs = DigestJobs.list_digest_jobs()
     Enum.map(digest_jobs, fn digest_job ->
       %Message{}

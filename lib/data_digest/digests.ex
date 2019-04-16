@@ -7,6 +7,7 @@ defmodule DataDigest.Digests do
   alias DataDigest.Repo
 
   alias DataDigest.Digests.Digest
+  alias DataDigest.Accounts.User
 
   @doc """
   Returns the list of digests.
@@ -18,7 +19,16 @@ defmodule DataDigest.Digests do
 
   """
   def list_digests do
-    Repo.all(Digest)
+    Digest
+    |> Repo.all()
+    |> preload_user()
+  end
+
+  def list_user_digests(%User{} = user) do
+    Digest
+    |> user_digests_query(user)
+    |> Repo.all()
+    |> preload_user()
   end
 
   @doc """
@@ -35,7 +45,18 @@ defmodule DataDigest.Digests do
       ** (Ecto.NoResultsError)
 
   """
-  def get_digest!(id), do: Repo.get!(Digest, id)
+  def get_digest!(id) do
+    Digest
+    |> Repo.get!(id)
+    |> preload_user()
+  end
+
+  def get_user_digest!(%User{} = user, id) do
+    from(d in Digest, where: d.id == ^id)
+    |> user_digests_query(user)
+    |> Repo.one!()
+    |> preload_user()
+  end
 
   @doc """
   Creates a digest.
@@ -49,9 +70,10 @@ defmodule DataDigest.Digests do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_digest(attrs \\ %{}) do
+  def create_digest(%User{} = user, attrs \\ %{}) do
     %Digest{}
     |> Digest.changeset(attrs)
+    |> put_user(user)
     |> Repo.insert()
   end
 
@@ -98,8 +120,22 @@ defmodule DataDigest.Digests do
       %Ecto.Changeset{source: %Digest{}}
 
   """
-  def change_digest(%Digest{} = digest) do
-    Digest.changeset(digest, %{})
+  def change_digest(%User{} = user, %Digest{} = digest) do
+    digest
+    |> Digest.changeset(%{})
+    |> put_user(user)
+  end
+
+  defp put_user(changeset, user) do
+    Ecto.Changeset.put_assoc(changeset, :user, user)
+  end
+
+  defp user_digests_query(query, %User{id: user_id}) do
+    from(d in query, where: d.user_id == ^user_id)
+  end
+
+  defp preload_user(query) do
+    Repo.preload(query, :user)
   end
 
   alias DataDigest.Digests.Subscriber
