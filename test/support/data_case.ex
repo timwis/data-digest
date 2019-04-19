@@ -22,6 +22,7 @@ defmodule DataDigest.DataCase do
       import Ecto.Changeset
       import Ecto.Query
       import DataDigest.DataCase
+      import DataDigest.TestHelpers
     end
   end
 
