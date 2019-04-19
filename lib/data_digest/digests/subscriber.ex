@@ -4,8 +4,8 @@ defmodule DataDigest.Digests.Subscriber do
 
   schema "subscribers" do
     field :email, :string
-    field :digest_id, :id
     field :params, :map
+    belongs_to :digest, DataDigest.Digests.Digest
 
     timestamps()
   end
@@ -13,8 +13,8 @@ defmodule DataDigest.Digests.Subscriber do
   @doc false
   def changeset(subscriber, attrs) do
     subscriber
-    |> cast(attrs, [:email, :digest_id, :params])
+    |> cast(attrs, [:email, :params])
     |> unique_constraint(:email, name: :subscribers_email_digest_id_params_index)
-    |> validate_required([:email, :digest_id])
+    |> validate_required([:email])
   end
 end

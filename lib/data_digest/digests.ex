@@ -150,7 +150,9 @@ defmodule DataDigest.Digests do
 
   """
   def list_subscribers do
-    Repo.all(Subscriber)
+    Subscriber
+    |> Repo.all()
+    |> preload_digest()
   end
 
   @doc """
@@ -167,7 +169,11 @@ defmodule DataDigest.Digests do
       ** (Ecto.NoResultsError)
 
   """
-  def get_subscriber!(id), do: Repo.get!(Subscriber, id)
+  def get_subscriber!(id) do
+    Subscriber
+    |> Repo.get!(id)
+    |> preload_digest()
+  end
 
   @doc """
   Creates a subscriber.
@@ -181,9 +187,10 @@ defmodule DataDigest.Digests do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_subscriber(attrs \\ %{}) do
+  def create_subscriber(%Digest{} = digest, attrs \\ %{}) do
     %Subscriber{}
     |> Subscriber.changeset(attrs)
+    |> put_digest(digest)
     |> Repo.insert()
   end
 
@@ -230,7 +237,17 @@ defmodule DataDigest.Digests do
       %Ecto.Changeset{source: %Subscriber{}}
 
   """
-  def change_subscriber(%Subscriber{} = subscriber) do
-    Subscriber.changeset(subscriber, %{})
+  def change_subscriber(%Digest{} = digest, %Subscriber{} = subscriber) do
+    subscriber
+    |> Subscriber.changeset(%{})
+    |> put_digest(digest)
+  end
+
+  defp put_digest(changeset, digest) do
+    Ecto.Changeset.put_assoc(changeset, :digest, digest)
+  end
+
+  defp preload_digest(query) do
+    Repo.preload(query, digest: :user)
   end
 end
