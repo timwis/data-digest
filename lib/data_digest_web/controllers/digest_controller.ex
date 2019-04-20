@@ -8,7 +8,7 @@ defmodule DataDigestWeb.DigestController do
   alias DataDigestQueue.Broker
 
   action_fallback DataDigestWeb.FallbackController
-  plug :require_auth! when action in [:index, :show]
+  plug :require_auth! when action in [:index, :show, :create, :update, :delete]
 
   def action(conn, _) do
     args = [conn, conn.params, conn.assigns.current_user]
