@@ -1,6 +1,7 @@
 defmodule DataDigestWeb.DigestControllerTest do
   use DataDigestWeb.ConnCase
 
+  alias DataDigest.Digests
   alias DataDigest.Accounts.User
 
   @create_attrs %{
@@ -25,19 +26,21 @@ defmodule DataDigestWeb.DigestControllerTest do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
-  setup context do
-    case context[:authenticated] do
-      true ->
-        conn = context[:conn]
-        user = user_fixture()
-        conn = assign(conn, :current_user, user)
-        {:ok, conn: conn, user: user}
-      _ ->
-        :ok
-    end
+  defp create_user(_) do
+    user = user_fixture()
+    {:ok, user: user}
   end
 
-  describe "unauthenticated" do
+  defp authenticate(%{conn: conn, user: %User{} = user}) do
+    conn = assign(conn, :current_user, user)
+    {:ok, conn: conn}
+  end
+
+  defp count_digests() do
+    Enum.count(Digests.list_digests())
+  end
+
+  describe "unauthenticated digests" do
     test "requires user authentication on protected resources", %{conn: conn} do
       Enum.each([
         get(conn, Routes.digest_path(conn, :index)),
@@ -52,17 +55,52 @@ defmodule DataDigestWeb.DigestControllerTest do
     end
   end
 
-  describe "index" do
-    @describetag :authenticated
-    test "lists all digests", %{conn: conn} do
+  describe "unauthorised digests" do
+    test "prevents actions on another user's digest", %{conn: conn} do
+      owner = user_fixture(email: "owner@owner.com")
+      digest = digest_fixture(owner)
+      non_owner = user_fixture(email: "non@owner.com")
+      conn = assign(conn, :current_user, non_owner)
+
+      assert_error_sent :not_found, fn ->
+        get(conn, Routes.digest_path(conn, :show, digest))
+      end
+      assert_error_sent :not_found, fn ->
+        put(conn, Routes.digest_path(conn, :update, digest, digest: @update_attrs))
+      end
+      assert_error_sent :not_found, fn ->
+        delete(conn, Routes.digest_path(conn, :delete, digest))
+      end
+    end
+  end
+
+  describe "list digests" do
+    setup [:create_user, :authenticate]
+
+    test "lists all user's digests", %{conn: conn, user: user} do
+      user_digest = digest_fixture(user, slug: "my_digest")
+      _other_user_digest = digest_fixture(user_fixture(email: "b@b.b"), slug: "anothers_digest")
       conn = get(conn, Routes.digest_path(conn, :index))
-      assert json_response(conn, 200)["data"] == []
+      data = json_response(conn, 200)["data"]
+      assert length(data) == 1
+      assert hd(data)["slug"] == user_digest.slug
+    end
+  end
+
+  describe "show digest" do
+    setup [:create_user, :authenticate]
+
+    test "shows a user's digest", %{conn: conn, user: user} do
+      digest = digest_fixture(user, slug: "my_digest")
+      conn = get(conn, Routes.digest_path(conn, :show, digest.id))
+      assert json_response(conn, 200)["data"]["slug"] == digest.slug
     end
   end
 
   describe "create digest" do
-    @describetag :authenticated
-    test "renders digest when data is valid", %{conn: conn} do
+    setup [:create_user, :authenticate]
+
+    test "returns digest when data is valid", %{conn: conn} do
       create_conn = post(conn, Routes.digest_path(conn, :create), digest: @create_attrs)
       assert %{"id" => id} = json_response(create_conn, 201)["data"]
 
@@ -79,14 +117,16 @@ defmodule DataDigestWeb.DigestControllerTest do
              } = json_response(get_conn, 200)["data"]
     end
 
-    test "renders errors when data is invalid", %{conn: conn} do
+    test "returns errors when data is invalid", %{conn: conn} do
+      count_before = count_digests()
       conn = post(conn, Routes.digest_path(conn, :create), digest: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
+      assert count_before == count_digests()
     end
   end
 
   describe "update digest" do
-    @describetag :authenticated
+    setup [:create_user, :authenticate]
 
     test "renders digest when data is valid", %{conn: conn, user: %User{} = user} do
       digest = digest_fixture(user)
@@ -115,7 +155,7 @@ defmodule DataDigestWeb.DigestControllerTest do
   end
 
   describe "delete digest" do
-    @describetag :authenticated
+    setup [:create_user, :authenticate]
 
     test "deletes chosen digest", %{conn: conn, user: %User{} = user} do
       digest = digest_fixture(user)
