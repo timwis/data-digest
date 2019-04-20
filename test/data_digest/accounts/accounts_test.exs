@@ -14,15 +14,6 @@ defmodule DataDigest.AccountsTest do
     @valid_auth_attrs %Auth{uid: "foo", info: %{email: "b@b.b", image: "xyz"}}
     @invalid_auth_attrs %Auth{uid: "foo", info: %{email: nil, image: nil}}
 
-    def user_fixture(attrs \\ %{}) do
-      {:ok, user} =
-        attrs
-        |> Enum.into(@valid_attrs)
-        |> Accounts.create_user()
-
-      user
-    end
-
     test "list_users/0 returns all users" do
       user = user_fixture()
       assert Accounts.list_users() == [user]

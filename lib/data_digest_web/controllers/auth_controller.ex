@@ -10,7 +10,8 @@ defmodule DataDigestWeb.AuthController do
   def callback(%{assigns: %{ueberauth_auth: auth}} = conn, _params) do
     with {:ok, user} <- Accounts.get_or_create_user(auth) do
       conn
-      |> put_session(:current_user, user)
+      |> put_session(:user_id, user.id)
+      |> configure_session(renew: true)
       |> render("current_user.json", user: user)
     end
   end

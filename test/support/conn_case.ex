@@ -19,6 +19,7 @@ defmodule DataDigestWeb.ConnCase do
     quote do
       # Import conveniences for testing with connections
       use Phoenix.ConnTest
+      import DataDigest.TestHelpers
       alias DataDigestWeb.Router.Helpers, as: Routes
 
       # The default endpoint for testing
