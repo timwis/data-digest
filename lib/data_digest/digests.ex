@@ -155,6 +155,14 @@ defmodule DataDigest.Digests do
     |> preload_digest()
   end
 
+  def list_digest_subscribers(%Digest{} = digest) do
+    Subscriber
+    |> digest_subscribers_query(digest)
+    |> Repo.all()
+    |> preload_digest()
+  end
+
+
   @doc """
   Gets a single subscriber.
 
@@ -172,6 +180,13 @@ defmodule DataDigest.Digests do
   def get_subscriber!(id) do
     Subscriber
     |> Repo.get!(id)
+    |> preload_digest()
+  end
+
+  def get_digest_subscriber!(%Digest{} = digest, id) do
+    from(s in Subscriber, where: s.id == ^id)
+    |> digest_subscribers_query(digest)
+    |> Repo.one!()
     |> preload_digest()
   end
 
@@ -245,6 +260,10 @@ defmodule DataDigest.Digests do
 
   defp put_digest(changeset, digest) do
     Ecto.Changeset.put_assoc(changeset, :digest, digest)
+  end
+
+  defp digest_subscribers_query(query, %Digest{id: digest_id}) do
+    from(s in query, where: s.digest_id == ^digest_id)
   end
 
   defp preload_digest(query) do

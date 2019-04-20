@@ -5,14 +5,20 @@ defmodule DataDigestWeb.Digest.SubscriberController do
   alias DataDigest.Digests.Subscriber
 
   action_fallback DataDigestWeb.FallbackController
+  plug :require_auth! when action in [:index, :show, :update, :delete]
 
-  def index(conn, %{"digest_id" => digest_id}) do
-    digest = Digests.get_digest!(digest_id)
-    subscribers = Digests.list_subscribers()
-    render(conn, "index.json", digest: digest, subscribers: subscribers)
+  def action(conn, _) do
+    args = [conn, conn.params, conn.assigns.current_user]
+    apply(__MODULE__, action_name(conn), args)
   end
 
-  def create(conn, %{"digest_id" => digest_id, "subscriber" => params}) do
+  def index(conn, %{"digest_id" => digest_id}, current_user) do
+    digest = Digests.get_user_digest!(current_user, digest_id)
+    subscribers = Digests.list_digest_subscribers(digest)
+    render(conn, "index.json", subscribers: subscribers)
+  end
+
+  def create(conn, %{"digest_id" => digest_id, "subscriber" => params}, _current_user) do
     digest = Digests.get_digest!(digest_id)
 
     with {:ok, %Subscriber{} = subscriber} <- Digests.create_subscriber(digest, params) do
@@ -23,22 +29,24 @@ defmodule DataDigestWeb.Digest.SubscriberController do
     end
   end
 
-  def show(conn, %{"digest_id" => digest_id, "id" => id}) do
-    digest = Digests.get_digest!(digest_id)
-    subscriber = Digests.get_subscriber!(id)
-    render(conn, "show.json", digest: digest, subscriber: subscriber)
+  def show(conn, %{"digest_id" => digest_id, "id" => id}, current_user) do
+    digest = Digests.get_user_digest!(current_user, digest_id)
+    subscriber = Digests.get_digest_subscriber!(digest, id)
+    render(conn, "show.json", subscriber: subscriber)
   end
 
-  def update(conn, %{"id" => id, "subscriber" => subscriber_params}) do
-    subscriber = Digests.get_subscriber!(id)
+  def update(conn, %{"digest_id" => digest_id, "id" => id, "subscriber" => subscriber_params}, current_user) do
+    digest = Digests.get_user_digest!(current_user, digest_id)
+    subscriber = Digests.get_digest_subscriber!(digest, id)
 
     with {:ok, %Subscriber{} = subscriber} <- Digests.update_subscriber(subscriber, subscriber_params) do
       render(conn, "show.json", subscriber: subscriber)
     end
   end
 
-  def delete(conn, %{"id" => id}) do
-    subscriber = Digests.get_subscriber!(id)
+  def delete(conn, %{"digest_id" => digest_id, "id" => id}, current_user) do
+    digest = Digests.get_user_digest!(current_user, digest_id)
+    subscriber = Digests.get_digest_subscriber!(digest, id)
 
     with {:ok, %Subscriber{}} <- Digests.delete_subscriber(subscriber) do
       send_resp(conn, :no_content, "")
