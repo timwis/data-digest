@@ -12,11 +12,10 @@ defmodule DataDigestWeb.Digest.SubscriberController do
     render(conn, "index.json", digest: digest, subscribers: subscribers)
   end
 
-  def create(conn, %{"digest_id" => digest_id, "subscriber" => subscriber_params}) do
+  def create(conn, %{"digest_id" => digest_id, "subscriber" => params}) do
     digest = Digests.get_digest!(digest_id)
-    params = Map.put(subscriber_params, "digest_id", digest.id)
 
-    with {:ok, %Subscriber{} = subscriber} <- Digests.create_subscriber(params) do
+    with {:ok, %Subscriber{} = subscriber} <- Digests.create_subscriber(digest, params) do
       conn
       |> put_status(:created)
       |> put_resp_header("location", Routes.digest_subscriber_path(conn, :show, digest.id, subscriber))

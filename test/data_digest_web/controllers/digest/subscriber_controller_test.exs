@@ -1,10 +1,10 @@
 defmodule DataDigestWeb.Digest.SubscriberControllerTest do
   use DataDigestWeb.ConnCase
 
-  alias DataDigest.Digests
+  alias DataDigest.Digests.Digest
   alias DataDigest.Digests.Subscriber
+  alias DataDigest.Accounts.User
 
-  @create_digest_attrs %{body_template: "some body_template", endpoint_template: "some endpoint_template", name: "some name", params_schema: nil, slug: "some slug", subject_template: "some subject_template"}
   @create_attrs %{
     email: "some email",
     params: %{}
@@ -15,17 +15,12 @@ defmodule DataDigestWeb.Digest.SubscriberControllerTest do
   }
   @invalid_attrs %{email: nil, params: nil}
 
-  def fixture(:subscriber) do
-    {:ok, subscriber} = Digests.create_subscriber(@create_attrs)
-    subscriber
-  end
-
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
   describe "index" do
-    setup [:create_digest]
+    setup [:create_user, :create_digest]
 
     test "lists all subscribers", %{conn: conn, digest: digest} do
       conn = get(conn, Routes.digest_subscriber_path(conn, :index, digest.id))
@@ -34,7 +29,7 @@ defmodule DataDigestWeb.Digest.SubscriberControllerTest do
   end
 
   describe "create subscriber" do
-    setup [:create_digest]
+    setup [:create_user, :create_digest]
 
     test "renders subscriber when data is valid", %{conn: conn, digest: digest} do
       conn = post(conn, Routes.digest_subscriber_path(conn, :create, digest.id), subscriber: @create_attrs)
@@ -56,7 +51,7 @@ defmodule DataDigestWeb.Digest.SubscriberControllerTest do
   end
 
   describe "update subscriber" do
-    setup [:create_subscriber]
+    setup [:create_user, :create_digest, :create_subscriber]
 
     test "renders subscriber when data is valid", %{conn: conn, subscriber: %Subscriber{id: subscriber_id} = subscriber} do
       conn = put(conn, Routes.digest_subscriber_path(conn, :update, subscriber.digest_id, subscriber), subscriber: @update_attrs)
@@ -78,7 +73,7 @@ defmodule DataDigestWeb.Digest.SubscriberControllerTest do
   end
 
   describe "delete subscriber" do
-    setup [:create_subscriber]
+    setup [:create_user, :create_digest, :create_subscriber]
 
     test "deletes chosen subscriber", %{conn: conn, subscriber: subscriber} do
       conn = delete(conn, Routes.digest_subscriber_path(conn, :delete, subscriber.digest_id, subscriber))
@@ -90,17 +85,18 @@ defmodule DataDigestWeb.Digest.SubscriberControllerTest do
     end
   end
 
-  defp create_subscriber(context) do
-    {:ok, digest: digest} = create_digest(context)
-    digest_id = Map.get(digest, :id)
-    attrs = Map.put(@create_attrs, :digest_id, digest_id)
-
-    {:ok, subscriber} = Digests.create_subscriber(attrs)
-    {:ok, subscriber: subscriber}
+  defp create_user(_) do
+    user = user_fixture()
+    {:ok, user: user}
   end
 
-  defp create_digest(_) do
-    {:ok, digest} = Digests.create_digest(@create_digest_attrs)
+  defp create_digest(%{user: %User{} = user}) do
+    digest = digest_fixture(user)
     {:ok, digest: digest}
+  end
+
+  defp create_subscriber(%{digest: %Digest{} = digest}) do
+    subscriber = subscriber_fixture(digest)
+    {:ok, subscriber: subscriber}
   end
 end
