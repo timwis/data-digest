@@ -1,5 +1,0 @@
-<h1>New Subscriber</h1>
-
-<%= render "form.html", Map.put(assigns, :action, Routes.digest_subscriber_path(@conn, :create, @digest.id)) %>
-
-<span><%= link "Back", to: Routes.digest_subscriber_path(@conn, :index, @digest.id) %></span>

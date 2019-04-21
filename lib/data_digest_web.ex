@@ -37,9 +37,6 @@ defmodule DataDigestWeb do
       # Import convenience functions from controllers
       import Phoenix.Controller, only: [get_flash: 1, get_flash: 2, view_module: 1]
 
-      # Use all HTML functionality (forms, tags, etc)
-      use Phoenix.HTML
-
       import DataDigestWeb.ErrorHelpers
       import DataDigestWeb.Gettext
       alias DataDigestWeb.Router.Helpers, as: Routes
