@@ -18,12 +18,6 @@ defmodule DataDigestWeb.Router do
     plug :load_auth
   end
 
-  scope "/", DataDigestWeb do
-    pipe_through :browser
-
-    get "/", PageController, :index
-  end
-
   scope "/auth", DataDigestWeb do
     pipe_through :api
 
@@ -41,5 +35,11 @@ defmodule DataDigestWeb.Router do
     resources "/digests", DigestController do
       resources "/subscribers", Digest.SubscriberController
     end
+  end
+
+  scope "/", DataDigestWeb do
+    pipe_through :browser
+
+    get "/*anything", PageController, :index
   end
 end
