@@ -8,6 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "bulma": "^0.7.4",
     "core-js": "^2.6.5",
     "vue": "^2.6.10",
     "vue-router": "^3.0.3",
@@ -31,10 +32,17 @@
       "node": true
     },
     "extends": [
-      "plugin:vue/essential",
+      "plugin:vue/recommended",
       "@vue/standard"
     ],
-    "rules": {},
+    "rules": {
+      "vue/html-closing-bracket-newline": [
+        "error",
+        {
+          "multiline": "never"
+        }
+      ]
+    },
     "parserOptions": {
       "parser": "babel-eslint"
     }
