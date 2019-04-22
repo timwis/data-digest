@@ -13,7 +13,7 @@
         </h2>
 
         <router-link
-          to="/digests/add"
+          to="/digests/create"
           class="button is-link">
           Get started
         </router-link>

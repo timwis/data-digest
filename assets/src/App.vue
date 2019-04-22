@@ -28,4 +28,6 @@ export default {
 
 <style lang="sass">
 @import "~bulma"
+//@import "~codemirror/lib/codemirror.css"
+//@import "~codemirror/theme/base16-dark.css"
 </style>
