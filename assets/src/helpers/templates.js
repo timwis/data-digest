@@ -27,19 +27,19 @@ export const exampleSampleUrl = () => {
 }
 
 export const exampleSubjectTemplate = () => stripIndent`
-  {{data.items.length}} new JavaScript repos
+  {{data.items.size}} new JavaScript repos
 `
 
 export const exampleBodyTemplate = () => stripIndent`
-  {{#if data.items.length}}
+  {% if data.items.size > 0 %}
     <h1>New JavaScript repos</h1>
     <ul>
-    {{#each data.items}}
+    {% for item in data.items %}
       <li>
-        <a href="{{html_url}}">{{name}}</a>
-        ({{stargazers_count}} stars)
+        <a href="{{item.html_url}}">{{item.name}}</a>
+        ({{item.stargazers_count}} stars)
       </li>
-    {{/each}}
+    {% endfor %}
     </ul>
-  {{/if}}
+  {% endif %}
 `

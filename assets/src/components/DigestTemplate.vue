@@ -47,9 +47,9 @@
           <label class="label">
             Data URL response
           </label>
-          <pre id="sample-data">
-            {{ sampleData }}
-          </pre>
+          <pre
+            id="sample-data"
+            v-text="sampleData" />
         </div>
         <div
           id="template-container"
@@ -67,8 +67,39 @@
                 :options="codemirrorOpts" />
             </div>
           </div>
+          <div class="field">
+            <label
+              for="body-template"
+              class="label">
+              Email body
+            </label>
+            <div class="control">
+              <codemirror
+                id="body-template"
+                v-model="bodyTemplate"
+                :options="codemirrorOpts" />
+            </div>
+          </div>
         </div>
       </div>
+      <div>
+        <h4 class="title is-4">
+          Preview
+        </h4>
+        <RenderedTemplate
+          id="subject-preview"
+          :data="sampleData"
+          :template="subjectTemplate" />
+        <RenderedTemplate
+          id="body-preview"
+          :data="sampleData"
+          :template="bodyTemplate" />
+      </div>
+      <button
+        type="submit"
+        class="button is-large is-info">
+        {{ submitLabel }}
+      </button>
     </form>
   </div>
 </template>
@@ -76,14 +107,22 @@
 <script>
 import axios from 'axios'
 
+import RenderedTemplate from '@/components/RenderedTemplate'
 import * as templates from '@/helpers/templates'
 import { mapNestedFields } from '@/helpers/util'
 
 export default {
+  components: {
+    RenderedTemplate
+  },
   props: {
     value: {
       type: Object,
       required: true
+    },
+    submitLabel: {
+      type: String,
+      default: "Save"
     }
   },
   data () {
@@ -123,13 +162,61 @@ export default {
       }
     },
     useExampleUrl () {
-      this.digest = Object.assign({}, this.digest, {
+      // this is convoluted because $emit is async
+      this.digest = {
+        ...this.digest,
         sampleUrl: templates.exampleSampleUrl(),
         subjectTemplate: templates.exampleSubjectTemplate(),
         bodyTemplate: templates.exampleBodyTemplate()
-      })
-      this.fetchSampleData()
+      }
+      window.setTimeout(() => {
+        this.fetchSampleData()
+      }, 100)
     }
   }
 }
 </script>
+
+<style lang="sass">
+#sample-url-container
+  padding-bottom: 25px
+
+#sample-data-container
+  overflow: auto
+
+#sample-data
+  height: 320px
+
+@mixin border
+  border: 1px #dbdbdb solid
+  border-radius: 3px
+
+.CodeMirror
+  @include border
+
+#template-container
+  overflow-x: auto
+
+#subject-template
+  .CodeMirror
+    height: auto
+
+#body-template
+  .CodeMirror
+    height: auto
+
+#subject-preview
+  @include border
+  min-height: 36px
+  max-height: 72px
+  overflow: auto
+  margin-bottom: 10px
+  padding: 5px
+  font-weight: bold
+
+#body-preview
+  @include border
+  height: 250px
+  margin-bottom: 25px
+  overflow: auto
+</style>
