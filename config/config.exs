@@ -27,7 +27,7 @@ config :phoenix, :json_library, Jason
 
 config :ueberauth, Ueberauth,
   providers: [
-    auth0: {Ueberauth.Strategy.Auth0, []}
+    auth0: {Ueberauth.Strategy.Auth0, [callback_params: ["redirect"]]}
   ]
 
 config :ueberauth, Ueberauth.Strategy.Auth0.OAuth,

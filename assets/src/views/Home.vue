@@ -1,7 +1,7 @@
 <template>
   <section class="hero is-info is-fullheight">
     <div class="hero-head">
-      <SiteNav :user="user" />
+      <SiteNav :current-user="currentUser" />
     </div>
     <div class="hero-body">
       <div class="container">
@@ -31,7 +31,7 @@ export default {
     SiteNav
   },
   computed: mapState({
-    user: (state) => state.user
+    currentUser: (state) => state.currentUser
   })
 }
 </script>

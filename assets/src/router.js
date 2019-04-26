@@ -16,9 +16,18 @@ export default new Router({
       meta: { disableGlobalNav: true }
     },
     {
-      path: '/digests/create',
+      path: '/digests/create/:step?',
       name: 'createDigest',
-      component: CreateDigest
+      component: CreateDigest,
+      props: true
+    },
+    {
+      path: '/login',
+      name: 'login',
+      beforeEnter (to, from, next) {
+        const query = (from.path) ? `?redirect=${from.path}` : ''
+        window.location.href = `/auth/auth0/${query}`
+      }
     }
   ]
 })

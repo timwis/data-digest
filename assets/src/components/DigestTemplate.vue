@@ -12,8 +12,8 @@
         <div class="field has-addons">
           <div class="control is-expanded">
             <input
-              id="sample-url"
-              v-model="sampleUrl"
+              id="endpoint-template"
+              v-model="endpointTemplate"
               type="url"
               class="input"
               placeholder="https://..."
@@ -37,8 +37,12 @@
       </div>
     </form>
 
+    <b-loading
+      :active="isLoading"
+      :is-full-page="false" />
+
     <form
-      v-if="sampleData"
+      v-if="!isLoading && sampleData"
       @submit.prevent="$emit('submit')">
       <div class="columns">
         <div
@@ -122,11 +126,12 @@ export default {
     },
     submitLabel: {
       type: String,
-      default: "Save"
+      default: 'Save'
     }
   },
   data () {
     return {
+      isLoading: false,
       sampleData: null,
       codemirrorOpts: {
         mode: { name: 'handlebars', base: 'text/html' },
@@ -145,7 +150,7 @@ export default {
       }
     },
     ...mapNestedFields('digest', {
-      sampleUrl: 'sampleUrl',
+      endpointTemplate: 'endpointTemplate',
       subjectTemplate: 'subjectTemplate',
       bodyTemplate: 'bodyTemplate'
     })
@@ -153,19 +158,24 @@ export default {
   methods: {
     async fetchSampleData () {
       try {
-        const response = await axios.get(this.sampleUrl)
+        this.isLoading = true
+        const response = await axios.get(this.endpointTemplate)
         this.sampleData = response.data
       } catch (err) {
+        this.$toast.open({
+          message: err.message,
+          type: 'is-danger'
+        })
         console.error(err)
       } finally {
-
+        this.isLoading = false
       }
     },
     useExampleUrl () {
       // this is convoluted because $emit is async
       this.digest = {
         ...this.digest,
-        sampleUrl: templates.exampleSampleUrl(),
+        endpointTemplate: templates.exampleEndpointTemplate(),
         subjectTemplate: templates.exampleSubjectTemplate(),
         bodyTemplate: templates.exampleBodyTemplate()
       }

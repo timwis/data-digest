@@ -2,13 +2,13 @@
   <div id="app">
     <SiteNav
       v-if="!disableGlobalNav"
-      :user="user" />
+      :current-user="currentUser" />
     <router-view />
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 import SiteNav from '@/components/SiteNav'
 
 export default {
@@ -17,7 +17,7 @@ export default {
   },
   computed: {
     ...mapState({
-      user: (state) => state.user
+      currentUser: (state) => state.currentUser
     }),
     disableGlobalNav () {
       return !!this.$route.meta.disableGlobalNav

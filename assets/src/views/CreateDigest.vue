@@ -3,14 +3,14 @@
     <div class="container">
       <Steps
         :current="step"
-        @change="step = $event" />
+        @change="goToStep($event)" />
       <DigestTemplate
-        v-if="step == 1"
+        v-if="step == 'template'"
         v-model="digest"
         submit-label="Next step"
-        @submit="step = 2" />
+        @submit="goToStep('settings')" />
       <DigestSettings
-        v-else-if="step == 2"
+        v-else-if="step == 'settings'"
         v-model="digest"
         :submit-label="finalSubmitLabel"
         @submit="onFinalSubmit" />
@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapActions, mapMutations } from 'vuex'
 import { mapFields } from 'vuex-map-fields'
 
 import Steps from '@/components/Steps'
@@ -32,9 +32,10 @@ export default {
     DigestTemplate,
     DigestSettings
   },
-  data () {
-    return {
-      step: 1
+  props: {
+    step: {
+      type: String,
+      default: 'template'
     }
   },
   computed: {
@@ -42,15 +43,38 @@ export default {
       digest: 'digest'
     }),
     ...mapState({
-      isLoggedIn: (state) => !!state.user.email
+      isLoggedIn: (state) => !!state.currentUser.email,
+      isDigestPendingCreation: (state) => state.isDigestPendingCreation
     }),
     finalSubmitLabel () {
       return this.isLoggedIn ? 'Save' : 'Login & Save'
     }
   },
+  async created () {
+    if (this.isDigestPendingCreation) {
+      await this.createDigest()
+      await this.setDigestPendingCreation(false)
+      this.$router.push(`/digests/${this.digest.id}`)
+    }
+  },
   methods: {
-    onFinalSubmit () {
-      console.log('saving', this.digest)
+    ...mapActions([
+      'createDigest'
+    ]),
+    ...mapMutations({
+      setDigestPendingCreation: 'SET_DIGEST_PENDING_CREATION'
+    }),
+    goToStep (step) {
+      this.$router.push(`/digests/create/${step}`)
+    },
+    async onFinalSubmit () {
+      if (this.isLoggedIn) {
+        await this.createDigest()
+        this.$router.push(`/digests/${this.digest.id}`)
+      } else {
+        this.setDigestPendingCreation(true)
+        this.$router.push('/login')
+      }
     }
   }
 }

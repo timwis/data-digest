@@ -32,7 +32,8 @@
 
         <router-link
           v-if="isLoggedIn"
-          to="/digests">
+          to="/digests"
+          class="navbar-item">
           Digests
         </router-link>
       </div>
@@ -42,14 +43,14 @@
           v-if="isLoggedIn"
           class="navbar-item has-dropdown is-hoverable">
           <a class="navbar-link">
-            {{ user.email }}
+            {{ currentUser.email }}
           </a>
           <div class="navbar-dropdown">
-            <router-link
-              to="/logout"
-              class="navbar-item">
+            <a
+              class="navbar-item"
+              @click.prevent="logoutAndRedirectHome">
               Logout
-            </router-link>
+            </a>
           </div>
         </div>
 
@@ -75,9 +76,11 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex'
+
 export default {
   props: {
-    user: {
+    currentUser: {
       type: Object,
       default: () => ({})
     }
@@ -89,7 +92,16 @@ export default {
   },
   computed: {
     isLoggedIn () {
-      return !!this.user.email
+      return !!this.currentUser.email
+    }
+  },
+  methods: {
+    ...mapActions([
+      'logout'
+    ]),
+    async logoutAndRedirectHome () {
+      await this.logout()
+      this.$router.push('/')
     }
   }
 }

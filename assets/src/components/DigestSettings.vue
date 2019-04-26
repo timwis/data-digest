@@ -1,6 +1,6 @@
 <template>
   <div>
-    <form @submit="$emit('submit')">
+    <form @submit.prevent="$emit('submit')">
       <b-field
         label="Digest name"
         label-for="name">

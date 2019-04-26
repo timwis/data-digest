@@ -21,8 +21,9 @@ Vue.use(VueCodemirror)
 library.add(faCheck)
 Vue.component('FontAwesomeIcon', FontAwesomeIcon)
 
-new Vue({
-  router,
-  store,
-  render: h => h(App)
-}).$mount('#app')
+store.dispatch('getCurrentUser')
+  .finally(() => new Vue({
+    router,
+    store,
+    render: h => h(App)
+  }).$mount('#app'))

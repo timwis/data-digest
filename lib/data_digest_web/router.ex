@@ -21,6 +21,7 @@ defmodule DataDigestWeb.Router do
   scope "/auth", DataDigestWeb do
     pipe_through :api
 
+    get "/", AuthController, :show
     get "/:provider", AuthController, :request
     get "/:provider/callback", AuthController, :callback
     post "/:provider/callback", AuthController, :callback
