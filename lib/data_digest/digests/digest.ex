@@ -17,8 +17,8 @@ defmodule DataDigest.Digests.Digest do
   @doc false
   def changeset(digest, attrs) do
     digest
-    |> cast(attrs, [:slug, :name, :endpoint_template, :subject_template, :body_template, :params_schema])
-    |> validate_required([:slug, :name, :endpoint_template, :subject_template, :body_template])
-    |> unique_constraint(:slug)
+    |> cast(attrs, [:name, :endpoint_template, :subject_template, :body_template, :params_schema])
+    |> validate_required([:name, :endpoint_template, :subject_template, :body_template])
+    # |> unique_constraint(:slug)
   end
 end
