@@ -8,7 +8,7 @@
         v-if="step == 'template'"
         v-model="digest"
         submit-label="Next step"
-        @submit="goToStep('settings')" />
+        @submit="onSubmitTemplate" />
       <DigestSettings
         v-else-if="step == 'settings'"
         v-model="digest"

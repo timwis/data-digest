@@ -36,6 +36,9 @@ export default new Vuex.Store({
   },
   mutations: {
     updateField,
+    SET_DIGEST (state, digest) {
+      state.digest = digest
+    },
     PATCH_DIGEST (state, patch) {
       Object.assign(state.digest, patch)
     },
@@ -70,7 +73,12 @@ export default new Vuex.Store({
       const digest = snakeCaseKeys(state.digest)
       const response = await api.post('/api/digests', { digest })
       const newDigest = camelCaseKeys(response.data.data)
-      commit('PATCH_DIGEST', newDigest)
+      commit('SET_DIGEST', newDigest)
+    },
+    async showDigest ({ commit }, id) {
+      const response = await api.get(`/api/digests/${id}`)
+      const digest = camelCaseKeys(response.data.data)
+      commit('SET_DIGEST', digest)
     }
   }
 })
