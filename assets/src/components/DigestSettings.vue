@@ -1,12 +1,12 @@
 <template>
   <div>
-    <form @submit.prevent="$emit('submit')">
+    <form @submit.prevent="$emit('submit', form)">
       <b-field
         label="Digest name"
         label-for="name">
         <b-input
           id="name"
-          v-model="name"
+          v-model="form.name"
           placeholder="Daily updates"
           required />
       </b-field>
@@ -42,11 +42,11 @@
 </template>
 
 <script>
-import { mapNestedFields } from '@/helpers/util'
+import pick from 'lodash/pick'
 
 export default {
   props: {
-    value: {
+    digest: {
       type: Object,
       required: true
     },
@@ -55,18 +55,10 @@ export default {
       default: 'Save'
     }
   },
-  computed: {
-    digest: {
-      get () {
-        return this.value
-      },
-      set (newVal) {
-        this.$emit('input', newVal)
-      }
-    },
-    ...mapNestedFields('digest', {
-      name: 'name'
-    })
+  data () {
+    return {
+      form: pick(this.digest, ['name'])
+    }
   }
 }
 </script>

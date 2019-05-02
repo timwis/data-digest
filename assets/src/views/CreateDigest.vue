@@ -6,12 +6,12 @@
         @change="goToStep($event)" />
       <DigestTemplate
         v-if="step == 'template'"
-        v-model="digest"
+        :digest="digest"
         submit-label="Next step"
         @submit="onSubmitTemplate" />
       <DigestSettings
         v-else-if="step == 'settings'"
-        v-model="digest"
+        :digest="digest"
         :submit-label="finalSubmitLabel"
         @submit="onFinalSubmit" />
     </div>
@@ -20,7 +20,6 @@
 
 <script>
 import { mapState, mapActions, mapMutations } from 'vuex'
-import { mapFields } from 'vuex-map-fields'
 
 import Steps from '@/components/Steps'
 import DigestTemplate from '@/components/DigestTemplate'
@@ -38,23 +37,30 @@ export default {
       default: 'template'
     }
   },
+  data () {
+    return {
+      isLoading: false,
+      digest: {
+        name: '',
+        endpointTemplate: '',
+        subjectTemplate: '',
+        bodyTemplate: ''
+      }
+    }
+  },
   computed: {
-    ...mapFields({
-      digest: 'digest'
-    }),
     ...mapState({
       isLoggedIn: (state) => !!state.currentUser.email,
-      isDigestPendingCreation: (state) => state.isDigestPendingCreation
+      draftDigest: (state) => state.draftDigest
     }),
     finalSubmitLabel () {
       return this.isLoggedIn ? 'Save' : 'Login & Save'
     }
   },
   async created () {
-    if (this.isDigestPendingCreation) {
-      await this.createDigest()
-      await this.setDigestPendingCreation(false)
-      this.$router.push(`/digests/${this.digest.id}`)
+    if (this.draftDigest) {
+      Object.assign(this.digest, this.draftDigest)
+      this.create()
     }
   },
   methods: {
@@ -62,18 +68,40 @@ export default {
       'createDigest'
     ]),
     ...mapMutations({
-      setDigestPendingCreation: 'SET_DIGEST_PENDING_CREATION'
+      setDraftDigest: 'SET_DRAFT_DIGEST',
+      resetDraftDigest: 'RESET_DRAFT_DIGEST'
     }),
     goToStep (step) {
       this.$router.push(`/digests/create/${step}`)
     },
-    async onFinalSubmit () {
+    onSubmitTemplate (formData) {
+      Object.assign(this.digest, formData)
+      this.goToStep('settings')
+    },
+    async onFinalSubmit (formData) {
+      Object.assign(this.digest, formData)
+
       if (this.isLoggedIn) {
-        await this.createDigest()
-        this.$router.push(`/digests/${this.digest.id}`)
+        this.create()
       } else {
-        this.setDigestPendingCreation(true)
+        this.setDraftDigest(this.digest)
         this.$router.push('/login')
+      }
+    },
+    async create () {
+      try {
+        this.isLoading = true
+        const newDigest = await this.createDigest(this.digest)
+        this.resetDraftDigest()
+        this.$router.push(`/digests/${newDigest.id}`)
+      } catch (err) {
+        this.$toast.open({
+          message: err.message,
+          type: 'is-danger'
+        })
+        console.error(err)
+      } finally {
+        this.isLoading = false
       }
     }
   }

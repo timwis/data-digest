@@ -6,12 +6,14 @@
       <b-tabs v-model="activeTab">
         <b-tab-item label="Template">
           <DigestTemplate
-            v-model="digest"
+            v-if="digest.id"
+            :digest="digest"
             @submit="onSubmit" />
         </b-tab-item>
         <b-tab-item label="Settings">
           <DigestSettings
-            v-model="digest"
+            v-if="digest.id"
+            :digest="digest"
             @submit="onSubmit" />
         </b-tab-item>
       </b-tabs>
@@ -20,8 +22,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
-import { mapFields } from 'vuex-map-fields'
+import { mapState, mapActions } from 'vuex'
 
 import DigestTemplate from '@/components/DigestTemplate'
 import DigestSettings from '@/components/DigestSettings'
@@ -44,8 +45,8 @@ export default {
     }
   },
   computed: {
-    ...mapFields({
-      digest: 'digest'
+    ...mapState({
+      digest: (state) => state.digest
     })
   },
   watch: {
@@ -57,7 +58,7 @@ export default {
   methods: {
     ...mapActions([
       'showDigest',
-      'updateDigest'
+      'patchDigest'
     ]),
     async fetch () {
       try {
@@ -73,10 +74,10 @@ export default {
         this.isLoading = false
       }
     },
-    async onSubmit () {
+    async onSubmit (formData) {
       try {
         this.isLoading = true
-        await this.updateDigest(this.id)
+        await this.patchDigest({ id: this.id, payload: formData })
         this.$toast.open({
           message: 'Digest updated',
           type: 'is-success'

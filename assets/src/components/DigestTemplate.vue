@@ -13,7 +13,7 @@
           <div class="control is-expanded">
             <input
               id="endpoint-template"
-              v-model="endpointTemplate"
+              v-model="form.endpointTemplate"
               type="url"
               class="input"
               placeholder="https://..."
@@ -43,7 +43,7 @@
 
     <form
       v-if="!isLoading && sampleData"
-      @submit.prevent="$emit('submit')">
+      @submit.prevent="$emit('submit', form)">
       <div class="columns">
         <div
           id="sample-data-container"
@@ -67,8 +67,8 @@
             <div class="control">
               <codemirror
                 id="subject-template"
-                v-model="subjectTemplate"
-                :options="codemirrorOpts" />
+                v-model="form.subjectTemplate"
+                :options="$options.codemirrorOpts" />
             </div>
           </div>
           <div class="field">
@@ -80,8 +80,8 @@
             <div class="control">
               <codemirror
                 id="body-template"
-                v-model="bodyTemplate"
-                :options="codemirrorOpts" />
+                v-model="form.bodyTemplate"
+                :options="$options.codemirrorOpts" />
             </div>
           </div>
         </div>
@@ -93,11 +93,11 @@
         <RenderedTemplate
           id="subject-preview"
           :data="sampleData"
-          :template="subjectTemplate" />
+          :template="form.subjectTemplate" />
         <RenderedTemplate
           id="body-preview"
           :data="sampleData"
-          :template="bodyTemplate" />
+          :template="form.bodyTemplate" />
       </div>
       <button
         type="submit"
@@ -110,17 +110,17 @@
 
 <script>
 import axios from 'axios'
+import pick from 'lodash/pick'
 
 import RenderedTemplate from '@/components/RenderedTemplate'
 import * as templates from '@/helpers/templates'
-import { mapNestedFields } from '@/helpers/util'
 
 export default {
   components: {
     RenderedTemplate
   },
   props: {
-    value: {
+    digest: {
       type: Object,
       required: true
     },
@@ -133,33 +133,27 @@ export default {
     return {
       isLoading: false,
       sampleData: null,
-      codemirrorOpts: {
-        mode: { name: 'handlebars', base: 'text/html' },
-        tabSize: 2,
-        autoRefresh: true
-      }
+      form: pick(this.digest, [
+        'endpointTemplate',
+        'subjectTemplate',
+        'bodyTemplate'
+      ])
     }
   },
-  computed: {
-    digest: {
-      get () {
-        return this.value
-      },
-      set (newVal) {
-        this.$emit('input', newVal)
-      }
-    },
-    ...mapNestedFields('digest', {
-      endpointTemplate: 'endpointTemplate',
-      subjectTemplate: 'subjectTemplate',
-      bodyTemplate: 'bodyTemplate'
-    })
+  codemirrorOpts: {
+    mode: { name: 'handlebars', base: 'text/html' },
+    tabSize: 2,
+    autoRefresh: true
+  },
+  created () {
+    // Automatically fetch sample data from ShowDigest
+    if (this.form.endpointTemplate) this.fetchSampleData()
   },
   methods: {
     async fetchSampleData () {
       try {
         this.isLoading = true
-        const response = await axios.get(this.endpointTemplate)
+        const response = await axios.get(this.form.endpointTemplate)
         this.sampleData = response.data
       } catch (err) {
         this.$toast.open({
@@ -172,16 +166,10 @@ export default {
       }
     },
     useExampleUrl () {
-      // this is convoluted because $emit is async
-      this.digest = {
-        ...this.digest,
-        endpointTemplate: templates.exampleEndpointTemplate(),
-        subjectTemplate: templates.exampleSubjectTemplate(),
-        bodyTemplate: templates.exampleBodyTemplate()
-      }
-      window.setTimeout(() => {
-        this.fetchSampleData()
-      }, 100)
+      this.form.endpointTemplate = templates.exampleEndpointTemplate()
+      this.form.subjectTemplate = templates.exampleSubjectTemplate()
+      this.form.bodyTemplate = templates.exampleBodyTemplate()
+      this.fetchSampleData()
     }
   }
 }
