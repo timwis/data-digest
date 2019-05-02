@@ -5,6 +5,7 @@ import { getField, updateField } from 'vuex-map-fields'
 import createPersistedState from 'vuex-persistedstate'
 import snakeCaseKeys from 'snakecase-keys'
 import camelCaseKeys from 'camelcase-keys'
+import omit from 'lodash/omit'
 
 Vue.use(Vuex)
 const api = axios.create({
@@ -79,6 +80,12 @@ export default new Vuex.Store({
       const response = await api.get(`/api/digests/${id}`)
       const digest = camelCaseKeys(response.data.data)
       commit('SET_DIGEST', digest)
+    },
+    async updateDigest ({ commit, state }, id) {
+      const digest = snakeCaseKeys(omit(state.digest, ['id']))
+      const response = await api.put(`/api/digests/${id}`, { digest })
+      const newDigest = camelCaseKeys(response.data.data)
+      commit('SET_DIGEST', newDigest)
     }
   }
 })

@@ -5,7 +5,14 @@
 
       <b-tabs v-model="activeTab">
         <b-tab-item label="Template">
-          <DigestTemplate v-model="digest" />
+          <DigestTemplate
+            v-model="digest"
+            @submit="onSubmit" />
+        </b-tab-item>
+        <b-tab-item label="Settings">
+          <DigestSettings
+            v-model="digest"
+            @submit="onSubmit" />
         </b-tab-item>
       </b-tabs>
     </div>
@@ -49,12 +56,31 @@ export default {
   },
   methods: {
     ...mapActions([
-      'showDigest'
+      'showDigest',
+      'updateDigest'
     ]),
     async fetch () {
       try {
         this.isLoading = true
         await this.showDigest(this.id)
+      } catch (err) {
+        this.$toast.open({
+          message: err.message,
+          type: 'is-danger'
+        })
+        console.error(err)
+      } finally {
+        this.isLoading = false
+      }
+    },
+    async onSubmit () {
+      try {
+        this.isLoading = true
+        await this.updateDigest(this.id)
+        this.$toast.open({
+          message: 'Digest updated',
+          type: 'is-success'
+        })
       } catch (err) {
         this.$toast.open({
           message: err.message,
