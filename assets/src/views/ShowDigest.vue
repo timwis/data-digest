@@ -11,7 +11,7 @@
             :class="{'is-active': activeTab === tab.key}")
             RouterLink(:to='`/digests/${id}/${tab.key}`')
               | {{ tab.label }}
-          
+
       div(v-if="activeTab === 'template'")
         DigestTemplate(
           v-if='digest.id'
@@ -27,6 +27,14 @@
 
         button#delete-btn.button.is-danger.is-medium(@click='onClickDelete')
           | Delete Digest
+
+      div(v-else-if="activeTab === 'subscribers'")
+        DigestSubscriberList(
+          v-if="digestSubscriberList"
+          :subscriber-list="digestSubscriberList"
+          @create='onClickCreateSubscriber'
+          @delete='onClickDeleteMultipleSubscribers'
+        )
 </template>
 
 <script>
@@ -34,11 +42,13 @@ import { mapState, mapActions } from 'vuex'
 
 import DigestTemplate from '@/components/DigestTemplate'
 import DigestSettings from '@/components/DigestSettings'
+import DigestSubscriberList from '@/components/DigestSubscriberList'
 
 export default {
   components: {
     DigestTemplate,
-    DigestSettings
+    DigestSettings,
+    DigestSubscriberList
   },
   props: {
     id: {
@@ -52,7 +62,8 @@ export default {
   },
   tabs: [
     { key: 'template', label: 'Template' },
-    { key: 'settings', label: 'Settings' }
+    { key: 'settings', label: 'Settings' },
+    { key: 'subscribers', label: 'Subscribers' }
   ],
   data () {
     return {
@@ -61,7 +72,8 @@ export default {
   },
   computed: {
     ...mapState({
-      digest: (state) => state.digest
+      digest: (state) => state.digest,
+      digestSubscriberList: (state) => state.digestSubscriberList
     })
   },
   watch: {
@@ -74,12 +86,18 @@ export default {
     ...mapActions([
       'showDigest',
       'patchDigest',
-      'deleteDigest'
+      'deleteDigest',
+      'listDigestSubscribers',
+      'createDigestSubscriber',
+      'deleteMultipleDigestSubscribers'
     ]),
     async fetch () {
       try {
         this.isLoading = true
-        await this.showDigest(this.id)
+        await Promise.all([
+          this.showDigest(this.id),
+          this.listDigestSubscribers(this.id)
+        ])
       } catch (err) {
         this.$toast.open({
           message: err.message,
@@ -134,6 +152,43 @@ export default {
           }
         }
       })
+    },
+    async onClickCreateSubscriber (formData) {
+      try {
+        this.isLoading = true
+        await this.createDigestSubscriber({ digestId: this.id, subscriber: formData })
+        this.$toast.open({
+          message: 'Subscriber created',
+          type: 'is-success'
+        })
+      } catch (err) {
+        this.$toast.open({
+          message: err.message,
+          type: 'is-danger'
+        })
+        console.error(err)
+      } finally {
+        this.isLoading = false
+      }
+    },
+    async onClickDeleteMultipleSubscribers (subscriberIdList) {
+      try {
+        this.isLoading = true
+        await this.deleteMultipleDigestSubscribers({ digestId: this.id, subscriberIdList })
+        const subject = (subscriberIdList.length > 1) ? 'Subscribers' : 'Subscriber'
+        this.$toast.open({
+          message: `${subject} deleted`,
+          type: 'is-success'
+        })
+      } catch (err) {
+        this.$toast.open({
+          message: err.message,
+          type: 'is-error'
+        })
+        console.error(err)
+      } finally {
+        this.isLoading = false
+      }
     }
   }
 }

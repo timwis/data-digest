@@ -28,6 +28,7 @@ export default new Vuex.Store({
       bodyTemplate: null,
       endpointTemplate: null
     },
+    digestSubscriberList: [],
     draftDigest: null
   },
   mutations: {
@@ -53,6 +54,15 @@ export default new Vuex.Store({
     },
     SET_DIGEST_LIST (state, digestList) {
       state.digestList = digestList
+    },
+    SET_DIGEST_SUBSCRIBER_LIST (state, digestSubscriberList) {
+      state.digestSubscriberList = digestSubscriberList
+    },
+    APPEND_DIGEST_SUBSCRIBER (state, digestSubscriber) {
+      state.digestSubscriberList.push(digestSubscriber)
+    },
+    REMOVE_MULTIPLE_DIGEST_SUBSCRIBERS (state, subscriberIdList) {
+      state.digestSubscriberList = state.digestSubscriberList.filter((subscriber) => !subscriberIdList.includes(subscriber.id))
     }
   },
   actions: {
@@ -98,6 +108,22 @@ export default new Vuex.Store({
     async deleteDigest ({ commit }, id) {
       await api.delete(`/api/digests/${id}`)
       commit('RESET_DIGEST')
+    },
+    async listDigestSubscribers ({ commit }, digestId) {
+      const response = await api.get(`/api/digests/${digestId}/subscribers`)
+      const digestSubscriberList = camelCaseKeys(response.data.data)
+      commit('SET_DIGEST_SUBSCRIBER_LIST', digestSubscriberList)
+    },
+    async createDigestSubscriber ({ commit }, { digestId, subscriber }) {
+      const response = await api.post(`/api/digests/${digestId}/subscribers`, { subscriber })
+      const newDigestSubscriber = camelCaseKeys(response.data.data)
+      commit('APPEND_DIGEST_SUBSCRIBER', newDigestSubscriber)
+    },
+    async deleteMultipleDigestSubscribers ({ commit }, { digestId, subscriberIdList }) {
+      await Promise.all(subscriberIdList.map((subscriberId) => {
+        return api.delete(`/api/digests/${digestId}/subscribers/${subscriberId}`)
+      }))
+      commit('REMOVE_MULTIPLE_DIGEST_SUBSCRIBERS', subscriberIdList)
     }
   }
 })

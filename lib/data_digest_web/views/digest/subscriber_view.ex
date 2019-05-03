@@ -13,6 +13,7 @@ defmodule DataDigestWeb.Digest.SubscriberView do
   def render("subscriber.json", %{subscriber: subscriber}) do
     %{id: subscriber.id,
       email: subscriber.email,
-      params: subscriber.params}
+      params: subscriber.params,
+      inserted_at: subscriber.inserted_at}
   end
 end

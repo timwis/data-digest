@@ -69,21 +69,21 @@ import RenderedTemplate from '@/components/RenderedTemplate'
 import * as templates from '@/helpers/templates'
 
 export default {
-components: {
-  RenderedTemplate
-},
-props: {
-  digest: {
-    type: Object,
-    required: true
+  components: {
+    RenderedTemplate
   },
-  submitLabel: {
-    type: String,
-    default: 'Save'
-  }
-},
-data () {
-  return {
+  props: {
+    digest: {
+      type: Object,
+      required: true
+    },
+    submitLabel: {
+      type: String,
+      default: 'Save'
+    }
+  },
+  data () {
+    return {
       isLoading: false,
       sampleData: null,
       form: pick(this.digest, [
