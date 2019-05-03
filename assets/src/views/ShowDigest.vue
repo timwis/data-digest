@@ -2,22 +2,31 @@
   section.section
     .container
       b-loading(:active='isLoading')
-      b-tabs(v-model='activeTab')
-        b-tab-item(label='Template')
-          DigestTemplate(
-            v-if='digest.id'
-            :digest='digest'
-            @submit='onSubmit'
-          )
-        b-tab-item(label='Settings')
-          DigestSettings(
-            v-if='digest.id'
-            :digest='digest'
-            @submit='onSubmit'
-          )
 
-          button#delete-btn.button.is-danger.is-medium(@click='onClickDelete')
-            | Delete Digest
+      .tabs
+        ul
+          li(
+            v-for='tab in $options.tabs'
+            :key='tab.key'
+            :class="{'is-active': activeTab === tab.key}")
+            RouterLink(:to='`/digests/${id}/${tab.key}`')
+              | {{ tab.label }}
+          
+      div(v-if="activeTab === 'template'")
+        DigestTemplate(
+          v-if='digest.id'
+          :digest='digest'
+          @submit='onSubmit'
+        )
+      div(v-else-if="activeTab === 'settings'")
+        DigestSettings(
+          v-if='digest.id'
+          :digest='digest'
+          @submit='onSubmit'
+        )
+
+        button#delete-btn.button.is-danger.is-medium(@click='onClickDelete')
+          | Delete Digest
 </template>
 
 <script>
@@ -35,12 +44,19 @@ export default {
     id: {
       type: String,
       required: true
+    },
+    activeTab: {
+      type: String,
+      default: 'settings'
     }
   },
+  tabs: [
+    { key: 'template', label: 'Template' },
+    { key: 'settings', label: 'Settings' }
+  ],
   data () {
     return {
-      isLoading: false,
-      activeTab: 0
+      isLoading: false
     }
   },
   computed: {

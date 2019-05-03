@@ -24,7 +24,7 @@ export default new Router({
       props: true
     },
     {
-      path: '/digests/:id',
+      path: '/digests/:id/:activeTab?',
       name: 'showDigest',
       component: ShowDigest,
       props: true
