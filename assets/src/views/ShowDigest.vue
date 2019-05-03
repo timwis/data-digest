@@ -1,24 +1,20 @@
-<template>
-  <section class="section">
-    <div class="container">
-      <b-loading :active="isLoading" />
-
-      <b-tabs v-model="activeTab">
-        <b-tab-item label="Template">
-          <DigestTemplate
-            v-if="digest.id"
-            :digest="digest"
-            @submit="onSubmit" />
-        </b-tab-item>
-        <b-tab-item label="Settings">
-          <DigestSettings
-            v-if="digest.id"
-            :digest="digest"
-            @submit="onSubmit" />
-        </b-tab-item>
-      </b-tabs>
-    </div>
-  </section>
+<template lang="pug">
+  section.section
+    .container
+      b-loading(:active='isLoading')
+      b-tabs(v-model='activeTab')
+        b-tab-item(label='Template')
+          DigestTemplate(
+            v-if='digest.id'
+            :digest='digest'
+            @submit='onSubmit'
+          )
+        b-tab-item(label='Settings')
+          DigestSettings(
+            v-if='digest.id'
+            :digest='digest'
+            @submit='onSubmit'
+          )
 </template>
 
 <script>

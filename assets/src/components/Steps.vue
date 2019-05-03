@@ -1,34 +1,25 @@
-<template>
-  <div class="steps">
-    <div
-      v-for="(step, index) in $options.steps"
-      :key="step.key"
-      class="step-item"
-      :class="{
-        'is-active': current == step.key,
-        'is-completed': currentIndex > index
-      }">
-      <div class="step-marker">
-        <FontAwesomeIcon
-          v-if="currentIndex > index"
-          icon="check" />
-      </div>
-      <div class="step-details">
-        <p class="step-title">
-          <a
-            v-if="currentIndex > index"
-            @click.prevent="$emit('change', step.key)">
-            {{ step.title }}
-          </a>
-          <span v-else>
-            {{ step.title }}
-          </span>
-        </p>
-        <p>{{ step.description }}</p>
-      </div>
-    </div>
-  </div>
-</template>
+<template lang="pug">
+  .steps
+    .step-item(
+      v-for='(step, index) in $options.steps'
+      :key='step.key'
+      :class="{\
+        'is-active': current == step.key,\
+        'is-completed': currentIndex > index\
+      }"
+    )
+      .step-marker
+        FontAwesomeIcon(v-if='currentIndex > index' icon='check')
+      .step-details
+        p.step-title
+          a(
+            v-if='currentIndex > index'
+            @click.prevent="$emit('change', step.key)"
+          ) {{ step.title }}
+          span(v-else='')
+            | {{ step.title }}
+        p {{ step.description }}
+  </template>
 
 <script>
 export default {

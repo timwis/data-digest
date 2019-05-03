@@ -1,44 +1,32 @@
-<template>
-  <div>
-    <form @submit.prevent="$emit('submit', form)">
-      <b-field
-        label="Digest name"
-        label-for="name">
-        <b-input
-          id="name"
-          v-model="form.name"
-          placeholder="Daily updates"
-          required />
-      </b-field>
-      <b-field
-        label="Frequency"
-        label-for="frequency">
-        <div class="control">
-          <label class="radio">
-            <input
-              name="frequency"
-              type="radio"
-              value="daily"
-              checked>
-            Daily
-          </label>
-          <label class="radio">
-            <input
-              name="frequency"
-              type="radio"
-              value="other"
-              disabled>
-            Other (coming soon)
-          </label>
-        </div>
-      </b-field>
-      <button
-        type="submit"
-        class="button is-large is-info">
-        {{ submitLabel }}
-      </button>
-    </form>
-  </div>
+<template lang="pug">
+  div
+    form(@submit.prevent="$emit('submit', form)")
+      b-field(label='Digest name' label-for='name')
+        b-input#name(
+          v-model='form.name'
+          placeholder='Daily updates'
+          required=''
+        )
+      b-field(label='Frequency' label-for='frequency')
+        .control
+          label.radio
+            input(
+              name='frequency'
+              type='radio'
+              value='daily'
+              checked
+            )
+            |  Daily
+          label.radio
+            input(
+              name='frequency'
+              type='radio'
+              value='other'
+              disabled=''
+            )
+            |  Other (coming soon)
+      button.button.is-large.is-info(type='submit')
+        | {{ submitLabel }}
 </template>
 
 <script>

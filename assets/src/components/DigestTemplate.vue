@@ -1,111 +1,64 @@
-<template>
-  <div>
-    <form
-      id="sample-url-container"
-      @submit.prevent="fetchSampleData">
-      <div class="field">
-        <label
-          for="sample-url"
-          class="label">
-          Data URL
-        </label>
-        <div class="field has-addons">
-          <div class="control is-expanded">
-            <input
-              id="endpoint-template"
-              v-model="form.endpointTemplate"
-              type="url"
-              class="input"
-              placeholder="https://..."
-              required>
-          </div>
-          <div class="control">
-            <button
-              type="submit"
-              class="button is-info">
-              Configure
-            </button>
-          </div>
-        </div>
-        <p class="help">
-          The URL should return JSON data that you'll use
-          in your email template.
-          <a @click.prevent="useExampleUrl">
-            Try an example
-          </a>
-        </p>
-      </div>
-    </form>
+<template lang="pug">
+  div
+    form#sample-url-container(@submit.prevent='fetchSampleData')
+      .field
+        label.label(for='sample-url')
+          | Data URL
+        .field.has-addons
+          .control.is-expanded
+            input#endpoint-template.input(
+              v-model='form.endpointTemplate'
+              type='url'
+              placeholder='https://...'
+              required=''
+            )
+          .control
+            button.button.is-info(type='submit')
+              | Configure
+        p.help
+          | The URL should return JSON data that you&apos;ll use
+          | in your email template.
+          a(@click.prevent='useExampleUrl')
+            |  Try an example
 
-    <b-loading
-      :active="isLoading"
-      :is-full-page="false" />
+    b-loading(:active='isLoading' :is-full-page='false')
 
-    <form
-      v-if="!isLoading && sampleData"
-      @submit.prevent="$emit('submit', form)">
-      <div class="columns">
-        <div
-          id="sample-data-container"
-          class="column">
-          <label class="label">
-            Data URL response
-          </label>
-          <pre
-            id="sample-data"
-            v-text="sampleData" />
-        </div>
-        <div
-          id="template-container"
-          class="column">
-          <div class="field">
-            <label
-              for="subject-template"
-              class="label">
-              Email subject
-            </label>
-            <div class="control">
-              <codemirror
-                id="subject-template"
-                v-model="form.subjectTemplate"
-                :options="$options.codemirrorOpts" />
-            </div>
-          </div>
-          <div class="field">
-            <label
-              for="body-template"
-              class="label">
-              Email body
-            </label>
-            <div class="control">
-              <codemirror
-                id="body-template"
-                v-model="form.bodyTemplate"
-                :options="$options.codemirrorOpts" />
-            </div>
-          </div>
-        </div>
-      </div>
-      <div>
-        <h4 class="title is-4">
-          Preview
-        </h4>
-        <RenderedTemplate
-          id="subject-preview"
-          :data="sampleData"
-          :template="form.subjectTemplate" />
-        <RenderedTemplate
-          id="body-preview"
-          :data="sampleData"
-          :template="form.bodyTemplate" />
-      </div>
-      <button
-        type="submit"
-        class="button is-large is-info">
-        {{ submitLabel }}
-      </button>
-    </form>
-  </div>
+    form(v-if='!isLoading && sampleData' @submit.prevent="$emit('submit', form)")
+      .columns
+        #sample-data-container.column
+          label.label
+            | Data URL response
+          pre#sample-data(v-text='sampleData')
+        #template-container.column
+          .field
+            label.label(for='subject-template')
+              | Email subject
+            .control
+              codemirror#subject-template(
+                v-model='form.subjectTemplate'
+                :options='$options.codemirrorOpts'
+              )
+          .field
+            label.label(for='body-template')
+              | Email body
+            .control
+              codemirror#body-template(
+                v-model='form.bodyTemplate'
+                :options='$options.codemirrorOpts'
+              )
+      div
+        h4.title.is-4
+          | Preview
+        RenderedTemplate#subject-preview(
+          :data='sampleData'
+          :template='form.subjectTemplate'
+        )
+        RenderedTemplate#body-preview(
+          :data='sampleData'
+          :template='form.bodyTemplate'
+        )
+      button.button.is-large.is-info(type='submit')
+        | {{ submitLabel }}
 </template>
 
 <script>
@@ -116,21 +69,21 @@ import RenderedTemplate from '@/components/RenderedTemplate'
 import * as templates from '@/helpers/templates'
 
 export default {
-  components: {
-    RenderedTemplate
+components: {
+  RenderedTemplate
+},
+props: {
+  digest: {
+    type: Object,
+    required: true
   },
-  props: {
-    digest: {
-      type: Object,
-      required: true
-    },
-    submitLabel: {
-      type: String,
-      default: 'Save'
-    }
-  },
-  data () {
-    return {
+  submitLabel: {
+    type: String,
+    default: 'Save'
+  }
+},
+data () {
+  return {
       isLoading: false,
       sampleData: null,
       form: pick(this.digest, [

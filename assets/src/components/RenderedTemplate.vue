@@ -1,7 +1,5 @@
-<template>
-  <div
-    class="content"
-    v-html="html" /> <!-- eslint-disable-line vue/no-v-html -->
+<template lang="pug">
+  .content(v-html='html')
 </template>
 
 <script>

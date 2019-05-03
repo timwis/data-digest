@@ -1,36 +1,22 @@
-<template>
-  <section class="section">
-    <div class="container">
-      <div class="padded">
-        <router-link
-          to="/digests/create"
-          class="button">
-          Add Digest
-        </router-link>
-      </div>
-      <div class="columns is-multiline">
-        <div
-          v-for="digest in digestList"
-          :key="digest.id"
-          class="column is-4">
-          <div class="card">
-            <div class="card-content">
-              <h1 class="title is-4">
-                {{ digest.name }}
-              </h1>
-            </div>
-            <footer class="card-footer">
-              <RouterLink
-                :to="`/digests/${digest.id}`"
-                class="card-footer-item">
-                View Digest
-              </RouterLink>
-            </footer>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+<template lang="pug">
+  section.section
+    .container
+      .padded
+        router-link.button(to='/digests/create')
+          | Add Digest
+      .columns.is-multiline
+        .column.is-4(
+          v-for='digest in digestList'
+          :key='digest.id'
+        )
+          .card
+            .card-content
+              h1.title.is-4
+                | {{ digest.name }}
+            footer.card-footer
+              RouterLink.card-footer-item(
+                :to='`/digests/${digest.id}`'
+              ) View Digest
 </template>
 
 <script>

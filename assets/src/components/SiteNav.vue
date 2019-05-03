@@ -1,81 +1,42 @@
-<template>
-  <nav
-    class="navbar"
-    role="navigation"
-    aria-label="main navigation">
-    <div class="navbar-brand">
-      <router-link
-        to="/"
-        class="navbar-item">
-        Data Digest
-      </router-link>
-
-      <a
-        role="button"
-        class="navbar-burger burger"
+<template lang="pug">
+  nav.navbar(role='navigation' aria-label='main navigation')
+    .navbar-brand
+      RouterLink.navbar-item(to='/')
+        | Data Digest
+      a.navbar-burger.burger(
+        role='button'
         :class="{'is-active': isExpanded}"
-        aria-label="menu"
-        aria-expanded="false"
-        @click="isExpanded = !isExpanded">
-        <span aria-hidden="true" />
-        <span aria-hidden="true" />
-        <span aria-hidden="true" />
-      </a>
-    </div>
+        aria-label='menu'
+        aria-expanded='false'
+        @click='isExpanded = !isExpanded'
+      )
+        span(aria-hidden='true')
+        span(aria-hidden='true')
+        span(aria-hidden='true')
 
-    <div
-      class="navbar-menu"
-      :class="{'is-active': isExpanded}">
-      <div class="navbar-start">
-        <router-link
-          to="/"
-          class="navbar-item">
-          Home
-        </router-link>
+    .navbar-menu(:class="{'is-active': isExpanded}")
+      .navbar-start
+        RouterLink.navbar-item(
+          to='/'
+        ) Home
+        RouterLink.navbar-item(
+          v-if='isLoggedIn'
+          to='/digests'
+        ) Digests
 
-        <router-link
-          v-if="isLoggedIn"
-          to="/digests"
-          class="navbar-item">
-          Digests
-        </router-link>
-      </div>
-
-      <div class="navbar-end">
-        <div
-          v-if="isLoggedIn"
-          class="navbar-item has-dropdown is-hoverable">
-          <a class="navbar-link">
-            {{ currentUser.email }}
-          </a>
-          <div class="navbar-dropdown">
-            <a
-              class="navbar-item"
-              @click.prevent="logoutAndRedirectHome">
-              Logout
-            </a>
-          </div>
-        </div>
-
-        <div
-          v-else
-          class="navbar-item">
-          <div class="buttons">
-            <router-link
-              to="/login"
-              class="button is-primary">
-              <strong>Sign up</strong>
-            </router-link>
-            <router-link
-              to="/login"
-              class="button is-light">
-              Log in
-            </router-link>
-          </div>
-        </div>
-      </div>
-    </div>
-  </nav>
+      .navbar-end
+        .navbar-item.has-dropdown.is-hoverable(v-if='isLoggedIn')
+          a.navbar-link
+            | {{ currentUser.email }}
+          .navbar-dropdown
+            a.navbar-item(@click.prevent='logoutAndRedirectHome')
+              | Logout
+        .navbar-item(v-else='')
+          .buttons
+            RouterLink.button.is-primary(to='/login')
+              strong Sign up
+            RouterLink.button.is-light(to='/login')
+              | Log in
 </template>
 
 <script>

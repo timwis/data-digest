@@ -1,21 +1,19 @@
-<template>
-  <section class="section">
-    <div class="container">
-      <Steps
-        :current="step"
-        @change="goToStep($event)" />
-      <DigestTemplate
+<template lang="pug">
+  section.section
+    .container
+      Steps(:current='step' @change='goToStep($event)')
+      DigestTemplate(
         v-if="step == 'template'"
-        :digest="digest"
-        submit-label="Next step"
-        @submit="onSubmitTemplate" />
-      <DigestSettings
+        :digest='digest'
+        submit-label='Next step'
+        @submit='onSubmitTemplate'
+      )
+      DigestSettings(
         v-else-if="step == 'settings'"
-        :digest="digest"
-        :submit-label="finalSubmitLabel"
-        @submit="onFinalSubmit" />
-    </div>
-  </section>
+        :digest='digest'
+        :submit-label='finalSubmitLabel'
+        @submit='onFinalSubmit'
+      )
 </template>
 
 <script>
