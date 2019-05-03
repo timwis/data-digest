@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Home from '@/views/Home'
 import CreateDigest from '@/views/CreateDigest'
 import ShowDigest from '@/views/ShowDigest'
+import ListDigests from '@/views/ListDigests'
 
 Vue.use(Router)
 
@@ -27,6 +28,11 @@ export default new Router({
       name: 'showDigest',
       component: ShowDigest,
       props: true
+    },
+    {
+      path: '/digests',
+      name: 'listDigests',
+      component: ListDigests
     },
     {
       path: '/login',

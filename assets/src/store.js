@@ -20,6 +20,7 @@ export default new Vuex.Store({
   })],
   state: {
     currentUser: {},
+    digestList: [],
     digest: {
       id: null,
       name: null,
@@ -44,6 +45,9 @@ export default new Vuex.Store({
     },
     RESET_DRAFT_DIGEST (state, draftDigest) {
       state.draftDigest = null
+    },
+    SET_DIGEST_LIST (state, digestList) {
+      state.digestList = digestList
     }
   },
   actions: {
@@ -80,6 +84,11 @@ export default new Vuex.Store({
       const response = await api.put(`/api/digests/${id}`, { digest })
       const newDigest = camelCaseKeys(response.data.data)
       commit('SET_DIGEST', newDigest)
+    },
+    async listDigests ({ commit }) {
+      const response = await api.get('/api/digests')
+      const digestList = camelCaseKeys(response.data.data)
+      commit('SET_DIGEST_LIST', digestList)
     }
   }
 })
