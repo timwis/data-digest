@@ -34,6 +34,11 @@ export default new Vuex.Store({
     SET_DIGEST (state, digest) {
       state.digest = digest
     },
+    RESET_DIGEST (state) {
+      Object.keys(state.digest).forEach((key) => {
+        state.digest[key] = null
+      })
+    },
     SET_CURRENT_USER (state, currentUser2) {
       state.currentUser = currentUser2
     },
@@ -89,6 +94,10 @@ export default new Vuex.Store({
       const response = await api.get('/api/digests')
       const digestList = camelCaseKeys(response.data.data)
       commit('SET_DIGEST_LIST', digestList)
+    },
+    async deleteDigest ({ commit }, id) {
+      await api.delete(`/api/digests/${id}`)
+      commit('RESET_DIGEST')
     }
   }
 })

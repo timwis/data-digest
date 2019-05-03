@@ -15,6 +15,9 @@
             :digest='digest'
             @submit='onSubmit'
           )
+
+          button#delete-btn.button.is-danger.is-medium(@click='onClickDelete')
+            | Delete Digest
 </template>
 
 <script>
@@ -54,7 +57,8 @@ export default {
   methods: {
     ...mapActions([
       'showDigest',
-      'patchDigest'
+      'patchDigest',
+      'deleteDigest'
     ]),
     async fetch () {
       try {
@@ -87,7 +91,39 @@ export default {
       } finally {
         this.isLoading = false
       }
+    },
+    async onClickDelete () {
+      this.$dialog.confirm({
+        title: 'Delete this Digest',
+        message: `Are you sure you want to delete <b>${this.digest.name}</b>? This action cannot be undone.`,
+        confirmText: 'Delete Digest',
+        type: 'is-danger',
+        onConfirm: async () => {
+          try {
+            this.isLoading = true
+            await this.deleteDigest(this.id)
+            this.$toast.open({
+              message: 'Digest deleted',
+              type: 'is-success'
+            })
+            this.$router.push('/digests')
+          } catch (err) {
+            this.$toast.open({
+              message: err.message,
+              type: 'is-danger'
+            })
+            console.error(err)
+          } finally {
+            this.isLoading = false
+          }
+        }
+      })
     }
   }
 }
 </script>
+
+<style lang="sass" scoped>
+#delete-btn
+  margin-top: 30px
+</style>
