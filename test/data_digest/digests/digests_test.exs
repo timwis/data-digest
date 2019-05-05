@@ -6,9 +6,9 @@ defmodule DataDigest.DigestsTest do
   describe "digests" do
     alias DataDigest.Digests.Digest
 
-    @valid_attrs %{body_template: "some body_template", endpoint_template: "some endpoint_template", name: "some name", params_schema: %{}, slug: "some slug", subject_template: "some subject_template"}
-    @update_attrs %{body_template: "some updated body_template", endpoint_template: "some updated endpoint_template", name: "some updated name", params_schema: %{}, slug: "some updated slug", subject_template: "some updated subject_template"}
-    @invalid_attrs %{body_template: nil, endpoint_template: nil, name: nil, params_schema: nil, slug: nil, subject_template: nil}
+    @valid_attrs %{body_template: "some body_template", endpoint_template: "some endpoint_template", name: "some name", params_schema: %{}, subject_template: "some subject_template"}
+    @update_attrs %{body_template: "some updated body_template", endpoint_template: "some updated endpoint_template", name: "some updated name", params_schema: %{}, subject_template: "some updated subject_template"}
+    @invalid_attrs %{body_template: nil, endpoint_template: nil, name: nil, params_schema: nil, subject_template: nil}
 
     test "list_digests/0 returns all digests" do
       user = user_fixture()
@@ -29,7 +29,6 @@ defmodule DataDigest.DigestsTest do
       assert digest.endpoint_template == "some endpoint_template"
       assert digest.name == "some name"
       assert digest.params_schema == %{}
-      assert digest.slug == "some slug"
       assert digest.subject_template == "some subject_template"
     end
 
@@ -46,7 +45,6 @@ defmodule DataDigest.DigestsTest do
       assert digest.endpoint_template == "some updated endpoint_template"
       assert digest.name == "some updated name"
       assert digest.params_schema == %{}
-      assert digest.slug == "some updated slug"
       assert digest.subject_template == "some updated subject_template"
     end
 

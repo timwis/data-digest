@@ -9,7 +9,6 @@ defmodule DataDigestWeb.DigestControllerTest do
     endpoint_template: "some endpoint_template",
     name: "some name",
     params_schema: %{},
-    slug: "some slug",
     subject_template: "some subject_template"
   }
   @update_attrs %{
@@ -17,10 +16,9 @@ defmodule DataDigestWeb.DigestControllerTest do
     endpoint_template: "some updated endpoint_template",
     name: "some updated name",
     params_schema: %{},
-    slug: "some updated slug",
     subject_template: "some updated subject_template"
   }
-  @invalid_attrs %{body_template: nil, endpoint_template: nil, name: nil, params_schema: nil, slug: nil, subject_template: nil}
+  @invalid_attrs %{body_template: nil, endpoint_template: nil, name: nil, params_schema: nil, subject_template: nil}
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
@@ -78,12 +76,12 @@ defmodule DataDigestWeb.DigestControllerTest do
     setup [:create_user, :authenticate]
 
     test "lists all user's digests", %{conn: conn, user: user} do
-      user_digest = digest_fixture(user, slug: "my_digest")
-      _other_user_digest = digest_fixture(user_fixture(email: "b@b.b"), slug: "anothers_digest")
+      user_digest = digest_fixture(user, name: "my digest")
+      _other_user_digest = digest_fixture(user_fixture(email: "b@b.b"), name: "anothers digest")
       conn = get(conn, Routes.digest_path(conn, :index))
       data = json_response(conn, 200)["data"]
       assert length(data) == 1
-      assert hd(data)["slug"] == user_digest.slug
+      assert hd(data)["name"] == user_digest.name
     end
   end
 
@@ -91,9 +89,9 @@ defmodule DataDigestWeb.DigestControllerTest do
     setup [:create_user, :authenticate]
 
     test "shows a user's digest", %{conn: conn, user: user} do
-      digest = digest_fixture(user, slug: "my_digest")
+      digest = digest_fixture(user, name: "my digest")
       conn = get(conn, Routes.digest_path(conn, :show, digest.id))
-      assert json_response(conn, 200)["data"]["slug"] == digest.slug
+      assert json_response(conn, 200)["data"]["name"] == digest.name
     end
   end
 
@@ -112,7 +110,6 @@ defmodule DataDigestWeb.DigestControllerTest do
                "endpoint_template" => "some endpoint_template",
                "name" => "some name",
                "params_schema" => %{},
-               "slug" => "some slug",
                "subject_template" => "some subject_template"
              } = json_response(get_conn, 200)["data"]
     end
@@ -142,7 +139,6 @@ defmodule DataDigestWeb.DigestControllerTest do
                "endpoint_template" => "some updated endpoint_template",
                "name" => "some updated name",
                "params_schema" => %{},
-               "slug" => "some updated slug",
                "subject_template" => "some updated subject_template"
              } = json_response(get_conn, 200)["data"]
     end
