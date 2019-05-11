@@ -11,13 +11,10 @@ config :logger, level: :warn
 
 # Configure your database
 config :data_digest, DataDigest.Repo,
-  username: "postgres",
-  password: "postgres",
-  database: "data_digest_test",
-  hostname: "localhost",
+  url: System.get_env("TEST_DATABASE_URL") || "postgres://postgres:postgres@localhost:5432/data_digest_test",
   pool: Ecto.Adapters.SQL.Sandbox
 
 # Configure amqp
 config :data_digest, DataDigestQueue.Broker,
   adapter: ConduitAMQP,
-  url: "amqp://guest:guest@localhost:5672"
+  url: System.get_env("RABBITMQ_URL") || "amqp://guest:guest@localhost:5672"

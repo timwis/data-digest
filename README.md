@@ -7,10 +7,9 @@ Data Digest is meant to be a service for developers who want to let their users 
 
 To start your Phoenix server:
 
-  * Install dependencies with `mix deps.get`
-  * Create and migrate your database with `mix ecto.setup`
-  * Install Node.js dependencies with `cd assets && npm install`
-  * Start Phoenix endpoint with `mix phx.server`
-  * In another terminal, start the frontend server with `cd assets && npm run serve`
+* Setup the database with `docker-compose run --rm server mix do ecto.create, ecto.migrate`
+* Bring your server up with `docker-compose up`
 
 Now you can visit [`localhost:8080`](http://localhost:8080) from your browser.
+
+Run tests with `docker-compose run --rm -e MIX_ENV=test server mix test`

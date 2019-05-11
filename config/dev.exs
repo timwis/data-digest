@@ -60,16 +60,13 @@ config :phoenix, :plug_init_mode, :runtime
 
 # Configure your database
 config :data_digest, DataDigest.Repo,
-  username: "postgres",
-  password: "postgres",
-  database: "data_digest_dev",
-  hostname: "localhost",
+  url: System.get_env("DATABASE_URL") || "postgres://postgres:postgres@localhost:5432/data_digest_dev",
   pool_size: 10
 
 # Configure amqp
 config :data_digest, DataDigestQueue.Broker,
   adapter: ConduitAMQP,
-  url: "amqp://guest:guest@localhost:5672"
+  url: System.get_env("RABBITMQ_URL") || "amqp://guest:guest@localhost:5672"
 
 # Configure mail sender
 config :data_digest, DataDigest.Mailer,

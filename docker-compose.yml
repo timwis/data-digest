@@ -1,0 +1,54 @@
+version: "3.7"
+services:
+
+  server:
+    build: .
+    ports:
+      - "4000:4000"
+    volumes:
+      - server-build:/opt/app/_build
+      - ./assets:/opt/app/assets
+      - ./config:/opt/app/config
+      - ./lib:/opt/app/lib
+      # - ./priv:/opt/app/priv
+      - ./test:/opt/app/test
+    depends_on:
+      - db
+      - queue
+    environment:
+      MIX_ENV: dev
+      RABBITMQ_URL: amqp://guest:guest@queue:5672
+      DATABASE_URL: postgres://postgres:pwd@db:5432/data_digest_dev
+      TEST_DATABASE_URL: postgres://postgres:pwd@db:5432/data_digest_test
+      AUTH0_DOMAIN: $AUTH0_DOMAIN
+      AUTH0_CLIENT_ID: $AUTH0_CLIENT_ID
+      AUTH0_CLIENT_SECRET: $AUTH0_CLIENT_SECRET
+
+  frontend:
+    image: node:9-alpine
+    ports:
+      - "8080:8080"
+    user: node
+    working_dir: /home/node/app
+    command: npm run serve
+    volumes:
+      - ./assets:/home/node/app
+    environment:
+      PROXY_URL: http://server:4000
+      VUE_APP_PROXY_URL: http://server:4000
+
+  db:
+    image: postgres:9.4
+    ports:
+      - "5433:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  queue:
+    image: rabbitmq:3-management
+    ports:
+      - "15672:15672"
+
+volumes:
+  db-data:
+  server-build:
