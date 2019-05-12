@@ -49,16 +49,23 @@ defmodule DataDigest.DigestJobs do
 
   def fetch_data(url) do
     case HTTPoison.get(url) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        Poison.decode!(body)
-      {:ok, %HTTPoison.Response{status_code: 404}} ->
-        IO.puts "URL not found"
+      {:ok, %HTTPoison.Response{status_code: status_code, body: body}}
+        when status_code in 200..299 ->
+          {:ok, Poison.decode!(body)}
+
+      {:ok, %HTTPoison.Response{status_code: status_code}}
+        when status_code in 400..599 ->
+          {:error, status_code}
+
       {:error, %HTTPoison.Error{reason: reason}} ->
-        IO.inspect reason
+        {:error, reason}
+
+      _ ->
+        {:error, "Unknown error"}
     end
   end
 
-  def render_email(data, %DigestJob{params: params, subject_template: subject_template, body_template: body_template, emails: emails}) do
+  def render_email(%DigestJob{params: params, subject_template: subject_template, body_template: body_template}, email, data) do
     payload = %{"data" => data, "params" => params}
 
     {:ok, subject, _} = Liquid.Template.parse(subject_template)
@@ -67,6 +74,6 @@ defmodule DataDigest.DigestJobs do
     {:ok, body, _} = Liquid.Template.parse(body_template)
       |> Liquid.Template.render(payload)
 
-    %{subject: subject, body: body, to: emails}
+    %{subject: subject, body: body, to: email}
   end
 end

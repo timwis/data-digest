@@ -3,22 +3,29 @@ defmodule DataDigestQueue.JobsSubscriber do
   alias DataDigest.DigestJobs
   alias DataDigest.Mailer
   alias DataDigest.DigestJobs.DigestJob
+  require Logger
 
   def process(message, _opts) do
-    # Code to process the message
     digest_job = parse_digest_job(message.body)
-    IO.inspect digest_job
+    IO.inspect digest_job # TODO: Use Logger.info
 
-    # DigestJobs.fetch_and_send_digest_job(digest_job)
-    DigestJobs.get_url(digest_job)
-      |> DigestJobs.fetch_data
-      |> DigestJobs.render_email(digest_job)
-      |> Mailer.send_digest_job
+    url = DigestJobs.get_url(digest_job)
+    case DigestJobs.fetch_data(url) do
+      {:ok, data} ->
+        Enum.map(digest_job.emails, fn email ->
+          digest_job
+          |> DigestJobs.render_email(email, data)
+          |> Mailer.send_digest_job()
+        end)
+
+      {:error, reason} ->
+        Logger.error "Error fetching data: #{to_string(reason)}"
+    end
 
     message
   end
 
-  def parse_digest_job(body) do
+  defp parse_digest_job(body) do
     body
       |> Enum.map(fn { key, val } -> { String.to_existing_atom(key), val } end)
       |> Enum.into(%{})
