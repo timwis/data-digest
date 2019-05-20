@@ -8,6 +8,7 @@ defmodule DataDigest.DigestJobs do
 
   alias DataDigest.Digests
   alias DataDigest.DigestJobs.DigestJob
+  alias DataDigest.Guardian
 
   @doc """
   Returns the list of digest jobs.
@@ -23,7 +24,12 @@ defmodule DataDigest.DigestJobs do
             join: d in Digests.Digest,
             on: d.id == s.digest_id,
             select: %DigestJob{
-              emails: fragment("array_agg(?)", s.email),
+              subscribers: fragment("""
+                array_agg(json_build_object(
+                  'id', ?.id,
+                  'email', ?.email
+                ))
+              """, s, s),
               params: s.params,
               endpoint_template: d.endpoint_template,
               subject_template: d.subject_template,
@@ -38,7 +44,17 @@ defmodule DataDigest.DigestJobs do
               d.body_template
             ],
             order_by: [s.digest_id, s.params] # persistent order for tests
+
     Repo.all(query)
+    |> Enum.map(fn row ->
+      %{row | subscribers: Enum.map(row.subscribers, &use_atom_keys/1)}
+    end)
+  end
+
+  defp use_atom_keys(data) do
+    data
+    |> Enum.map(fn { key, val } -> { String.to_existing_atom(key), val } end)
+    |> Enum.into(%{})
   end
 
   def get_url(%DigestJob{endpoint_template: endpoint_template, params: params}) do
@@ -65,7 +81,7 @@ defmodule DataDigest.DigestJobs do
     end
   end
 
-  def render_email(%DigestJob{params: params, subject_template: subject_template, body_template: body_template}, email, data) do
+  def render_email(%DigestJob{params: params, subject_template: subject_template, body_template: body_template}, subscriber, data) do
     payload = %{"data" => data, "params" => params}
 
     {:ok, subject, _} = Liquid.Template.parse(subject_template)
@@ -74,6 +90,14 @@ defmodule DataDigest.DigestJobs do
     {:ok, body, _} = Liquid.Template.parse(body_template)
       |> Liquid.Template.render(payload)
 
-    %{subject: subject, body: body, to: email}
+    token = generate_unsubscribe_token(subscriber)
+    body = body <> token
+
+    %{subject: subject, body: body, to: subscriber.email}
+  end
+
+  defp generate_unsubscribe_token(subscriber) do
+    {:ok, token, _claims} = Guardian.encode_and_sign(subscriber)
+    token
   end
 end

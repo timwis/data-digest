@@ -1,6 +1,6 @@
 defmodule DataDigest.DigestJobs.DigestJob do
   @derive Jason.Encoder # all fields
-  defstruct [:emails,
+  defstruct [:subscribers,
             :params,
             :endpoint_template,
             :subject_template,

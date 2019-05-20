@@ -12,9 +12,9 @@ defmodule DataDigestQueue.JobsSubscriber do
     url = DigestJobs.get_url(digest_job)
     case DigestJobs.fetch_data(url) do
       {:ok, data} ->
-        Enum.map(digest_job.emails, fn email ->
+        Enum.map(digest_job.subscribers, fn subscriber ->
           digest_job
-          |> DigestJobs.render_email(email, data)
+          |> DigestJobs.render_email(subscriber, data)
           |> Mailer.send_digest_job()
         end)
 
@@ -26,9 +26,13 @@ defmodule DataDigestQueue.JobsSubscriber do
   end
 
   defp parse_digest_job(body) do
-    body
-      |> Enum.map(fn { key, val } -> { String.to_existing_atom(key), val } end)
-      |> Enum.into(%{})
-      |> (& struct!(DigestJob, &1)).()
+    body = use_atom_keys(body)
+    struct!(DigestJob, %{body | subscribers: Enum.map(body.subscribers, &use_atom_keys/1)})
+  end
+
+  defp use_atom_keys(data) do
+    data
+    |> Enum.map(fn { key, val } -> { String.to_existing_atom(key), val } end)
+    |> Enum.into(%{})
   end
 end

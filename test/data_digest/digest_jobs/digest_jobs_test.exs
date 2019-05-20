@@ -15,8 +15,8 @@ defmodule DataDigest.DigestJobsTest do
       digest_jobs = DigestJobs.list_digest_jobs()
       assert is_list(digest_jobs)
       [ first | [ second | _ ] ] = digest_jobs
-      assert ["a@a.a", "b@b.b"] == first.emails
-      assert ["c@c.c"] = second.emails
+      assert ["a@a.a", "b@b.b"] == Enum.map(first.subscribers, &(&1.email))
+      assert "c@c.c" == hd(second.subscribers).email
     end
 
     test "get_url/1 renders url using template" do
