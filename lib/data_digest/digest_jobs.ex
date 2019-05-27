@@ -8,7 +8,6 @@ defmodule DataDigest.DigestJobs do
 
   alias DataDigest.Digests
   alias DataDigest.DigestJobs.DigestJob
-  alias DataDigest.Guardian
 
   @doc """
   Returns the list of digest jobs.
@@ -82,7 +81,8 @@ defmodule DataDigest.DigestJobs do
   end
 
   def render_email(%DigestJob{params: params, subject_template: subject_template, body_template: body_template}, subscriber, data) do
-    payload = %{"data" => data, "params" => params}
+    unsubscribe_url = generate_unsubscribe_url(subscriber)
+    payload = %{"data" => data, "params" => params, "unsubscribe_url" => unsubscribe_url}
 
     {:ok, subject, _} = Liquid.Template.parse(subject_template)
       |> Liquid.Template.render(payload)
@@ -90,14 +90,14 @@ defmodule DataDigest.DigestJobs do
     {:ok, body, _} = Liquid.Template.parse(body_template)
       |> Liquid.Template.render(payload)
 
-    token = generate_unsubscribe_token(subscriber)
-    body = body <> token
-
     %{subject: subject, body: body, to: subscriber.email}
   end
 
-  defp generate_unsubscribe_token(subscriber) do
-    {:ok, token, _claims} = Guardian.encode_and_sign(subscriber)
-    token
+  defp generate_unsubscribe_url(%{id: subscriber_id}) do
+    baseurl = DataDigestWeb.Endpoint.struct_url()
+    token = Phoenix.Token.sign(DataDigestWeb.Endpoint, "unsubscribe", subscriber_id)
+
+    %URI{baseurl | path: "/unsubscribe/" <> token}
+    |> URI.to_string()
   end
 end

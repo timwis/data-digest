@@ -29,7 +29,8 @@ export default new Vuex.Store({
       endpointTemplate: null
     },
     digestSubscriberList: [],
-    draftDigest: null
+    draftDigest: null,
+    currentSubscriber: {}
   },
   mutations: {
     SET_DIGEST (state, digest) {
@@ -63,6 +64,12 @@ export default new Vuex.Store({
     },
     REMOVE_MULTIPLE_DIGEST_SUBSCRIBERS (state, subscriberIdList) {
       state.digestSubscriberList = state.digestSubscriberList.filter((subscriber) => !subscriberIdList.includes(subscriber.id))
+    },
+    SET_CURRENT_SUBSCRIBER (state, currentSubscriber) {
+      state.currentSubscriber = currentSubscriber
+    },
+    RESET_CURRENT_SUBSCRIBER (state) {
+      state.currentSubscriber = {}
     }
   },
   actions: {
@@ -124,6 +131,15 @@ export default new Vuex.Store({
         return api.delete(`/api/digests/${digestId}/subscribers/${subscriberId}`)
       }))
       commit('REMOVE_MULTIPLE_DIGEST_SUBSCRIBERS', subscriberIdList)
+    },
+    async getCurrentSubscriber({ commit }, token) {
+      const response = await api.get(`/api/unsubscribe/${token}`)
+      const currentSubscriber = camelCaseKeys(response.data.data)
+      commit('SET_CURRENT_SUBSCRIBER', currentSubscriber)
+    },
+    async unsubscribeCurrentSubscriber({ commit }, token) {
+      await api.delete(`/api/unsubscribe/${token}`)
+      commit('RESET_CURRENT_SUBSCRIBER')
     }
   }
 })

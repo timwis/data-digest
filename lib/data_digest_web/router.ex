@@ -32,6 +32,8 @@ defmodule DataDigestWeb.Router do
     pipe_through :api
 
     get "/schedule", DigestController, :schedule
+    get "/unsubscribe/:token", UnsubscribeController, :show
+    delete "/unsubscribe/:token", UnsubscribeController, :delete
 
     resources "/digests", DigestController do
       resources "/subscribers", Digest.SubscriberController

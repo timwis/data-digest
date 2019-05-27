@@ -27,5 +27,6 @@ export const exampleBodyTemplate = () => stripIndent`
       </li>
     {% endfor %}
     </ul>
+    <a href="{{unsubscribe_url}}">Unsubscribe</a>
   {% endif %}
 `

@@ -4,6 +4,7 @@ import Home from '@/views/Home'
 import CreateDigest from '@/views/CreateDigest'
 import ShowDigest from '@/views/ShowDigest'
 import ListDigests from '@/views/ListDigests'
+import Unsubscribe from '@/views/Unsubscribe'
 
 Vue.use(Router)
 
@@ -33,6 +34,12 @@ export default new Router({
       path: '/digests',
       name: 'listDigests',
       component: ListDigests
+    },
+    {
+      path: '/unsubscribe/:token',
+      name: 'unsubscribe',
+      component: Unsubscribe,
+      props: true
     },
     {
       path: '/login',

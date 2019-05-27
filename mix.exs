@@ -50,8 +50,7 @@ defmodule DataDigest.MixProject do
       {:poison, "~> 3.1"},
       {:bamboo, "~> 1.2"},
       {:ueberauth, "~> 0.6"},
-      {:ueberauth_auth0, "~> 0.3"},
-      {:guardian, "~> 1.0"}
+      {:ueberauth_auth0, "~> 0.3"}
     ]
   end
 
